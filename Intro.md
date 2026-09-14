@@ -48,3 +48,23 @@ The other thing we have been given some commands is/are argument(s). These are a
 
 Let's add some flags to `ls`. If we just run `ls`, it will tell us the contents of our current working directory. If we add  the flag `-l` and run `ls -l`, it will now give us a more lengthy summary of our files, including handy information like the size of our files, which user owns them, and date/time when they were last modified. Let's now add another flag, `-h`: `ls -l -h` or `ls -lh` (for single-letter flags, you can either give each flag their own dash, or smoosh them together behind the same dash, whatever style looks best to you). `-h` stands for "human-readable", and will convert the file sizes from number of bytes to abbreviations (K for Kilobyte, M for Megabyte, etc).   
 
+
+# Looking at files
+
+Now we will look at some important commands for reading and manipulating files:  
+`cat` - read a file (or text input on the command line) and print the contents  
+`head` - print only the first lines of a file  
+`tail` - print only the last lines of a file  
+`less` - look at a file on the command line (without printing anything). Press ctrl+d when done looking. 
+`cut` - print only specific column(s) from a file  
+`sort` - sort input  
+`uniq` - remove repeated lines (if they are adjacent)  
+`wc` - count the number of lines/words/characters  
+`paste` - merge files horizontally (paste columns together line-by-line)  
+
+The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. 
+
+## Piping and building pipelines
+
+Often, we want to do many different manipulations to data, and it is a waste of time and storage space to keep saving intermediate files for every single step. The way to avoid this is through pipelines - passing data directly from one command into the next, such that the output of one command is the input for the next. This is not only more convenient, it is often faster, because your computer doesn't have to waste precious milliseconds writing data to the disk and then reading it again, instead keeping the data in it's memory when passing between commands. When you have multiple cores available (almost always the case), the computer can also work on both tasks at the same time - much faster when you are dealing with huge bioinformatics datasets.  
+To build the pipeline, you use "pipe" symbols (`|`) to separate commands, for example like this: `command_one --settings input_file | command_two --settings | command_three --settings > output_file`. You can string together as many commands as you would like as long as the commands are able to receive input from "standard input" (stdin) and send output through "standard output" (stdout). 
