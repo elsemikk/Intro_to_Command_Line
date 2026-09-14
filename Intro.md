@@ -147,3 +147,42 @@ If you want the stderr to instead be printed alongside stdout in the same file (
 
 We can also use another trick to make error messages go away entirely - we can redirect the standard error to a place called `/dev/null`. This is a special file which acts like a "black hole" in the computer. It is an empty file, and any data that gets sent to it is immediately discarded. Redirecting our error messages to `/dev/null` gets rid of them so they never get printed. This can be handy when you need to loop through 2000 files with commands that produce a lot of stderr messages and you don't want all that text flying at you on the command line.  
 
+
+
+
+
+Problems:
+* count how many different populations there are in column P1.
+* count how many samples of *C. rubrocapilla* there are.
+* change all instances of "InambariW" to "Inambari_West"
+* remove sample Ceratopipra_erythrocephala_CN626 from the dataset
+* select the 20 entries with the lowest value of BBAA
+* select the 20 entries with the highest value of ABBA
+* make a new file containing all entries with sample Ceratopipra_chloromeros_FM433680, but don't include the ABBA, BABA, or BBAA columns, and make sure it is sorted by Z score from highest to lowest. (You can do the pipeline in 2 parts).
+
+`cut -f 1 | tail -n +2 | sort | uniq | wc -l`  
+`cut -f 2 | grep "rubrocapilla" | sort | uniq | wc -l`  
+`sed "s/InambariW/Inambari_West/g"`  
+`grep -v "Ceratopipra_erythrocephala_CN626"`  
+`tail -n +2 | sort -n -k 8 -r | head -n 20` OR `tail -n +2 | sort -n -k 8 | tail -n 20`  
+`tail -n +2 | sort -n -k 9 | head -n 20` 
+`head -n 1 > new_data.txt ; grep "Ceratopipra_chloromeros_FM433680" | cut -f 1-7 | sort -n -k 5 -r >> new_data.txt 
+
+
+Harder problems:  
+(There are fancier ways to do these things much more succinctly, but can you do it using only command/regex/flags from this tutorial?)  
+* split column 2 so that instead of giving the full sample name (eg. Ceratopipra_chloromeros_B106768), it has the species name in one column and the sample number in a different column (eg, Ceratopipra_chloromeros  B106768).  
+* select all the columns where rubrocapilla is in column P1 and mentalis is in column P3  
+* oops, name mixup. Change all instances of rubrocapilla to erythrocephala and all erythrocephala to rubrocapilla.
+* Add a new column to the file. This new column should contain the name of the species for the sample in column 2, but don't alter the contents of column 2. Place this new column in between column "P3" and column "D". You can use up to 3 lines of code for this.  
+
+Here are my solutions:  
+`sed "s/SampleID/SpeciesName\tSampleNumber/g; s/Ceratopipra_/Ceratopipra@/g; s/_/\t/g; s/Ceratopipra@/Ceratopipra_/g" ABBABABA.txt`. 
+`grep "^rubrocapilla\t.*\tmentalis" ABBABABA.txt
+`sed "s/rubrocapilla/PLACEHOLDER/g; s/erythrocephala/rubrocapilla/g; s/PLACEHOLDER/erythrocephala/g" ABBABABA.txt`. 
+`cut -f 2 ABBABABA.txt | sed "s/Ceratopipra_/Ceratopipra@/g; s/_.*$//g; s/@/_/g; s/SampleID/Species_name/g" > temp_SpeciesNames
+cut -f 1-3 ABBABABA.txt | paste - temp_SpeciesNames > temp_FourColumns
+cut -f 4- ABBABABA.txt | paste temp_FourColumns - | less`  
+Note - some of those are a bit clunky and could be done much more elegantly using other tools, a different language, or more advanced syntax - this was just meant to illustrate that you can do quite a bit with only some very basic commands/syntax.  
+
+
