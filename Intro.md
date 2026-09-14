@@ -105,7 +105,40 @@ To build a pipeline, you use "pipe" symbols (`|`) to separate commands, for exam
 * `stdout`: "standard output" - output that is produced by a command. By default this is printed to the terminal, but it can also be directed to be saved to a file (using `>` or `>>`) or piped to another command using `|`.
 * `stderr`: "standard error" - another stream of output that is produced by a command; usually error messages or extra info that is not needed in the main output, like status updates. By default it is printed to the command line, and will not be redirected with `|` or `>` or `>>`. To save it to a file, use `2>` or `2>>`. To make it go to the same place as standard output, use `2>&1`. To make it not be printed, use `2>/dev/null`.
 
-Let's find out how many unique 
+Let's find out how many samples are in our dataset. Scroll back to look at the file `processed_data/ABBABABA_concatenated.txt`. This file contains sample names in column 2. These samples might be repeated multiple times. To find out how many samples we have, we should see how many unique sample IDs occur in column 2. We can do that using the `cut`, `sort`, `uniq`, and `wc` commands. (There are of course fancier ways we could code it in other languages, but let's build a pipeline with just bash basics).  
+
+First, let's isolate column 2. `cut` grabs the columns that we specify, and we can use the `-f` flag to tell it which fields (column numbers) to select. By default, `cut` expects columns to be tab-delimited, otherwise we would need to tell it what delimits out columns using the `-d` flag.  
+Let's check that it works! To avoid printing out the whole long file, let's just grab the first 5 lines and pass those to `cut` as a test. Try these:  
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2`
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2-4 #we can ask for a range of columns`
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2-4,6 #we can also use commas to list columns`
+`head processed_data/ABBABABA_concatenated.txt | cut -f 1 -d "3" #we can ask it to use anything we want as the column delimiter`
+
+So far, `cut -f 2` does what we want, selecting the column containing our sample names. Now, let's remove any duplicates. We can do this using the `uniq` command, which deduplicates any repeated lines to keep only one copy of each. However, `uniq` only compares adjacent lines, so repeated lines have to be right after to each other to be detected. We can ensure this will be the case by using the `sort` command to sort the lines. This will sort lines alphanumerically - if we wanted to, we could change that behaviour (for example `--ignore-case` to treat upper and lower case characters the same, `-n` AKA `--numeric-sort` to sort numerically, or `-r` AKA `--reverse` to reverse the sort). If we hadn't already isolated the column we wanted, we could also specify which field(s) to sort by using `-k` AKA `--key` to specify the column numbers. By default, `sort` uses whitespace as a column delimiter, but we can change that using `-t`.    
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort`  
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort -r #reverse order`  
+`head processed_data/ABBABABA_concatenated.txt | sort -k 2 #sort on column 2`  
+Especially compare how it treats numbers with different settings:  
+`head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort #sort alphanumerically by default`  
+`head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -n #sort numerically`  
+
+Can you decipher what this is doing?  
+`head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -t "." -k 2 -n `  
+Answer: It is sorting by the numbers after the decimals, numerically (It is using the "." as the column delimiter).  
+
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort` is doing what we want. We can then send it to `uniq` to deduplicate the list. Another nice thing `uniq` can do is to count how many times each line was repeated using the `-c` flag.
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq`
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq -c #counts the number of times each sample occured`
+
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq` is doing what we want. Lastly, we just need to count how many samples are in this de-duplicated list. We can do that using `wc -l`. Let's commit this time and run it on the whole file, instead of running `head` first.
+`cut -f 2 processed_data/ABBABABA_concatenated.txt | sort | uniq | wc -l`  
+There we have it, the number of samples in the file.  
+Oh, but wait! You may have noticed earlier that one of the lines in the file was the header, not an actual sample! Our number is therefore one too high. We could just subtract this in our heads, but what if we forget about the header the next time we run this code? Let's get rid of it. There are two easy ways to do this - we could use `tail` to cut it off, or we could use pattern matching to exclude it. We have already learned about `tail`, so try building a pipeline incorporating `tail` to remove the header from our count.
+Solution:
+`tail -n +2 processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq | wc -l`  
+or
+`cut -f 2 processed_data/ABBABABA_concatenated.txt | tail -n +2 | sort | uniq | wc -l`  
+(we can put tail before or after `cut`, but we can't put it after `sort`, since we don't necessarily know ahead of time where it will end up after sorting. 
 
 ## redirecting standard error
 Redirecting stderr is similar to redirecting stdout, but the code is slightly different so that you can redirect stderr and stdout to separate places. By default, stderr gets printed to the command line, and if you redirect the stdout, stderr will continue to get printed to the command line. To redirect stderr, instead of using `>` or `>>`, use `2>` or `2>>`. (the inputs and outputs are assigned "file descriptors": "2" is stderr, while "1" is stdout and "0" is stdin). For example: `command --settings input_file > output.txt 2> errors.log` will send stdout and stderr to separate files. This is handy for saving error messages to a log so that you can refer to them later if needed.  
