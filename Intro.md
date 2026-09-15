@@ -4,11 +4,22 @@
 
 # Anatomy of the Command Line
 
+*Very broad overview and terms*
+Most of the time when using computers, we are using a **graphical user interface** (GUI), something that lets us point our mouse and click on buttons or browse through menus. A more direct way of communicating with the computer is through the **command line**, where you type lines of text containing commands for the computer. To use the command line, you need a program called a **shell** to interpret your commands, and the most popular shell used in bioinformatics (and more widely) is **bash**. Bash is used with Linux and UNIX operating systems, and also comes installed on macs. To use the shell, you need an application referred to as a **terminal**. The terminal is the application you open and interact with, the command line is where you type your commands, and the shell (bash) is the program that interprets your commands and tells your operating system what to do. 
+
+Here, we will go over the basics of working on the command line and writing simple bash code. This requires you to have access to a terminal program with bash. Accessing that varies depending on your operating system.
+
+*Linux* if you are on Linux, you should already have an application called Terminal, which can be opened from your applications, or with `ctrl + alt + t`.
+*Mac* if you are on Mac, you should have an application called Terminal. It is often located in your `Applications/Utilities` subfolder; [this page](https://support.apple.com/en-ca/guide/terminal/apd5265185d-f365-44cb-8b09-71a064a42125/mac) from Apple explains more about how to open it on different MacOs versions if you are having trouble locating it. Note that the default shell that comes with newer macs is not bash, it is zsh - it is extremely similar, so the code in this tutorial will work the same, but if you do more complicated things you may notice a difference.  
+*Windows* Windows doesn't come with bash, so you will need to install it. Two popular options include [git bash](https://gitforwindows.org/) or [Windows Subsystem for Linux (WSL)]. Alternatively, you can `ssh` into a server if you have access to one.  
+
 # Directories and paths
+
+Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is essentially the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The deepest level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**.
 
 # Running commands - basic navigation commands
 
-To run a command, type or paste the command into the command prompt, and then hit enter.
+To run a command, type or paste the command into the command line, and then hit enter.
 
 Here we will go over some of the most-commonly used commands: commands for getting around on the command line.  
 `pwd` - print current working directory  
@@ -148,9 +159,6 @@ If you want the stderr to instead be printed alongside stdout in the same file (
 We can also use another trick to make error messages go away entirely - we can redirect the standard error to a place called `/dev/null`. This is a special file which acts like a "black hole" in the computer. It is an empty file, and any data that gets sent to it is immediately discarded. Redirecting our error messages to `/dev/null` gets rid of them so they never get printed. This can be handy when you need to loop through 2000 files with commands that produce a lot of stderr messages and you don't want all that text flying at you on the command line.  
 
 
-
-
-
 Problems:
 * count how many different populations there are in column P1.
 * count how many samples of *C. rubrocapilla* there are.
@@ -165,15 +173,15 @@ Problems:
 `sed "s/InambariW/Inambari_West/g"`  
 `grep -v "Ceratopipra_erythrocephala_CN626"`  
 `tail -n +2 | sort -n -k 8 -r | head -n 20` OR `tail -n +2 | sort -n -k 8 | tail -n 20`  
-`tail -n +2 | sort -n -k 9 | head -n 20` 
-`head -n 1 > new_data.txt ; grep "Ceratopipra_chloromeros_FM433680" | cut -f 1-7 | sort -n -k 5 -r >> new_data.txt 
+`tail -n +2 | sort -n -k 9 | head -n 20`  
+`head -n 1 > new_data.txt ; grep "Ceratopipra_chloromeros_FM433680" | cut -f 1-7 | sort -n -k 5 -r >> new_data.txt' 
 
 
 Harder problems:  
 (There are fancier ways to do these things much more succinctly, but can you do it using only command/regex/flags from this tutorial?)  
 * split column 2 so that instead of giving the full sample name (eg. Ceratopipra_chloromeros_B106768), it has the species name in one column and the sample number in a different column (eg, Ceratopipra_chloromeros  B106768).  
 * select all the columns where rubrocapilla is in column P1 and mentalis is in column P3  
-* oops, name mixup. Change all instances of rubrocapilla to erythrocephala and all erythrocephala to rubrocapilla.
+* oops, name mixup. Change all instances of rubrocapilla to erythrocephala and all erythrocephala to rubrocapilla.  
 * Add a new column to the file. This new column should contain the name of the species for the sample in column 2, but don't alter the contents of column 2. Place this new column in between column "P3" and column "D". You can use up to 3 lines of code for this.  
 
 Here are my solutions:  
