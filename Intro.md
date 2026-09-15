@@ -26,7 +26,8 @@ Here we will go over some of the most-commonly used commands: commands for getti
 `ls` - lists the contents of your current working directory  
 `mkdir $name_of_directory` - makes a new directory  
 `cd $name_of_directory` - change to a new working directory  
-`rmdir $name_of_directory` - remove (delete) an empty directory  
+`rmdir $name_of_directory` - remove (delete) an empty directory 
+`man $name_of_command` - open the manual for a command (then press "q" to quit the manual)  
 
 First, find out where you are in your computer's filesystem using the `pwd` command ("print working directory"). This will print text as output in the next line of your console. This printed output text is called "standard output". The standard output of `pwd` will be the full path from the root of your computer's filesystem down to your current working directory. When you run commands, your working directory is the default place where your computer will look for input files, and is the default place where output files appear.  
 
@@ -52,14 +53,14 @@ Now let's move on to some slightly more complex commands. Before we do, here are
 * Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.  
 * Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click.  
 * Time saver: in many systems, you can press ctrl+a to jump your cursor to the start of the line, and then ctrl+e to jump back to the end of the line. Saves some time if you made a typo way at the beginning of the line!  
+* to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit.  
 
 ## Flags  
-An important aspect of running commands on the command line is setting flags. These are settings that can alter the behaviour of the command you are running. They are usually single letters or short words, that are placed after a command (separated by a space), like this: `command -a -b -c --flag_d`. That command has four flags: `-a`, `-b`, `-c`, and `--flag_d`. Flags are attached to dashes - generally a single dash for single-letter flags or two dashes for flags that are words. If a flag is a word, it cannot have a space in it (instead, underscores `_` are used). Often, there will be two synonymous flags you can choose between that do the same thing, a single-letter option for brevity, or a short-word option you can use to make it easier to remember what it does when you go back and read your code in the future.  
+An important aspect of running commands on the command line is setting flags. These are settings that can alter the behaviour of the command you are running. They are usually single letters or short words, that are placed after a command (separated by a space), like this: `command -a -b -c --flag_d`. That command has four flags: `-a`, `-b`, `-c`, and `--flag_d`. Flags are attached to dashes - generally a single dash for single-letter flags or two dashes for flags that are words. If a flag is a word, it cannot have a space in it (instead, underscores `_` can be used). Often, there will be two synonymous flags you can choose between that do the same thing, a single-letter option for brevity, or a short-word option you can use to make it easier to remember what it does when you go back and read your code in the future.  
 
 The other thing we have been given some commands is/are argument(s). These are also settings that alter the action of the command you are running or the flag you set - they are often the name of input files or output files, or parameters that you need to change/specify for the program you are running. These are distinguished from flags because they are not preceded by dashes. Sometimes arguments are required (eg, `mkdir` would not have anything to do if you didn't tell it the name of the directory it should make), and sometimes they are not required (eg, `ls` defaults to listing your current working directory if you don't give it any arguments).  
 
 Let's add some flags to `ls`. If we just run `ls`, it will tell us the contents of our current working directory. If we add  the flag `-l` and run `ls -l`, it will now give us a more lengthy summary of our files, including handy information like the size of our files, which user owns them, and date/time when they were last modified. Let's now add another flag, `-h`: `ls -l -h` or `ls -lh` (for single-letter flags, you can either give each flag their own dash, or smoosh them together behind the same dash, whatever style looks best to you). `-h` stands for "human-readable", and will convert the file sizes from number of bytes to abbreviations (K for Kilobyte, M for Megabyte, etc).   
-
 
 # Looking at files
 
@@ -68,10 +69,10 @@ Now we will look at some important commands for reading and manipulating files:
 `less` - look at a file on the command line (without printing anything). Press ctrl+d when done looking. 
 `head` - print only the first lines of a file  
 `tail` - print only the last lines of a file  
+`wc` - count the number of lines/words/characters  
 `cut` - print only specific column(s) from a file  
 `sort` - sort input  
 `uniq` - remove repeated lines (if they are adjacent)  
-`wc` - count the number of lines/words/characters  
 `paste` - merge files horizontally (paste columns together line-by-line)  
 
 The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. The most simple way to run it is `cat $Name_of_file`. Let's try it:  
@@ -109,6 +110,10 @@ By default, they print 10 lines. We can change this using the `-n` (AKA `--lines
 * `tail -n +2`: remove the first line (start at line 2 and print until the end of the file).  
 
 <img width="361" height="354" alt="image" src="https://github.com/user-attachments/assets/ca0fc1c7-bc67-4e09-a69c-411c89926f4d" />
+
+Another useful piece of info to know about a file is how long it is. We can look at this using the `wc` (word count) command.  
+Try running: `wc processed_data/ABBABABA_concatenated.txt`.  
+This will show you three pieces of info: the number of lines in the file, the number of words, and the number of bytes. Often all we want to know is the number of lines, which we can specify using the `-l` flag, like this: `wc -l processed_data/ABBABABA_concatenated.txt`.   
 
 ## Piping and building pipelines
 
@@ -154,6 +159,16 @@ or
 `cut -f 2 processed_data/ABBABABA_concatenated.txt | tail -n +2 | sort | uniq | wc -l`  
 (we can put tail before or after `cut`, but we can't put it after `sort`, since we don't necessarily know ahead of time where it will end up after sorting. 
 
+One last basic file editing piece for our toolkit is `paste`. The `paste` command can take multiple files/inputs and merge them horizontally as columns, separated by tabs (by default).  
+
+Let's pretend that our SampleID data was in a different file than the rest of our data. We can make set up this scenario like this:  
+`cut -f 2 ABBABABA.txt > toy_SampleID`  
+`cut -f 1,3- ABBABABA.txt > toy_OtherColumns`  
+In this scenario, we could put them together like this: `paste toy_SampleID toy_OtherColumns > toy_MergedColumns`  
+Check if it worked: `head toy_MergedColumns`  
+Note that `paste` will paste them together in the order you specify.  
+When using `paste`, make sure you are very confident that all of your lines are in the same order! Paste will not warn you if your files are sorted differently or differ in length.  
+
 ## redirecting standard error
 Redirecting stderr is similar to redirecting stdout, but the code is slightly different so that you can redirect stderr and stdout to separate places. By default, stderr gets printed to the command line, and if you redirect the stdout, stderr will continue to get printed to the command line. To redirect stderr, instead of using `>` or `>>`, use `2>` or `2>>`. (the inputs and outputs are assigned "file descriptors": "2" is stderr, while "1" is stdout and "0" is stdin). For example: `command --settings input_file > output.txt 2> errors.log` will send stdout and stderr to separate files. This is handy for saving error messages to a log so that you can refer to them later if needed.  
 
@@ -161,8 +176,61 @@ If you want the stderr to instead be printed alongside stdout in the same file (
 
 We can also use another trick to make error messages go away entirely - we can redirect the standard error to a place called `/dev/null`. This is a special file which acts like a "black hole" in the computer. It is an empty file, and any data that gets sent to it is immediately discarded. Redirecting our error messages to `/dev/null` gets rid of them so they never get printed. This can be handy when you need to loop through 2000 files with commands that produce a lot of stderr messages and you don't want all that text flying at you on the command line.  
 
+# making a file from scratch
+cat
+echo
+nano
+printf
 
-Problems:
+
+# Day 2 materials
+(in progress)
+
+# efficiency commands
+time, htop, df, screen, history, ssh, scp
+
+# grep and regex
+* using grep to grab lines
+* using grep -v to exclude lines
+* using grep -c to count matching lines
+* using simple regex (^, $, escape characters, ., *)
+* emphasizing difference between different quote symbols
+* [] ranges
+* “.” wildcard
+* “*” repeats (including zero)
+* ”+” repeats (not including zero)
+* “^” start of line
+* “$” end of line
+* “?” optional character
+
+# sed
+* using sed "s///g" to find-and-replace
+* using rename when it is filenames you want to change
+
+# bash variables
+
+# for loops, while loops, if statements
+* syntax for loops and if statements
+* brace expansion
+* cat samples.txt | while read sample ; do (...) ; done
+* if statements checking if a file exists before doing a command
+
+# gnu Parallel
+* cat samples.txt | parallel (...)
+
+# awk
+(in progress)
+* using awk for simple one-liners
+
+# file permissions
+read, write, execute
+
+# installing programs
+* git clone
+* wget, tar -zxvf
+* dealing with compressed files (gzip, gunzip, zless, zcat)
+
+# Practice Problems
 1) count how many different populations there are in column P1.
 2) count how many samples of *C. rubrocapilla* there are.
 3) change all instances of "InambariW" to "Inambari_West"
@@ -180,7 +248,7 @@ Problems:
 7) `head -n 1 > new_data.txt ; grep "Ceratopipra_chloromeros_FM433680" | cut -f 1-7 | sort -n -k 5 -r >> new_data.txt' 
 
 
-Harder problems:  
+## Harder problems:  
 (There are fancier ways to do these things much more succinctly, but can you do it using only command/regex/flags from this tutorial?)  
 1) split column 2 so that instead of giving the full sample name (eg. Ceratopipra_chloromeros_B106768), it has the species name in one column and the sample number in a different column (eg, Ceratopipra_chloromeros  B106768).  
 2) select all the columns where rubrocapilla is in column P1 and mentalis is in column P3  
