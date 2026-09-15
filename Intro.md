@@ -1,21 +1,22 @@
+# Intro to the Command Line for Bioinformatics 
+# Workshop
 
+# Day 1: Navigating the command line
 
+## Anatomy of the Command Line
 
-
-# Anatomy of the Command Line
-
-*Very broad overview and terms*  
+### broad overview and terms  
 Most of the time when using computers, we are using a **graphical user interface** (GUI), something that lets us point our mouse and click on buttons or browse through menus. A more direct way of communicating with the computer is through the **command line**, where you type lines of text containing commands for the computer. To use the command line, you need a program called a **shell** to interpret your commands, and the most popular shell used in bioinformatics (and more widely) is **bash**. Bash is used with Linux and UNIX operating systems, and also comes installed on macs. To use the shell, you need an application referred to as a **terminal**. The terminal is the application you open and interact with, the command line is where you type your commands, and the shell (bash) is the program that interprets your commands and tells your operating system what to do.  
 
-Here, we will go over the basics of working on the command line and writing simple bash code. This requires you to have access to a terminal program with bash. Accessing that varies depending on your operating system.  
+Here, we will go over the basics of working on the command line and writing simple bash code. This requires you to have access to a terminal program with bash. Accessing that varies depending on your operating system. In practice, most bioinformatics work is done on a server accessed remotely, rather than done locally on a laptop.   
 
 *Linux* if you are on Linux, you should already have an application called Terminal, which can be opened from your applications, or with `ctrl + alt + t`.
 *Mac* if you are on Mac, you should have an application called Terminal. It is often located in your `Applications/Utilities` subfolder; [this page](https://support.apple.com/en-ca/guide/terminal/apd5265185d-f365-44cb-8b09-71a064a42125/mac) from Apple explains more about how to open it on different MacOs versions if you are having trouble locating it. Note that the default shell that comes with newer macs is not bash, it is zsh - it is extremely similar, so the code in this tutorial will work the same, but if you do more complicated things you may notice a difference.  
-*Windows* Windows doesn't come with bash, so you will need to install it. Two popular options include [git bash](https://gitforwindows.org/) or [Windows Subsystem for Linux (WSL)]. Alternatively, you can `ssh` into a server if you have access to one.  
+*Windows* Windows doesn't come with bash, so you will need to install it. One popular option is [git bash](https://gitforwindows.org/). Alternatively, you can `ssh` into a server if you have access to one.  
 
 # Directories and paths  
 
-Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is essentially the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The deepest level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**.  
+Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is more-or-less the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The deepest level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**.  
 
 # Running commands - basic navigation commands  
 
@@ -29,7 +30,7 @@ Here we will go over some of the most-commonly used commands: commands for getti
 `rmdir $name_of_directory` - remove (delete) an empty directory 
 `man $name_of_command` - open the manual for a command (then press "q" to quit the manual)  
 
-First, find out where you are in your computer's filesystem using the `pwd` command ("print working directory"). This will print text as output in the next line of your console. This printed output text is called "standard output". The standard output of `pwd` will be the full path from the root of your computer's filesystem down to your current working directory. When you run commands, your working directory is the default place where your computer will look for input files, and is the default place where output files appear.  
+First, find out where you are in your computer's filesystem using the `pwd` command ("print working directory"). This will print text as output in the next line of your terminal. This printed output text is called "standard output". The standard output of `pwd` will be the full path from the root of your computer's filesystem to your current working directory. When you run commands, your working directory is the default place where your computer will look for input files, and is the default place where output files appear.  
 
 To find out what is in your working directory, type `ls` into your command prompt, then hit "enter". The text that pops up in your terminal (the "standard output" of `ls`) is a list of all the files in your current working directory.  
 
@@ -66,7 +67,7 @@ Let's add some flags to `ls`. If we just run `ls`, it will tell us the contents 
 
 Now we will look at some important commands for reading and manipulating files:  
 `cat` - read a file (or text input on the command line) and print the contents  
-`less` - look at a file on the command line (without printing anything). Press ctrl+d when done looking. 
+`less` - look at a file on the command line (without printing anything). Press `q` when done looking. 
 `head` - print only the first lines of a file  
 `tail` - print only the last lines of a file  
 `wc` - count the number of lines/words/characters  
@@ -81,7 +82,7 @@ That will print the contents of ABBABABA1.txt.
 `cat` can also take multiple files as input and concatenate them together in the order they are listed. For example:  
 `cat ABBABABA1.txt ABBABABA2.txt`  
 That will print the contents of ABBABABA1.txt and then the contents of ABBABABA2.txt.  
-Often, we need to save this output, rather than just printing it to the command line. We can redirect it to a file using the `>` symbol to point to a file where the output should be printed. This could be just the file name (in which case it will appear in your current working directory), or it could also include a path to save it in a different directory. Warning! Redirecting output using `>` will overwrite the contents of the file if it already exists, without any warnings. There are many sad stories of people losing their work by accidentally overwriting files using `>`.  
+Often, we need to save this output, rather than just printing it to the command line. We can redirect it to a file using the `>` symbol to point to a file where the output should be printed. This could be just the file name (in which case it will appear in your current working directory), or it could also include a path to save it in a different directory. Warning! Redirecting output using `>` will overwrite the contents of the file if it already exists, without any warnings. There are many sad stories of people losing their work by accidentally overwriting files using `>`. When a file is overwritten in that way, it is called "clobbering".  
 Let's use `cat` to combine two files together and save the results.  
 `mkdir -p processed_data`  
 `cat ABBABABA1.txt ABBABABA2.txt > processed_data/ABBABABA_concatenated.txt`
@@ -198,9 +199,11 @@ time, htop, df, screen, history, ssh, scp
 * [] ranges
 * “.” wildcard
 * “*” repeats (including zero)
-* ”+” repeats (not including zero)
 * “^” start of line
 * “$” end of line
+
+egrep:
+* ”+” repeats (not including zero)
 * “?” optional character
 
 # sed
@@ -208,6 +211,20 @@ time, htop, df, screen, history, ssh, scp
 * using rename when it is filenames you want to change
 
 # bash variables
+
+Variables are used for storing data. They will be remembered for the rest of your session/script, so you can store a value and then refer to it later. This comes in handy for a few different scenarios, for example:  
+* storing a long line of text so you don't have to type it out again or clutter your code or worry about typos (eg, a long filepath)
+* allowing code to be reused with different settings/inputs just by editing the variables
+* looping through a bunch of samples/files and running the same commands on all of them
+
+To set a variable, you use the syntax `name_of_variable=value_of_variable` (no spaces). For example, `num_lines=3`.  
+To use a variable, use the `$` in front of the name of the variable. For example: `head -n $num_lines ABBABABA.txt`. If the variable was assigned a value, that value will now be substituted by bash into the code. Note that unlike many coding languages, you don't have to worry about whether a bash variable is a numeric/character/etc; there are no datatypes.  
+If you want to include whitespace in your variable (the value, not the variable name), wrap it in double quotes, otherwise bash will take the first word as the value for the variable and think the rest is supposed to be a new command. For example:  
+`Thing_to_echo="This is a sentence with spaces in it"
+echo $Thing_to_echo`
+
+Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" ABBABABA.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
+
 
 # for loops, while loops, if statements
 * syntax for loops and if statements
