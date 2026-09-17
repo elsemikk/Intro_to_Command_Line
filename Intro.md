@@ -225,12 +225,15 @@ echo $Thing_to_echo`
 
 Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" ABBABABA.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
 
+# PATH variable
+* which
 
 # for loops, while loops, if statements
 * syntax for loops and if statements
 * brace expansion
 * cat samples.txt | while read sample ; do (...) ; done
 * if statements checking if a file exists before doing a command
+* seq
 
 # gnu Parallel
 * cat samples.txt | parallel (...)
