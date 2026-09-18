@@ -243,7 +243,39 @@ Variables can be a little finicky at times. If a variable contains any whitespac
 * using awk for simple one-liners
 
 # file permissions
-read, write, execute
+When sharing files between users or when writing your own scripts, one concept that you may encounter is **permissions**. Permissions control who can view or edit a file, and whether a file can be executed as code. Those three actions are controlled separately, and are as follows:  
+* Read: a user can open and view the contents of a file.
+* Write: a user can edit the file.
+* Execute: a user can run the file as code.
+
+By default, most files that you create will have read and write permissions for you, but will not have execute permissions. That is a safety measure that stops you from accidentally running a random (or malicious) file as code. If you try to run something that does not have execute permissions, you will get the error message `Permission denied`. That means that before you can run a newly-written script, you need to tell bash that you do in fact intend for the file to be executable. This is done with the `chmod` function. `chmod` can change the owners and permissions of a file that you own. 
+
+If you want to add executable permissions to a file, you use `+x` with `chmod`, for example, `chmod +x script.py`. After doing that, you should be able to run your code. One thing to be aware of is that sometimes, drives can be set up such that nothing on the drive can be executed no matter the permissions you set. If that is the case, the owner of the server should have informed you of where you can place executable files so that they can run.  
+
+Other permissions are set the same way (`chmod +r` to add read permissions, `chmod +w` to add write permission). Permissions can also be taken away, using `-x`, `-r`, or `-w`.  
+
+The other aspect of permissions is ownership. There are three categories of user from the perspective of a file:  
+* owner: the person who owns the file, usually the person who created the file.  
+* group: a designated group of users, for example a group of collaborators or a lab team  
+* everyone: anyone who is not the owner or in the designated group  
+Those three categories can have different permissions: this allows you to do things like make files private, make files readable only to a selected group of collaborators on a shared server, or make it so that a collaborator can read your files without being able to edit them. By default, you have read and write permissions for files you create, but those files have read-only permissions for others (not editable). Those permissions can each be modified separately by `chmod` (and the owner/group can be changed with `chown`). We won't go over those uses here, but if you run into `Permission denied` errors when trying to share files, those are the commands to look at.  
+
+# Aliases
+One thing that we can do to make our lives easier on the command line is to assign **aliases** for commands that we run frequently. An alias is a shortcut for longer commands that we don't want to have to type out every time. An alias is similar to saving something as a variable, except that it is used as a shortcut for commands, it is remembered across sessions (which variables can be but aren't by default), and you don't need to use the `$` symbol to invoke them.  
+Aliases get stored in a special file called `~/.bash_aliases`. The `.` symbol in front of the filename makes it an invisible file - it doesn't show up when browsing folders in a GUI or when looking at directories using `ls`, but it can be edited just like a normal file, and it appears when using the `-a` flag with `ls` ("a" stands for "all"). This file may not exist if you have never made an alias before, but will be read by bash next time you open a new terminal session after creating the file.  
+Aliases can be anything that you would like a shortcut for, here are some examples of ones that I use:  
+
+`alias rm="rm -i"`: this makes it so that every time I run the `rm` command to remove a file, it adds the `-i` ("interactive") option without me needing to remember to type it. This makes `rm` ask me if I am sure before deleting anything, to save me from accidents. When I want to delete hundreds of files at once without being bothered, I can add the `-f` flag to override the `-i` command and force deletion without it asking me about every single file.  
+`alias hub="cd ~/Documents/GitHub"`: this is an alias for me to `cd` into my Github folder without me needing to type the whole word or remember where it is. `alias ll="ls -l"`: this is a fairly popular alias, used to save you from typing all 5 digits of `ls -l`, a command that is usually used *a lot*.  
+`alias nseq="grep -c '^>'"`: this is a handy command to count the number of entries in a fasta file, something I need to do a lot.  
+`alias nvcf="grep -c -v '^#'"`: this one lets me count the number of sites in a VCF file.  
+`alias nia="ssh elsemikk@niagara.scinet.utoronto.ca"`: this allowed me to `ssh` into the niagara cluster without having to type the whole address.  
+
+All those aliases have the form `alias name_of_alias="command that you want to make an alias for"`.
+
+Try writing or picking a bash alias that would be useful to you. You can add this to your account's `~/.bash_aliases` file any way that you like to edit a text file, for example, using `cat` or `nano`. Once you have added an alias, it won't take effect right away, because bash won't have read your alias file. You will need to close your session and open a new session, at which point bash will read your alias file.    
+To edit the file with `cat`, run `cat >> ~/.bash_aliases`, then type or paste what you would like added, hit "enter" to add a line break, then type `ctrl+d` when you are done.  
+To edit the file with `nano`, run `nano ~/.bash_aliases`, paste or type the alias you want to add, then exit nano with ctrl+x. It will ask you if you want to save you changes; type `y` if you do.  
 
 # installing programs
 * git clone
