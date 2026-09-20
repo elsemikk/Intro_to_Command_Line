@@ -226,11 +226,16 @@ echo $Thing_to_echo`
 Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" ABBABABA.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
 
 # PATH variable
-Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program.  
-You can find out what directories are included in your `PATH` by running `echo $PATH`. This will give a list of paths separated by `:` colons.  
-If you want to be able to run a program in a different directory without specifying the full path when you run it, or if a program you are running needs to be able to run dependencies, you can add a new path to your PATH variable by redefining PATH variable with your new path separated by the rest of the paths by a ":". 
+Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `$PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program. Built-in commands (like `ls`, `cd`, etc) have their code in standard locations that are already included in `$PATH`. To run other commands (eg., programs you download or scripts you write), you will either need to place them into a directory that is in PATH, or specify the whole path to the executable when you run it, or add its directory to PATH so that bash can find it.
+
+You can find out what directories are included in your `PATH` by running `echo $PATH`. This will give a list of paths separated by `:` colons. 
+If you want to be able to run a program in a different directory without specifying the full path when you run it, or if a program you are running needs to be able to run dependencies, you can add a new path to your PATH variable by redefining PATH variable with your new path separated by the rest of the paths by a ":".  
 For example, let's imagine we want to add `/home/scripts` to our $PATH. We can do that like this:  
-PATH=$PATH
+`PATH="$PATH:/home/scripts"`  
+This has the effect of appending `:/home/scripts` to the existing PATH variable. Bash will now search through `/home/scripts` after searching through the other paths that were already in PATH. If you want bash to search the new path *before* searching other paths (bash will use the first copy that it finds), you can instead prepend your new path to the PATH variable, like this:  
+`PATH="/home/scripts:$PATH"`  
+
+
 
 * which
 
