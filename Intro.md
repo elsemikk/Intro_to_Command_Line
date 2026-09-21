@@ -228,16 +228,21 @@ Variables can be a little finicky at times. If a variable contains any whitespac
 # PATH variable
 Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `$PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program. Built-in commands (like `ls`, `cd`, etc) have their code in standard locations that are already included in `$PATH`. To run other commands (eg., programs you download or scripts you write), you will either need to place them into a directory that is in PATH, or specify the whole path to the executable when you run it, or add its directory to PATH so that bash can find it.
 
-You can find out what directories are included in your `PATH` by running `echo $PATH`. This will give a list of paths separated by `:` colons. 
-If you want to be able to run a program in a different directory without specifying the full path when you run it, or if a program you are running needs to be able to run dependencies, you can add a new path to your PATH variable by redefining PATH variable with your new path separated by the rest of the paths by a ":".  
+You can find out what directories are included in your `$PATH` by running `echo $PATH`. This will spit out the contents of that variable, giving you a list of paths separated by `:` colons. These are the paths where bash searches for programs to run.  
+If you want to be able to run a program in a different directory without specifying the full path when you run it, or if a program you are running needs to be able to run dependencies, you can add a new path to your PATH variable by redefining that PATH variable with your new path separated by the rest of the paths by a ":" symbol.  
 For example, let's imagine we want to add `/home/scripts` to our $PATH. We can do that like this:  
-`PATH="$PATH:/home/scripts"`  
-This has the effect of appending `:/home/scripts` to the existing PATH variable. Bash will now search through `/home/scripts` after searching through the other paths that were already in PATH. If you want bash to search the new path *before* searching other paths (bash will use the first copy that it finds), you can instead prepend your new path to the PATH variable, like this:  
-`PATH="/home/scripts:$PATH"`  
+`PATH=$PATH:/home/script`  
+This has the effect of appending `:/home/scripts` to the existing PATH variable. Bash will now search through `/home/scripts` after searching through the other paths that were already in PATH. This modification will last until the end of your session - when you close your terminal and start a new session, $PATH will be reset to its original value.  
+(there is some subtlety around when you need to include double quotes and when you need to include the command `export`, but you probably won't need to know that unless you are doing more advanced things beyond the scope of this tutorial. It is also possible to make $PATH automatically set itself the way you want so you don't have to do so every time you start a new session - for that you will need to modify your `~/.bash_profile` file, beyond the scope of this tutorial).  
 
+When you start accumulating multiple versions of the same program (eg, updating while keeping old versions for reproducibility of old pipelines, or sharing between users), things can get confusing. If you have multiple versions of the same program visible to bash in your $PATH, bash will use the first one that it finds when going through the list of paths in $PATH. You can check which copy bash is using by using the `which` command, which tells you the full path to a particular program (if bash can find it in $PATH).  
+For example, try running `which ls` and `which python` (or how about `which which`!).  
 
+If you want bash to search a new path *before* searching other paths, so that it will use programs in that directory instead of other possible copies, you can instead prepend your new path to the front of the $PATH variable, like this:  
+`PATH=/home/scripts:$PATH` (note we have the `:` symbol separating our paths)  
+That will now be the first thing that bash searches, the the versions in that directory will take priority over other versions that may be in other directories.  
 
-* which
+Note that in practice, you don't necessarily often need to modify $PATH - instead, you can just give bash the full path to the program you are running, so that there will be no confusion in the future over which version was actually run when you look at your code. However, even with that habit you may encounter situations where you need to modify $PATH because a program needs to be able to locate other dependencies when running.  
 
 # for loops, while loops, if statements
 * syntax for loops and if statements
