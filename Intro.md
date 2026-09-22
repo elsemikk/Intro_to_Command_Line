@@ -244,12 +244,78 @@ That will now be the first thing that bash searches, the the versions in that di
 
 Note that in practice, you don't necessarily often need to modify $PATH - instead, you can just give bash the full path to the program you are running, so that there will be no confusion in the future over which version was actually run when you look at your code. However, even with that habit you may encounter situations where you need to modify $PATH because a program needs to be able to locate other dependencies when running.  
 
-# for loops, while loops, if statements
+# for loops, while loops, if statements  
+While often used for only very simple tasks, bash is a full programming language that includes the ability to write loops and evaluate "if" statements. These come in extremely handy in bioinformatics, especially when needing to do repetitive tasks with many samples/genes/etc.  
+
+## loops logic  
+If you have programmed in another programming language, you may already be familiar with the logic of loops. Loops allow you to repeat a given task across multiple iterations, possibly doing a slightly different thing in each iteration. Bash has a few different loops (`for`, `while`, `until`, `select`), but here we will focus on the two most useful in bioinformatics: `for` and `while`.  
+
+A `for` loop takes a list of values, and then repeats a chunk of code once for each value in that list. That list could be a list of sample names, gene names, or iteration numbers, for example. This loop is useful when you know the complete list of things/numbers you want to iterate over.  
+
+A `while` loop similarly repeats a chunk of code, but it does so for as long as a condition remains true. That condition could be many different things - a variable holding a certain value, for example. If the condition to exit the loop is never met, the loop will continue infinitely. A nifty use case for while loops in bioinformatics is to hold a list of samples/genes/etc in a text file, and have the loop read through the file, running the loop for every line item in the file, and stopping when it hits the end of the file.  
+
+## for loops syntax
+The syntax of a `for` loop goes like this: `for item in item1 item2 item3 ; do SOMETHING ; done`. (note the placement of the `;` symbols, do, and done). SOMETHING can be any command (or multiple commands), and item1/item2/item3 can be a list of any number of words or numbers.
+
+Let's start simple, looping through a short list and just echoing out the name of each thing in our list:  
+`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; done`  
+Note that we could have listed out as many gene names as we want, separated by spaces - bash will keep reading through the list until it hits the ";" symbol.  
+That command looped through each of the genes, and executed `echo "analyzing $gene"` for each one. Note that we could name the items in our list anything we want; we could equally have run `for blueberry in MC1R ND2 COII CYTB ; do echo "analyzing $blueberry" ; done`.  
+
+When running loops, we can do more than one command in each loop. To do more than one thing, separate subsequent commands with a `;` symbol.  
+Let's add a command to check the length of a fasta file for each gene. A simple way we can do that is to take our fasta file, remove the header (line(s) starting with ">"), delete linebreaks, and then count how many characters are left.   
+`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; done` (`tr -d "\n"` deletes the line break character that would otherwise be counted by `wc -c`).  
+Now let's add another command to count the number of "A" nucleotides in each gene sequence. We can do that similar to the previous one: take our fasta file, remove the header, delete everything except for the "A"'s, and then count how many characters remain.    
+`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c ; done`
+
+We can get more fancy by assigning the lengths and number of A's to variables.
+
+`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c) ; num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c) ; echo "length of $gene is $length and number of A's is $num_As" ; done`
+
+More often in bioinformatics, we don't want to be reading data off the terminal, we want it to be saving that data to a file that we can analyze later. Let's do that.
+`
+echo -e "gene\tlength\tnum_As" > num_As.txt ;
+for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; printf "$gene\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt; done
+`
+Notes on the code:  
+* we needed to use `echo -e` instead of just `echo` to enable it to interpret `\t` as a tab character, instead of literally printing `\t`.  
+* we needed to use printf "$gene\t" instead of echo -e "$gene\t" because echo adds a newline (line break) character to the end of what it prints, by default, while printf does not. If we used echo, we would have had to tell echo not to do that, or strip the newline off afterwards.  
+* we had to include `tr -d "\n"` a second time after running `wc -c` to count gene length, because `wc` also by default has a newline character at the end of its output. We had to strip this off so that it didn't cause a linebreak in the middle of our line. We didn't strip the newline character off of the last `wc -c` command, because we do want to have a linebreak there, as that is the end of our data entry for that gene.  
+
+Take a look at `num_As.txt` to see the results:  
+`cat num_As.txt`  
+How does it look? Does it look like the sort of file you could use for downstream analyses/visualizations?
+
+Note this is not the most efficient way to complete this task, but it illustrates how we can accomplish bioinformatics tasks by stringing together simple bash tools.
+
+## brace expansion
+Another nifty trick that we can use to upgrade our loops (or other commands) is **brace expansion**. This is a shortcut for generating lists or repetitive text without needing to type everything out. A common use for this trick is to generate a range of numbers by specifying only the first and last number of a series. The syntax of this is to separate the two numbers by two dots (`..`) and surround them in curly brackets (`{}`). You can then insert the braces anywhere you want them to get expanded. Let's try some:  
+`echo {1..10}`    
+`echo {7..21}`  
+A handy time-saver that also eliminates the risk of a hard-to-spot typo.  
+
+[Tip: if you are needing even more functionality that isn't being met with brace expansion (eg, using variables to specify the range of numbers), you could check out the command `seq`.]  
+
+A great use for brace expansion in bioinformatics pipelines is to use them with `for` loops to perform multiple iterations/replicates of a stochastic step.  
+For example, let's subsample a list of genes by selecting only 10 random genes from a long list of genes. Perhaps we are running a computationally intensive analysis that can only handle 10 genes, or perhaps we need small samples of random data to build a null distribution to compare to some result (for example to calculate a p-value).  
+We can shuffle our list with `sort -R` (sort randomly) and then take the first 10 lines.
+`sort -R genes.txt | head -n 10`
+(Note: a nice alternative for shuffling lines is the command `shuf`, which comes with most versions of bash)  
+
+For many cases of subsampling, we need multiple iterations (eg, checking for consistency between replicates or building up a null distribution). We can use a `for` loop with brace expansion to quickly and easily generate as many replicates as we would like.  
+
+`mkdir -p random_genes  
+for iteration in {1..10} ; do sort -R genes.txt | head -n 10 > random_genes/random_genes."$iteration".txt ; done`  
+That should have made ten files each containing a list of ten random genes - check them out: `ls random_genes`  
+Let's look at the first line of each file we just made:  
+`for iteration in {1..10} ; do printf "the first gene is: " ; head -n 1 random_genes/random_genes."$iteration".txt ; done`
+
+## nested loops
+We can also put loops inside of other loops. 
+
 * syntax for loops and if statements
-* brace expansion
 * cat samples.txt | while read sample ; do (...) ; done
 * if statements checking if a file exists before doing a command
-* seq
 
 # gnu Parallel
 * cat samples.txt | parallel (...)
