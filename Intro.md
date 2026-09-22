@@ -128,7 +128,7 @@ cp ABBABABA2.txt backups/blueberry
 ```
 Whoops! Look what just happened. We copied a file to a place where there was already a file with that name (`backups/blueberry`). `cp` overwrote that file without any warning. This is another type of file "clobbering" to watch out for, which both `cp` and `mv` can do. If our old version of `backups/blueberry` was an important file, it would be gone - better hope we had a backup!  
 
-Next, we can delete files using `rm`. `rm` removes (permanently deletes) files that we list. For example, we can delete `backups/blueberry` like this: `rm backups/blueberry`. Careful! Here again there is no "undo". By default, bash will not ask whether you are sure, it will go ahead an execute the command, and the file will be gone (this behaviour can be altered using bash aliases explained later). Be very careful when executing `rm` commands - there are some joke or malicious "advice"/memes out there that try to trick new coders into erasing their whole filesystem using `rm`! Directories can be deleted recursively (including all their contents and subdirectories) using `rm -r` - a powerful tool that can be very useful when you need to delete whole directories with thousands of files, but a command that can be catastrophic when used by mistake!   
+Next, we can delete files using `rm`. `rm` removes (permanently deletes) files that we list. For example, we can delete `backups/blueberry` like this: `rm backups/blueberry`. Careful! Here again there is no "undo". By default, bash will not ask whether you are sure, it will go ahead an execute the command, and the file will be gone (this behaviour can be altered using bash aliases explained later). Be very careful when executing `rm` commands - there are some joke or malicious "advice"/memes out there that try to trick new coders into erasing their whole filesystem using `rm`! Directories can be deleted recursively (including all their contents and subdirectories) using `rm -r` - a powerful tool that can be very useful when you need to delete whole directories with thousands of files, but a command that can be catastrophic when used by mistake! Don't experiment with that one until you are very confident about its usage.   
 
 Now let's take a look at `processed_data/ABBABABA_concatenated.txt` that we made previously. However, this is a big file, it would not be convenient to run `cat processed_data/ABBABABA_concatenated.txt` and have all that text print to our command line. Instead, let's use another handy command: `less`, which lets us scroll through files without printing them out.   
 
@@ -146,7 +146,7 @@ To exit `less` and go back to the command line, type `q` for "quit".
 Another nice way to preview files is using `head` and `tail`. `head` prints only lines from the beginning of a file, while `tail` prints only lines at the end of the file. Try it out:  
 `head processed_data/ABBABABA_concatenated.txt`  
 `tail processed_data/ABBABABA_concatenated.txt`  
-By default, they print 10 lines. We can change this using the `-n` (AKA `--lines`) flag. For example `head -n 5 processed_data/ABBABABA_concatenated.txt` prints only the first 5 lines while `tail -n 5 processed_data/ABBABABA_concatenated.txt` prints only the last 5 lines. You can also `-` or `+` symbols to remove only the first/last n lines without knowing exact what line number they are. Try comparing the results of these:    
+By default, they print 10 lines. We can change this using the `-n` (AKA `--lines`) flag. For example `head -n 5 processed_data/ABBABABA_concatenated.txt` prints only the first 5 lines while `tail -n 5 processed_data/ABBABABA_concatenated.txt` prints only the last 5 lines. You can also use `-` or `+` symbols to remove only the first/last n lines without knowing exact what line number they are. Try comparing the results of these:    
 * `head -n 2` AKA `head -n +2`: print the first two lines (start at the beginning and then stop at line 2).  
 * `head -n -2`: remove the last 2 lines (start at the beginning and then stop at line -2, ie, 2 lines before the end). Not all versions support using negative line numbers with `head`, in which case you get the error message `head: illegal line count`.  
 * `tail -n 2` AKA `tail -n -2`: print the last two lines (start 2 lines before the end and print until the end of the file)  
@@ -163,67 +163,158 @@ This will show you three pieces of info: the number of lines in the file, the nu
 Often, we want to do many different manipulations to data, and it is a waste of time and storage space to keep saving intermediate files for every single step. The way to avoid this is through pipelines - passing data directly from one command into the next, such that the output of one command is the input for the next. This is not only more convenient, it is often faster, because your computer doesn't have to waste precious milliseconds writing data to the disk and then reading it again, instead keeping the data in its memory when passing between commands. When you have multiple cores available (almost always the case), the computer can also work on both commands at the same time as it goes through the input - much faster when you are dealing with huge bioinformatics datasets.  
 
 To build a pipeline, you use "pipe" symbols (`|`) to separate commands, for example like this: `command_one --settings input_file | command_two --settings | command_three --settings > output_file`. Data passes through the pipes between commands. You can string together as many commands as you would like as long as the commands are able to receive input from "standard input" (stdin) and send output through "standard output" (stdout).  
-* `stdin`: "standard input" - input data that is either read from a file (using `<`), typed from the keyboard, or passed to a command using a pipe `|`.
-* `stdout`: "standard output" - output that is produced by a command. By default this is printed to the terminal, but it can also be directed to be saved to a file (using `>` or `>>`) or piped to another command using `|`.
-* `stderr`: "standard error" - another stream of output that is produced by a command; usually error messages or extra info that is not needed in the main output, like status updates. By default it is printed to the command line, and will not be redirected with `|` or `>` or `>>`. To save it to a file, use `2>` or `2>>`. To make it go to the same place as standard output, use `2>&1`. To make it not be printed, use `2>/dev/null`.
+Let's take a moment to go through that jargon. There are three streams of data on the command line: `stdin`, `stdout`, and `stderr`:   
+* `stdin`: "standard input" - input data that is either read from a file (using `<`), typed from the keyboard, or passed to a command using a pipe `|`. Some commands accept `stdin` as input, while others wouldn't know what to do with it. For example, `mkdir` does not do anything with stdin.  
+* `stdout`: "standard output" - output that is produced by a command. By default this is printed to the terminal, but it can also be directed to be saved to a file (using `>` or `>>`) or piped to another command using `|`. Many commands produce `stdout`, but some do not - for example, `mkdir` does not produce any stdout (it makes a directory without printing anything)  
+* `stderr`: "standard error" - another stream of output that is produced by a command; usually error messages or extra info that is not needed in the main output, like status updates. By default it is printed to the command line, and will not be redirected with `|` or `>` or `>>`. To save it to a file, use `2>` or `2>>`. To make it go to the same place as standard output, use `2>&1`. To make it not be printed, use `2>/dev/null` (explained farther below).  
 
 Let's find out how many samples are in our dataset. Scroll back to look at the file `processed_data/ABBABABA_concatenated.txt`. This file contains sample names in column 2. These samples might be repeated multiple times. To find out how many samples we have, we should see how many unique sample IDs occur in column 2. We can do that using the `cut`, `sort`, `uniq`, and `wc` commands. (There are of course fancier ways we could code it in other languages, but let's build a pipeline with just bash basics).  
 
-First, let's isolate column 2. `cut` grabs the columns that we specify, and we can use the `-f` flag to tell it which fields (column numbers) to select. By default, `cut` expects columns to be tab-delimited, otherwise we would need to tell it what delimits out columns using the `-d` flag.  
+First, let's isolate column 2. `cut` grabs the columns that we specify, and we can use the `-f` flag to tell it which fields (column numbers) to select. By default, `cut` expects columns to be tab-delimited, otherwise we would need to tell it what delimits our columns using the `-d` flag.  
 Let's check that it works! To avoid printing out the whole long file, let's just grab the first 5 lines and pass those to `cut` as a test. Try these:  
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2`
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2-4 #we can ask for a range of columns`
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2-4,6 #we can also use commas to list columns`
-`head processed_data/ABBABABA_concatenated.txt | cut -f 1 -d "3" #we can ask it to use anything we want as the column delimiter`
+```bash
+head processed_data/ABBABABA_concatenated.txt | cut -f 2
+head processed_data/ABBABABA_concatenated.txt | cut -f 2-4 #we can ask for a range of columns
+head processed_data/ABBABABA_concatenated.txt | cut -f 2-4,6 #we can also use commas to list columns
+head processed_data/ABBABABA_concatenated.txt | cut -f 1 -d "3" #we can ask it to use anything we want as the column delimiter
+```
 
-So far, `cut -f 2` does what we want, selecting the column containing our sample names. Now, let's remove any duplicates. We can do this using the `uniq` command, which deduplicates any repeated lines to keep only one copy of each. However, `uniq` only compares adjacent lines, so repeated lines have to be right after to each other to be detected. We can ensure this will be the case by using the `sort` command to sort the lines. This will sort lines alphanumerically - if we wanted to, we could change that behaviour (for example `--ignore-case` to treat upper and lower case characters the same, `-n` AKA `--numeric-sort` to sort numerically, or `-r` AKA `--reverse` to reverse the sort). If we hadn't already isolated the column we wanted, we could also specify which field(s) to sort by using `-k` AKA `--key` to specify the column numbers. By default, `sort` uses whitespace as a column delimiter, but we can change that using `-t`.    
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort`  
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort -r #reverse order`  
-`head processed_data/ABBABABA_concatenated.txt | sort -k 2 #sort on column 2`  
+So far, `cut -f 2` does what we want, selecting the column containing our sample names. Now, let's remove any duplicates. We can do this using the `uniq` command, which deduplicates any repeated lines to keep only one copy of each. However, `uniq` only compares adjacent lines, so repeated lines have to be right after to each other to be detected. We can ensure this will be the case by using the `sort` command to sort the lines. This will sort lines alphanumerically - if we wanted to, we could change that behaviour (for example `--ignore-case` to treat upper and lower case characters the same, `-n` AKA `--numeric-sort` to sort numerically, or `-r` AKA `--reverse` to reverse the sort). If we hadn't already isolated the column we wanted, we could also specify which field(s) to sort on by using `-k` AKA `--key` to specify the column numbers. By default, `sort` uses whitespace as a column delimiter, which we could change that using `-t`.    
+Let's try some out:  
+```bash
+head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort  
+head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort -r #reverse order  
+head processed_data/ABBABABA_concatenated.txt | sort -k 2 #sort on column 2
+``` 
 Especially compare how it treats numbers with different settings:  
-`head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort #sort alphanumerically by default`  
-`head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -n #sort numerically`  
+```bash
+head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort #sort alphanumerically by default  
+head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -n #sort numerically  
+```
 
 Can you decipher what this is doing?  
 `head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -t "." -k 2 -n `  
-Answer: It is sorting by the numbers after the decimals, numerically (It is using the "." as the column delimiter).  
+Answer: It is taking column 8 and then sorting it by the numbers after the decimals, numerically (It is using the "." as the column delimiter).  
 
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort` is doing what we want. We can then send it to `uniq` to deduplicate the list. Another nice thing `uniq` can do is to count how many times each line was repeated using the `-c` flag.
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq`
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq -c #counts the number of times each sample occured`
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort` is doing what we want. We can then send it to `uniq` to deduplicate the list. Another nice thing `uniq` can do is to count how many times each line was repeated using the `-c` flag (neat but not what we need right now).
 
-`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq` is doing what we want. Lastly, we just need to count how many samples are in this de-duplicated list. We can do that using `wc -l`. Let's commit this time and run it on the whole file, instead of running `head` first.
+```bash
+head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq
+head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq -c #counts the number of times each sample occured
+```
+
+`head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq` is doing what we want.  
+Lastly, we just need to count how many samples are in this de-duplicated list. We can do that using `wc -l`. Let's commit this time and run it on the whole file, instead of running `head` first.  
 `cut -f 2 processed_data/ABBABABA_concatenated.txt | sort | uniq | wc -l`  
 There we have it, the number of samples in the file.  
-Oh, but wait! You may have noticed earlier that one of the lines in the file was the header, not an actual sample! Our number is therefore one too high. We could just subtract this in our heads, but what if we forget about the header the next time we run this code? Let's get rid of it. There are two easy ways to do this - we could use `tail` to cut it off, or we could use pattern matching to exclude it. We have already learned about `tail`, so try building a pipeline incorporating `tail` to remove the header from our count.
-Solution:
+Oh, but wait! You may have noticed earlier that one of the lines in the file was the header, not an actual sample! Our number is therefore one too high. We could just subtract this in our heads, but what if we forget about the header the next time we run this code? Let's get rid of it. There are two easy ways to do this - we could use `tail` to cut it off, or we could use pattern matching to exclude it. We have already learned about `tail`, so try building a pipeline incorporating `tail` to remove the header from our count.  
+
+
+Solution:  
 `tail -n +2 processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq | wc -l`  
-or
+or  
 `cut -f 2 processed_data/ABBABABA_concatenated.txt | tail -n +2 | sort | uniq | wc -l`  
-(we can put tail before or after `cut`, but we can't put it after `sort`, since we don't necessarily know ahead of time where it will end up after sorting. 
+(we can put tail before or after `cut`, but we can't put it after `sort`, since we don't necessarily know ahead of time where it will end up after sorting.  
 
 One last basic file editing piece for our toolkit is `paste`. The `paste` command can take multiple files/inputs and merge them horizontally as columns, separated by tabs (by default).  
 
-Let's pretend that our SampleID data was in a different file than the rest of our data. We can make set up this scenario like this:  
-`cut -f 2 ABBABABA.txt > toy_SampleID`  
-`cut -f 1,3- ABBABABA.txt > toy_OtherColumns`  
-In this scenario, we could put them together like this: `paste toy_SampleID toy_OtherColumns > toy_MergedColumns`  
+Let's pretend that our SampleID data was in a different file than the rest of our data. We can set up this scenario like this:  
+```bash
+cut -f 2 ABBABABA.txt > toy_SampleID  
+cut -f 1,3- ABBABABA.txt > toy_OtherColumns
+```
+Now that we are set up in this scenario, let's try putting those files back together. We can use `paste` to do that: `paste toy_SampleID toy_OtherColumns > toy_MergedColumns`  
 Check if it worked: `head toy_MergedColumns`  
 Note that `paste` will paste them together in the order you specify.  
 When using `paste`, make sure you are very confident that all of your lines are in the same order! Paste will not warn you if your files are sorted differently or differ in length.  
 
-## redirecting standard error
-Redirecting stderr is similar to redirecting stdout, but the code is slightly different so that you can redirect stderr and stdout to separate places. By default, stderr gets printed to the command line, and if you redirect the stdout, stderr will continue to get printed to the command line. To redirect stderr, instead of using `>` or `>>`, use `2>` or `2>>`. (the inputs and outputs are assigned "file descriptors": "2" is stderr, while "1" is stdout and "0" is stdin). For example: `command --settings input_file > output.txt 2> errors.log` will send stdout and stderr to separate files. This is handy for saving error messages to a log so that you can refer to them later if needed.  
+## Redirecting standard error
+Before we move on, let's talk about standard error (stderr) - this is often error messages, but it can also include useful status updates that we may want to save (programmers can make whatever they want get printed as `stderr`). Redirecting `stderr` is similar to redirecting `stdout`, but the code is slightly different so that you can redirect stderr and stdout to separate places as needed. By default, `stderr` gets printed to the command line, and if you redirect the `stdout`, `stderr` will continue to get printed to the command line. To redirect `stderr`, instead of using `>` or `>>`, use `2>` or `2>>`. (The inputs and outputs are assigned "file descriptors": "2" is stderr, while "1" is stdout and "0" is stdin). For example: `command --settings input_file > output.txt 2> errors.log` will send stdout and stderr to separate files. This is handy for saving error messages to a log so that you can refer to them later if needed.  
 
-If you want the stderr to instead be printed alongside stdout in the same file (with the lines interspersed as they are generated), you can use `2>&1` which means "send stderr to the same place as stdout". For example: `command --settings input_file > output.txt 2>&1` will send both stdin and stdout to the same place. This can be handy when both stdout and stderr are log messages that you want to save to a single log file, or if you want to be able to send error messages through a pipe to be processed by the next command.  
+If you want the `stderr` to instead be printed alongside `stdout` in the same file (with the lines interspersed as they are generated), you can use `2>&1` which means "send stderr to the same place as stdout". For example: `command --settings input_file > output.txt 2>&1` will send both `stderr` and `stdout` to the same place. This can be handy when both `stdout` and `stderr` are log messages that you want to save to a single log file, or if you want to be able to send error messages through a pipe to be processed by the next command.  
 
-We can also use another trick to make error messages go away entirely - we can redirect the standard error to a place called `/dev/null`. This is a special device which acts like a "black hole" in the computer. It is empty, and any data that gets sent to it is immediately discarded. Redirecting our error messages to `/dev/null` gets rid of them so they never get printed. This can be handy when you need to loop through 2000 files with commands that produce a lot of stderr messages and you don't want all that text flying at you on the command line.  
+We can also use another trick to make error messages go away entirely - we can redirect the standard error to a place called `/dev/null`. This is a special device which acts like a "black hole" in the computer. It is empty, and any data that gets sent to it is immediately discarded. Redirecting our error messages to `/dev/null` gets rid of them so they never get printed. This can be useful when you need to loop through 2000 files with commands that produce a lot of `stderr` messages and you don't want all that text flying at you on the command line.  
 
-# making a file from scratch
-cat
-echo
-nano
-printf
+# Making a file from scratch
+So far, we have looked at moving around and manipulating files. Now, let's make some files from scratch on the command line. This saves us from needing to switch into a graphical user interface text editor to make a text file (and sometimes you will be working on servers that have no access to graphical user interface text editors at all).  
+
+Four tools useful for building up new text files from scratch include:  
+* `cat` - read a file (or text input on the command line) and print the contents
+* `echo` - print something 
+* `printf` - print something
+* `nano` - edit a text file
+
+### cat
+We have already used `cat` to print the contents of a file or concatenate files together. We can also use `cat` in a slightly different way - instead of making `cat` open a file to read the contents, we can give cat nothing, like this: `cat`.  
+`cat` will then wait infinitely for us to type input. Anything we type (`stdin`) it will print (to `stdout`).  
+To end the session with `cat`, type `ctrl+d` for "done".  
+That didn't do anything, `cat` just repeated everything we typed back at us. To be more useful, we can redirect the `stdout` to a file, using `>` or `>>`.  
+Try this out: `cat > testing_cat.txt`  
+Type anything you want, then press `ctrl+d` when you are done. Take a look at the file you made: `less testing_cat.txt` (press `q` to exit `less`).  
+A few things of note:  
+* use `>` when you want to overwrite any existing content that may exist, use `>>` when you want to append something to the end of a file without overwriting it.
+* `cat` interprets your "enter" key as a linebreak (newline character). These are invisible to us but those characters are visible to bash. Make sure to remember a final linebreak on the last line of your file (press "enter" on your last line before exiting with "ctrl+d"), otherwise your last line will have no linebreak character, something that may cause problems if you use that file for anything in bash. (This is something we normally never really have to think about when writing with rich text editors like Microsoft Word).
+* there is no backspace after you move to a new line. Once you hit enter and move to the next line, `cat` has already sent that previous line through `stdout` and it has been written to your file.
+* if you exit `cat` with ctrl+c ("cancel") instead of ctrl+d ("done"), the line you are currently on will not be written.
+
+A typical use-case for `cat` is creating very short text files that we need as input for other commands, and that are easy to copy-paste or type on the command line. For example, let's create a file listing some species names:  
+`cat > Ceratopipra_species.txt`
+Copy-paste the contents below into the terminal, hit "enter" once to generate a linebreak if needed, then type ctrl+d to finish.
+```
+rubrocapilla
+chloromeros
+erythrocephala
+mentalis
+cornuta
+```
+Now check that the file looks ok: `cat Ceratopipra_species.txt` or `less Ceratopipra_species.txt` (press `q` to exit `less`). 
+
+### echo
+`echo` is an alternative way to print text to a file. It requires less interaction than `cat`, so is handy in pipelines where you don't want to worry about typos or where you need to make a lot of files. It has the disadvantage of needing to explicitly write out linebreaks, such that you can't just copy-paste multiple lines of text like we did above.  
+Let's test it out:  
+```
+echo "this is a test"
+echo test
+echo do I need quotation marks
+echo "column1 column2" | cut -f 2 -d " "
+echo "how many characters are in this sentence" | wc -c
+echo "column1\tcolumn2" #in some versions, \t will by default be interpreted as a tab, while in others it is not
+echo "Here is a random number: $RANDOM" #we can include variables in echo - these are explained farther below
+```
+`echo` just repeats whatever we give it and passes that from `stdin` to `stdout`, whether that means printing to our terminal or passing the content through a pipe. We can use that to build text files.  
+Let's use `echo` to make a phylogenetic tree file, something that many population genetics programs ask for as input:  
+`echo "(cornuta,(mentalis,(erythrocephala,(rubrocapilla,chloromeros))))" > Ceratopipra_phylogeny.nwk`  
+Now check that the file looks ok: `cat Ceratopipra_phylogeny.nwk` or `less Ceratopipra_phylogeny.nwk` (press `q` to exit `less`). 
+Note that echo automatically adds a newline character to the end of whatever it prints.  
+
+### printf
+`printf` is a slightly more standardized way of printing that has more formatting options than `echo`. `echo`, while a very mainstream tool, has the problem of working slightly differently on different versions of bash, so you can't always be sure what its output will be if you are working with text that has any complications like backslash characters. `printf` deals with backslashes and formatting very consistently.  
+
+Try these:  
+```
+printf "this is a test"
+printf test
+printf do I need quotation marks #this only prints the word "do" - you do need quotation marks when you have a space you want to print!
+printf "column1 column2" | cut -f 2 -d " "
+printf "how many characters are in this sentence" | wc -c #one fewer than echo - because echo added a newline character
+printf "column1\tcolumn2" #the \t is interpreted as a tab
+printf "Here is a random number: $RANDOM" 
+```
+Those probably look a little wonky - unlike `echo`, `printf` didn't add any newline characters to our output, because we didn't ask it to. Without an invisible newline character, our terminal didn't move to a new line. Newlines are represented by a "\n" (make sure to use a backslash `\` not a forward slash `/`), and we can add "\n" where we want linebreaks to be when using `printf`.  
+
+Let's fix those up a bit by telling `printf` to include linebreaks at the end of our printing:  
+```
+printf "this is a test\n"
+printf test\n #without quotes, the \n didn't get interpreted as a newline character
+printf "test\n"
+printf "column1 column2" | cut -f 2 -d " "
+printf "how many characters are in this sentence" | wc -c #one fewer than echo - because echo added a newline character
+printf "column1\tcolumn2\n" #the \t is interpreted as a tab
+printf "Here is a random number: $RANDOM\n" 
+```
+We can use this when building files. For example, let's remake our `Ceratopipra_species.txt` using `printf` instead of `echo`:  
+`printf "rubrocapilla\nchloromeros\nerythrocephala\nmentalis\ncornuta\n" > Ceratopipra_species.txt`  
+Now check that the file looks ok: `cat Ceratopipra_species.txt` or `less Ceratopipra_species.txt` (press `q` to exit `less`).  
 
 
 # Day 2 materials
