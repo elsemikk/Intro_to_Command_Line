@@ -188,7 +188,7 @@ printf
 (in progress)
 
 # efficiency commands
-time, htop, df, screen, history, ssh, scp
+df, screen, history, ssh, scp
 
 # grep and regex
 * using grep to grab lines
@@ -490,7 +490,44 @@ As pipelines get complex, gnu parallel commands can be easy to break, and tracki
 For example, run `parallel --dry-run 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie apple_tree`  
 We can then dissect the code `echo apple | sed s/apple/blue berry/g` and find that it is missing the quotes inside of the `sed` code, even though those were included in our original code. This reveals to us that `parallel` is not seeing those single quotes (bash strips them out before handing that code to `parallel`). Much easier to troubleshoot that trying to figure out why we are getting the error `unescaped newline inside substitute pattern` without seeing how parallel is interpreting our code.  
 
+## time
+When evaluating alternate ways of doing things or running long commands, it is often useful to know exactly how long a command took. We can do this using the `time` command. The `time` command can be placed before any command, and once that command is done, it will print out the timing (without otherwise interfering with the command). 
 
+Let's try it:  
+time echo "how long does this command take??"  
+That will print out three numbers, `real`, `user`, and `sys`. The two we are most concerned with usually are `real` - the actual amount of time the command took (the "wall time") - and `user` time which is more-or-less the amount of CPU time our computer spent doing the command, summed across all threads that were used. When running multithreaded/parallel commands, `user` time can be much higher than `real` time, if the multithreading was done efficiently. (For example, if using 10 threads, `user` time can be a maximum of ~10 times higher than `real` time if done with maximum possible efficiency). 
+We may want to collect these times for a few reasons:  
+* to evaluate how efficiently our commands are using multiple threads  
+* to remind ourselves how long a command took for future planning  
+* to compare the speed of alternative methods  
+* to brag about how long something took (or how fast our code is)  
+
+Let's use `time` to compare the speed of our `parallel` command, `while` loop, and `for` loop.  
+
+parallel:  
+time parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB  
+
+for loop:  
+time for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in "$gene" of "$sample" is $num_As" ; done ; done  
+
+while loop:  
+time cat samples.txt | while read sample ; do cat genes_to_loop.txt | while read gene ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in "$gene" of "$sample" is $num_As" ; done ; done  
+
+Which one was fastest? When running a small number of very fast commands, the difference is often negligible (and the overhead time cost of setting up `parallel` can even make it slower than a `for` loop), but when dealing with heavier tasks it can save you weeks of waiting time.  
+
+## htop
+
+When using multiple threads, it is important to know how many threads our computer has, and how many are free. We can monitor this with the command `htop`. Running `htop` will take you to a screen that shows a series of bars at the top, and a list of processes on the lower half. The bars at the top represent each of your computer's threads, and the percentage shown in each bar tells you how much they are being used at the moment. This tells you how many threads you have, and how many are available for you to use.
+
+[image of a htop showing heavy usage]
+
+[image of htop showing minimal usage]
+
+Another bar below the threads shows how much of your computer's memory is being used. If most of the memory is being used, the computer may slow. Many heavy bioinformatics programs let you specify how much memory they are allowed to use, to avoid that risk.  
+
+Beneath that is a list of all the commands that are being run at the moment - this includes commands being run by you through the terminal, and other things that are happening in the computer.  
+
+To exit `htop`, press `q` for "quit".
 
 # awk
 (in progress)
