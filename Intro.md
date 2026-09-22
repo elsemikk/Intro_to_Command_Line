@@ -477,6 +477,21 @@ For example, if we want to run on a max of 5 threads at a time, we can use `--jo
 parallel --jobs 5 echo "processing gene {2} from sample {1}" ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB
 This can of course make it finish slower if you are letting it use fewer threads than the max possible, but it is often necessary for the sake of other users and our computer's longevity.  
 
+A few more notes:  
+* since `parallel` often needs us to wrap our commands in single quotes (`'`), this can become a problem when a command wants us to include quotes. Sometimes we can get around this by using double quotes instead of single quotes (for example, instead of `echo 'test' | sed 's/test/blue berry/g'`, switch to `echo "test" | sed "s/test/blue berry/g"`. Other times when we really need *single* quotes in our commands, we can use the somewhat clunky syntax `'\''` as a drop-in for `'` which will make it through.  
+For example, this would fail due to interference of the `'`'s:  
+parallel 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie apple_tree  
+This works, replacing the `'`'s around the sed command with `'\''`, though the code doesn't look very pretty:  
+`parallel 'echo {} | sed '\''s/apple/blue berry/g'\''' ::: apple apple_pie apple_tree`  
+A little clunky, and something you don't often have to do, but sometimes comes up with building bioinformatics pipelines.  
+
+As pipelines get complex, gnu parallel commands can be easy to break, and tracking down errors can get difficult. Something that can help enormously when troubleshooting is the `--dry-run` flag, which causes `parallel` to print out a list of all the commands that it would run, without running them. This can let you check that `parallel` is interpreting things the way you intend.  
+
+For example, run `parallel --dry-run 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie apple_tree`  
+We can then dissect the code `echo apple | sed s/apple/blue berry/g` and find that it is missing the quotes inside of the `sed` code, even though those were included in our original code. This reveals to us that `parallel` is not seeing those single quotes (bash strips them out before handing that code to `parallel`). Much easier to troubleshoot that trying to figure out why we are getting the error `unescaped newline inside substitute pattern` without seeing how parallel is interpreting our code.  
+
+
+
 # awk
 (in progress)
 * using awk for simple one-liners
