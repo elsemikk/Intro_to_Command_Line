@@ -17,7 +17,7 @@ Here are general instructions for getting into a terminal:
 
 # Directories and paths  
 
-Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is more-or-less the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The top-most level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**.  
+Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is more-or-less the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The top-most level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**. For example, the path to the Downloads directory on my laptop is `/Users/else/Downloads` (`Downloads` is nested within my `else` directory, which is nested within my `Users` directory, which is nested within my root directory (`/`).  
 
 # Running commands - basic navigation commands  
 
