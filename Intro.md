@@ -244,6 +244,8 @@ That will now be the first thing that bash searches, the the versions in that di
 
 Note that in practice, you don't necessarily often need to modify $PATH - instead, you can just give bash the full path to the program you are running, so that there will be no confusion in the future over which version was actually run when you look at your code. However, even with that habit you may encounter situations where you need to modify $PATH because a program needs to be able to locate other dependencies when running.  
 
+# day 3 materials (in progress)
+
 # for loops, while loops, if statements  
 While often used for only very simple tasks, bash is a full programming language that includes the ability to write loops and evaluate "if" statements. These come in extremely handy in bioinformatics, especially when needing to do repetitive tasks with many samples/genes/etc.  
 
@@ -311,11 +313,99 @@ Let's look at the first line of each file we just made:
 `for iteration in {1..10} ; do printf "the first gene is: " ; head -n 1 random_genes/random_genes."$iteration".txt ; done`
 
 ## nested loops
-We can also put loops inside of other loops. 
+We can also put loops inside of other loops! This allows us to iterate over multiple things at once. For example, maybe we need to run 10 iterations each for 10 different genes each for 10 samples. Or, perhaps we want to run a program while testing combinations of 3 different settings for one parameter and 2 different settings for another parameter, with 5 replicates per combo.  
+Nesting loops is simple; just put a loop in the middle of another loop. Make sure that you include the `do ; done` syntax for each loop. If you make a mistake with the syntax, usually nothing will happen - bash will stay waiting for you to complete typing the loop (press ctrl-c to cancel).   
+`for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do for iteration in {1..3} ; do echo "iteration $iteration for gene $gene of $sample" ; done ; done ; done`  
 
-* syntax for loops and if statements
-* cat samples.txt | while read sample ; do (...) ; done
-* if statements checking if a file exists before doing a command
+Note the order - bash loops through the innermost loop before changing the value of the next loop (it goes through all the iterations of sample1 MC1R before moving on to ND2, and completes all the genes of sample1 before moving on to the first iteration of sample2. If we change the order of the loops, it will change the order of the iterations.
+
+`for gene in MC1R ND2 COII CYTB ; do for iteration in {1..3} ; do for sample in sample1 sample2 sample3 ; do echo "iteration $iteration for gene $gene of $sample" ; done ; done ; done`  
+Now, it does iteration 1 of MC1R for all samples before moving on to iteration 2.
+
+Let's put nested loops to use. One task we may sometimes have to do in bioinformatics is concatenating DNA sequences stored in separate files. Perhaps we want to make a phylogeny, and need a single DNA sequence alignment with multiple species, but our DNA sequences are scattered across separate files, with each gene sequence of each sample stored in separate files. We could open each file one-at-a-time, copy-pasting the sequences into a new text file, but what if we make a mistake? What if we have hundreds of files and are short on time? What if we realize later that we want to exclude a gene, and need to redo the whole task? To be faster, more reproducible, and avoid typos, we can easily do this on the command line.  
+We can first break down what we need to do. For each gene of each species, we need to open the sequence file and grab the DNA sequence. This is usually stored in fasta format, which contains a header (that starts with ">") followed by a line (or lines) of DNA sequence. Then we need to paste this DNA sequence into a new file. We need that new file to contain a fasta header for each sample, and then have a line of DNA sequence with each of our genes back-to-back in the same order. (Let's assume that this is our data, and we already know that our files contain DNA sequence that is homologous and properly aligned across all samples, so we can concatenate the files without worries).  
+
+This loop will be a little more complicated, so let's spell it out in words before writing the loop:  
+1) for each sample:
+2) make a fasta header entry in the new file (with a linebreak after it)
+3) for each gene in that sample:
+4) open the gene fasta file for that sample, and remove the fasta header and line breaks
+5) paste that DNA sequence into the new file
+6) after pasting the last gene, add a linebreak before moving on to the next sample
+
+Now let's put that into bash code:
+
+`for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "/n" >> concatenated_data.fasta ; done'
+Let's take a look: `concatenated_data.fasta`. Ready to open in a sequence alignment viewer or to build a phylogenetic tree with!  
+
+## while loops
+
+The other handy type of loop is **while loops**. These use very similar `do ... ; done` syntax, but instead of feeding them an explicit list of things to iterate over, they will check whether a condition is met at the start of each iteration, and stop only once that condition is met. A very common usage is to store a list of things to loop through, and loop through the lines of the file with a `while` loop, the exit condition being hitting the end of the file.  
+
+Let's start with a very simple example, with samples.txt containing a list of 3 samples. Take a look: `cat samples.txt`.  
+```
+sample1
+sample2
+sample3
+```
+Let's build a loop using this file:
+`cat samples.txt | while read sample ; do echo "Now analyzing $sample" ; done`  
+`read` will go through the file line-by-line in each loop iteration, stopping the `while` loop when it hits the end of the file.  
+[Note - I have used a slightly less efficient syntax here, using `cat` to read the file. This is technically unnecessary; instead the file can be given to bash through stdin, like this: `while read sample ; do echo "Now analyzing $sample" ; done < samples.txt`. I used the slightly less efficient version as it is a little easier to read. If you were to run a huge number of while loops, it would be better to use the more efficient syntax].  
+
+Note that as in `for` loops, we can name our variable anything we want:  
+`cat samples.txt | while read blueberry ; do echo "Now analyzing $blueberry" ; done`  
+
+Let's repeat our gene-concatenating example using `while` loops. First, let's make a file listing all the genes that we want.
+First, let's make a list of all the genes we need to concatenate. There are multiple ways we could do this, for example:  
+`for gene in MC1R ND2 COII CYTB ; do echo "$gene" >> genes_to_loop.txt ; done` a safe way, but which requires you to type out all the gene names
+`ls sample1_*.fasta | grep -v "allgenes" | sed "s/sample1_//g; s/.fasta//g" > genes_to_loop.txt` a hack that technically works, but is vulnerable to breaking if `ls` finds something you weren't expecting.
+`grep ">" sample1_allgenes.fasta | sed "s/>//g" > genes_to_loop.txt` a hack that works because we happen to have a file with all the gene names in it, we just needed to extract them from the fasta headers and fix the formatting.  
+We could also have written the file ourselves using `nano genes_to_loop.txt` or `cat > genes_to_loop.txt`.  
+
+Now let's write our loop. Recall the `for` loop version was: `for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "/n" >> concatenated_data.fasta ; done'
+Here is the `while` loop version:  
+`cat samples.txt | while read sample ; do echo ">$sample" >> concatenated_data.fasta ; cat genes_to_loop.txt | while read gene ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "/n" >> concatenated_data.fasta ; done'
+Which syntax do you prefer?  
+In general, when you just have a few things to loop through, it makes more sense to write them out as `for` loops. When you have a long list of samples/genes/etc, it can be convenient to store them in a file and use the `while` loop trick instead.  
+
+One thing that you can do with `while read` that you can't do easily with `for` loops is to have `read` parse multiple variables on a line. By default, `read` reads lines as space-separated lists of variables. For example, let's look at `samples_metadata.txt`. 
+```
+sample1 referenceA
+sample2 referenceA
+sample3 referenceB
+```
+`cat samples_metadata.txt | while read sample ; do echo "Now analyzing $sample" ; done` 
+We can simply list another variable name, and `read` will interpret the two space-separated words as separate variables.   
+`cat samples_metadata.txt | while read sample reference ; do echo "Now analyzing $sample using $reference"; done` 
+You can repeat this with as many space-separated variables as you wish. This is handy when you need to loop through different samples/genes/iterations/etc while using slightly different settings for each one, for example:  
+* mapping different samples to different reference genomes
+* dealing with X/Y or Z/W chromosomes as haploid vs diploid for different samples
+* using different sequencing depth filters for different samples
+* creating different datasets with different filtering stringencies for different analyses
+* testing out several combinations of parameter settings when you don't have computational resources to test every possible combo  
+
+## if statements
+
+One more core piece of bash syntax is the `if` statement. Like other programming languages, `if` statements check whether a condition is true before executing the command. The syntax looks like: `if [ condition ] ; then $command ; fi`
+
+A very common usage in bash is to check whether a file already exists before proceeding. `-e` in an `if` statement condition asks whether a file exists  
+
+`if [ -e samples.txt ] ; then echo "Yes, samples.txt exists" ; fi`  
+`if [ -e acde.txt ] ; then echo "Yes, abcde.txt exists" ; fi` # this should do nothing, assuming you did not create `abcde.txt`.  
+
+We can also do the opposite - ask whether a file doesn't exist. To negate a condition, we can use a `!` symbol, like this:  
+`if [ ! -e samples.txt ] ; then echo "No, samples.txt does not exist" ; fi` # this should do nothing, as `samples.txt` should exist.  
+`if [ ! -e acde.txt ] ; then echo "No, abcde.txt does not exist" ; fi`   
+
+This can be a handy safety measure to avoid overwriting ("clobbering") an especially valuable file that took a long time to make - when built into an `if` statement, the command will happily exit without overwriting your file if you accidentally paste it into the command line.  
+for example: 
+`if [ ! -e blueberry.txt ] ; then echo "blueberry" > blueberry.txt ; fi`   
+This will only write `blueberry.txt` if it doesn't already exist. That would be handy if `blueberry.txt` took a week to write.  
+
+This is also very handy if we aren't sure whether a file already exists, and we only want to make it once. For example, we mapping samples to a reference genome, we might want to check whether the reference genome is already indexed, and only index it if it is not already indexed.
+
+`cat samples_metadata.txt | while read sample reference ; do if [ ! -e "$reference"_index.txt ] ; then echo "preparing $reference" ; printf "" > "$reference"_index.txt ; fi ; echo "mapping $sample to $reference" ; done`
 
 # gnu Parallel
 * cat samples.txt | parallel (...)
