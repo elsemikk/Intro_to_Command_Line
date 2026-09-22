@@ -15,27 +15,39 @@ Here are general instructions for getting into a terminal:
 *Mac* if you are on Mac, you should have an application called Terminal. It is often located in your `Applications/Utilities` subfolder; [this page](https://support.apple.com/en-ca/guide/terminal/apd5265185d-f365-44cb-8b09-71a064a42125/mac) from Apple explains more about how to open it on different MacOs versions if you are having trouble locating it. Note that the default shell that comes with newer macs is not bash, it is zsh - it is extremely similar, so almost all of the code in this tutorial will work the same, but if you do more complicated things you may notice a difference.  
 *Windows* Windows doesn't come with bash, so you will need to install it yourself. One popular option is [git bash](https://gitforwindows.org/). Alternatively, you can just `ssh` into a server if you have access to one.  
 
+Once you have your Terminal open, you will a screen with some text on it that should look something like this:  
+
+<img width="1019" height="644" alt="image" src="https://github.com/user-attachments/assets/80226990-1bd3-4b14-b8f4-39223d0228c5" />
+
+The colours may be different - those can be customized - but it should look similar. On the bottom line, it will show you username and IP address of server name separated by "@", then a ":" symbol, then the directory you are in (usually a "~" symbol when you first start up - explained below), and finally a "$" symbol. Next to the `$` is the command prompt where you type/paste commands.  
+
 # Directories and paths  
 
 Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is more-or-less the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The top-most level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**. For example, the path to the Downloads directory on my laptop is `/Users/else/Downloads` (`Downloads` is nested within my `else` directory, which is nested within my `Users` directory, which is nested within my root directory (`/`).  
+
+One special path is your home directory. This can be represented with the shortcut `~` (the "tilde"), and is usually the directory that you start out in when opening a new terminal.  
 
 # Running commands - basic navigation commands  
 
 To run a command, type or paste the command into the command line, and then hit enter.  
 
 Here we will go over some of the most-commonly used commands: commands for getting around on the command line.  
-`pwd` - print current working directory  
-`ls` - lists the contents of your current working directory  
-`mkdir $name_of_directory` - makes a new directory  
-`cd $name_of_directory` - change to a new working directory  
-`rmdir $name_of_directory` - remove (delete) an empty directory 
-`man $name_of_command` - open the manual for a command (then press "q" to quit the manual)  
+* `pwd` - print current working directory  
+* `ls` - lists the contents of your current working directory  
+* `mkdir $name_of_directory` - makes a new directory  
+* `cd $name_of_directory` - change to a new working directory  
+* `rmdir $name_of_directory` - remove (delete) an empty directory 
+* `man $name_of_command` - open the manual for a command (then press "q" to quit the manual)
+
+(in the above list, the variables starting with $ are placeholders I wrote which you will replace when writing your command - don't include those `$` symbols)
 
 First, find out where you are in your computer's filesystem using the `pwd` command ("print working directory"). This will print text as output in the next line of your terminal. This printed output text is called "standard output". The standard output of `pwd` will be the full path from the root of your computer's filesystem to your current working directory. When you run commands, your working directory is the default place where your computer will look for input files, and is the default place where output files appear.  
 
 To find out what is in your working directory, type `ls` into your command prompt, then hit "enter". The text that pops up in your terminal (the "standard output" of `ls`) is a list of all the files in your current working directory.  
 
 Next, let's move around the filesystem. We can do this using the `cd` ("change directory") command. To use it, type `cd` followed by a space, then the name/path of the directory you want to move to. If the directory you want to move to is in your current working directory, you can just give the name of the directory. If it is somewhere else, you will have to specify the path to that directory. Let's move into the directory for this tutorial. If you downloaded the tutorial folder manually, you will need to know where on your computer it ended up.  
+
+`cd Intro_2_command_line`  
 
 Now that we are in the tutorial directory, let's start by making a new directory. We can make a directory using the `mkdir` command: just type `mkdir` followed by a space, then the name of the new directory. For example, run:  
 `mkdir test`  
@@ -51,8 +63,9 @@ At this point, make sure you are back in the main tutorial directory. Let's dele
 If you run `ls`, you should now see that the test directory is gone. Careful! There is no "undo" on the command line. Luckily, `rmdir` will refuse to delete a directory that is not empty.  
 
 Now let's move on to some slightly more complex commands. Before we do, here are some important general tips for running commands on the command line:  
-* Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file").  
-* Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.  
+* Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file"). As best practice though, don't include spaces in the name of any file or directory - instead_you_can_experiment_with_underscores, or.you.can.try.using.dots, OrYouCanTryWritingInCamelCase.  
+* Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor to use straight quotes instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.
+* Rich text editors will also add invisible characters called "carriage returns". You will not be able to see these in your document, but the command line sure can! These invisible characters break code and cause major headaches; using a plain text editor will avoid that problem.  
 * Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click.  
 * Time saver: in many systems, you can press ctrl+a to jump your cursor to the start of the line, and then ctrl+e to jump back to the end of the line. Saves some time if you made a typo way at the beginning of the line!  
 * to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit.  
@@ -60,37 +73,64 @@ Now let's move on to some slightly more complex commands. Before we do, here are
 ## Flags  
 An important aspect of running commands on the command line is setting flags. These are settings that can alter the behaviour of the command you are running. They are usually single letters or short words, that are placed after a command (separated by a space), like this: `command -a -b -c --flag_d`. That command has four flags: `-a`, `-b`, `-c`, and `--flag_d`. Flags are attached to dashes - generally a single dash for single-letter flags or two dashes for flags that are words. If a flag is a word, it cannot have a space in it (instead, underscores `_` can be used). Often, there will be two synonymous flags you can choose between that do the same thing, a single-letter option for brevity, or a short-word option you can use to make it easier to remember what it does when you go back and read your code in the future.  
 
-The other thing we have been given some commands is/are argument(s). These are also settings that alter the action of the command you are running or the flag you set - they are often the name of input files or output files, or parameters that you need to change/specify for the program you are running. These are distinguished from flags because they are not preceded by dashes. Sometimes arguments are required (eg, `mkdir` would not have anything to do if you didn't tell it the name of the directory it should make), and sometimes they are not required (eg, `ls` defaults to listing your current working directory if you don't give it any arguments).  
+The other thing we have given some commands is/are argument(s). These are also settings that alter the action of the command you are running or the flag you set - they are often the name of input files or output files, or parameters that you need to change/specify for the program you are running. These are distinguished from flags because they are not preceded by dashes. Sometimes arguments are required (eg, `mkdir` would not have anything to do if you didn't tell it the name of the directory it should make), and sometimes they are not required (eg, `ls` defaults to listing your current working directory if you don't give it any arguments).  
 
 Let's add some flags to `ls`. If we just run `ls`, it will tell us the contents of our current working directory. If we add  the flag `-l` and run `ls -l`, it will now give us a more lengthy summary of our files, including handy information like the size of our files, which user owns them, and date/time when they were last modified. Let's now add another flag, `-h`: `ls -l -h` or `ls -lh` (for single-letter flags, you can either give each flag their own dash, or smoosh them together behind the same dash, whatever style looks best to you). `-h` stands for "human-readable", and will convert the file sizes from number of bytes to abbreviations (K for Kilobyte, M for Megabyte, etc).   
 
 # Looking at files
 
 Now we will look at some important commands for reading and manipulating files:  
-`cat` - read a file (or text input on the command line) and print the contents  
-`less` - look at a file on the command line (without printing anything). Press `q` when done looking. 
-`head` - print only the first lines of a file  
-`tail` - print only the last lines of a file  
-`wc` - count the number of lines/words/characters  
-`cut` - print only specific column(s) from a file  
-`sort` - sort input  
-`uniq` - remove repeated lines (if they are adjacent)  
-`paste` - merge files horizontally (paste columns together line-by-line)  
+* `cat` - read a file (or text input on the command line) and print the contents
+* `cp` - copy a file  
+* `mv` - move (and possibly rename) a file  
+* `rm` - remove (permanently delete) a file  
+* `less` - look at a file on the command line (without printing anything). Press `q` when done looking. 
+* `head` - print only the first lines of a file  
+* `tail` - print only the last lines of a file  
+* `wc` - count the number of lines/words/characters  
+* `cut` - print only specific column(s) from a file  
+* `sort` - sort input  
+* `uniq` - remove repeated lines (if they are adjacent)  
+* `paste` - merge files horizontally (paste columns together line-by-line)  
 
 The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. The most simple way to run it is `cat $Name_of_file`. Let's try it:  
 `cat ABBABABA1.txt`  
-That will print the contents of ABBABABA1.txt.  
+That will print the contents of the file `ABBABABA1.txt`.  
 `cat` can also take multiple files as input and concatenate them together in the order they are listed. For example:  
 `cat ABBABABA1.txt ABBABABA2.txt`  
-That will print the contents of ABBABABA1.txt and then the contents of ABBABABA2.txt.  
+That will print the contents of `ABBABABA1.txt` and then the contents of `ABBABABA2.txt`.  
 Often, we need to save this output, rather than just printing it to the command line. We can redirect it to a file using the `>` symbol to point to a file where the output should be printed. This could be just the file name (in which case it will appear in your current working directory), or it could also include a path to save it in a different directory. Warning! Redirecting output using `>` will overwrite the contents of the file if it already exists, without any warnings. There are many sad stories of people losing their work by accidentally overwriting files using `>`. When a file is overwritten in that way, it is called "clobbering".  
 Let's use `cat` to combine two files together and save the results.  
-`mkdir -p processed_data`  
-`cat ABBABABA1.txt ABBABABA2.txt > processed_data/ABBABABA_concatenated.txt`
-Oops! We missed ABBABABA3.txt. We could add it by running `cat ABBABABA1.txt ABBABABA2.txt ABBABABA3.txt > processed_data/ABBABABA_concatenated.txt`, which would erase and remake processed_data/ABBABABA_concatenated.txt, an annoying solution. Instead, we can concatenate ABBABABA3.txt to the end of processed_data/ABBABABA_concatenated.txt without overwriting it, by using `>>` instead of `>`, like this:  
+```
+mkdir -p processed_data 
+cat ABBABABA1.txt ABBABABA2.txt > processed_data/ABBABABA_concatenated.txt
+```  
+Oops! We forgot about `ABBABABA3.txt`. We could add it by running `cat ABBABABA1.txt ABBABABA2.txt ABBABABA3.txt > processed_data/ABBABABA_concatenated.txt`, which would erase and remake `processed_data/ABBABABA_concatenated.txt`, an annoying solution. Instead, we can concatenate `ABBABABA3.txt` to the end of `processed_data/ABBABABA_concatenated.txt` without overwriting it, by using `>>` instead of `>`, like this:  
 `cat ABBABABA3.txt >> processed_data/ABBABABA_concatenated.txt`   
+`>` and `>>` are special components of bash code. Both are used to redirect output to a file, but `>` starts the file fresh while `>>` appends things to a file without modifying/overwriting any content that may already be there.  
 
-Now let's take a look at `processed_data/ABBABABA_concatenated.txt`. However, this is a big file, it would not be convenient to run `cat processed_data/ABBABABA_concatenated.txt` and have all that text print to our command line. Instead, let's use another handy command: `less`, which lets us scroll through files without printing them out.   
+A few more basic actions we often need to do are to copy, move, or delete files. Copying a file is done with `cp`, which makes a duplicate of the file. This duplicate can be in the same or different directory. If it is in the same directory as the original, it needs to have a new name (you can't have two files with the same name in the same directory), but if it is in a different directory it can have the same name as the original.  
+Let's make a backup of our new `processed_data/ABBABABA_concatenated.txt` file:  
+```
+mkdir -p backups
+cp processed_data/ABBABABA_concatenated.txt backups/ABBABABA_concatenated_backup.txt
+```
+When running `cp`, we first give the name/path of the original file we want to copy, and then give the name/path of the duplicate we want to create.  
+Let's backup `ABBABABA1.txt` too: `cp ABBABABA1.txt backups/ABBABABA2.txt`.  
+Oops! Did you see that typo? We accidentally named our ABBABABA**1** backup ABBABABA**2**! Let's rename it before we confuse our future selves. We can rename files using the `mv` command. `mv` moves a file from one place to another, without leaving a copy of the original behind (unlike `cp`). We can move files from one directory to another, or we can "move" files without changing their directories. When we move files, we can keep their name or change their name. That means that we can edit the name of a file by "moving" it within the same directory to a different name, like this:  
+`mv backups/ABBABABA2.txt backups/ABBABABA1.txt`  
+To use `mv`, provide the name/path of the file you want to move, followed by the name/path that you want to move it to. Note that if you want to move it to a new directory without changing the name, you can just give the name of the directory without specifying a name for the file, and it will keep its original name. (Careful! Make sure that directory exists, otherwise you will rename your file to the name of the directory you intended it to move to).  
+Let's try some more:  
+```
+cp ABBABABA1.txt backups
+mv backups/ABBABABA1.txt backups/blueberry
+cp ABBABABA2.txt backups/blueberry
+```
+Whoops! Look what just happened. We copied a file to a place where there was already a file with that name (`backups/blueberry`). `cp` overwrote that file without any warning. This is another type of file "clobbering" to watch out for, which both `cp` and `mv` can do. If our old version of `backups/blueberry` was an important file, it would be gone - better hope we had a backup!  
+
+Next, we can delete files using `rm`. `rm` removes (permanently deletes) files that we list. For example, we can delete `backups/blueberry` like this: `rm backups/blueberry`. Careful! Here again there is no "undo". By default, bash will not ask whether you are sure, it will go ahead an execute the command, and the file will be gone (this behaviour can be altered using bash aliases explained later). Be very careful when executing `rm` commands - there are some joke or malicious "advice"/memes out there that try to trick new coders into erasing their whole filesystem using `rm`! Directories can be deleted recursively (including all their contents and subdirectories) using `rm -r` - a powerful tool that can be very useful when you need to delete whole directories with thousands of files, but a command that can be catastrophic when used by mistake!   
+
+Now let's take a look at `processed_data/ABBABABA_concatenated.txt` that we made previously. However, this is a big file, it would not be convenient to run `cat processed_data/ABBABABA_concatenated.txt` and have all that text print to our command line. Instead, let's use another handy command: `less`, which lets us scroll through files without printing them out.   
 
 Let's try it: `less processed_data/ABBABABA_concatenated.txt`  
 
@@ -99,6 +139,7 @@ Your screen will now show the contents of `processed_data/ABBABABA_concatenated.
 * type `G` (uppercase) to go to the end of the file  
 * type `g` to go to the start of the file  
 * type `/` to search the contents of the file: first type `/`, then what you want to search for, then `enter`. For example, try typing `/Trinidad`  
+
 If you get stuck while typing something, press `ctrl + c` to cancel what you just typed.  
 To exit `less` and go back to the command line, type `q` for "quit".  
 
