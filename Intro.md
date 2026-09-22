@@ -16,7 +16,7 @@ Here, we will go over the basics of working on the command line and writing simp
 
 # Directories and paths  
 
-Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is more-or-less the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The deepest level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**.  
+Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is more-or-less the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The top-most level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**.  
 
 # Running commands - basic navigation commands  
 
@@ -175,7 +175,7 @@ Redirecting stderr is similar to redirecting stdout, but the code is slightly di
 
 If you want the stderr to instead be printed alongside stdout in the same file (with the lines interspersed as they are generated), you can use `2>&1` which means "send stderr to the same place as stdout". For example: `command --settings input_file > output.txt 2>&1` will send both stdin and stdout to the same place. This can be handy when both stdout and stderr are log messages that you want to save to a single log file, or if you want to be able to send error messages through a pipe to be processed by the next command.  
 
-We can also use another trick to make error messages go away entirely - we can redirect the standard error to a place called `/dev/null`. This is a special file which acts like a "black hole" in the computer. It is an empty file, and any data that gets sent to it is immediately discarded. Redirecting our error messages to `/dev/null` gets rid of them so they never get printed. This can be handy when you need to loop through 2000 files with commands that produce a lot of stderr messages and you don't want all that text flying at you on the command line.  
+We can also use another trick to make error messages go away entirely - we can redirect the standard error to a place called `/dev/null`. This is a special device which acts like a "black hole" in the computer. It is empty, and any data that gets sent to it is immediately discarded. Redirecting our error messages to `/dev/null` gets rid of them so they never get printed. This can be handy when you need to loop through 2000 files with commands that produce a lot of stderr messages and you don't want all that text flying at you on the command line.  
 
 # making a file from scratch
 cat
@@ -304,7 +304,7 @@ A great use for brace expansion in bioinformatics pipelines is to use them with 
 For example, let's subsample a list of genes by selecting only 10 random genes from a long list of genes. Perhaps we are running a computationally intensive analysis that can only handle 10 genes, or perhaps we need small samples of random data to build a null distribution to compare to some result (for example to calculate a p-value).  
 We can shuffle our list with `sort -R` (sort randomly) and then take the first 10 lines.
 `sort -R genes.txt | head -n 10`
-(Note: a nice alternative for shuffling lines is the command `shuf`, which comes with most versions of bash)  
+(Note: a nice alternative for shuffling lines is the command `shuf`, which comes with many versions of bash, though not on Macs)  
 
 For many cases of subsampling, we need multiple iterations (eg, checking for consistency between replicates or building up a null distribution). We can use a `for` loop with brace expansion to quickly and easily generate as many replicates as we would like.  
 
@@ -340,7 +340,7 @@ Now let's put that into bash code:
 `for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`
 Let's take a look: `concatenated_data.fasta`. Ready to open in a sequence alignment viewer or to build a phylogenetic tree with!  
 
-One thing to note: if we were to run the above code twice by accident, it would happily append a second copy of everything to `concatenated_data.fasta` without any easy way for us to realize what happened (perhaps until we get out final result and realize there are twice as many sequences in our tree than expected). When running code that builds files with `>>` like that, we either need to be extra careful not to accidentally run things twice (perhaps running a sanity check like counting sequences before moving on), or build in a fail-safe. For example, a fail-safe could be adding `rm` before the loop to get rid of any existing copies of `concatenated_data.fasta` before continuing, or using an `if` statement to check that the file doesn't already exist (described below).  
+One thing to note: if we were to run the above code twice by accident, it would happily append a second copy of everything to `concatenated_data.fasta` without any easy way for us to realize what happened (perhaps until we get out final result and realize there are twice as many sequences in our tree than expected). When running code that builds files with `>>` like that, we either need to be extra careful not to accidentally run things twice (perhaps running a sanity check like counting sequences before moving on), or build in a fail-safe. For example, a fail-safe could be adding `rm` before the loop to get rid of any existing copies of `concatenated_data.fasta` before continuing (or clobbering it with `>`), or using an `if` statement to check that the file doesn't already exist (described below).  
 
 ## while loops
 
@@ -396,28 +396,62 @@ Before moving on, it's important to note that our `while` loops here are working
 
 ## if statements
 
-One more core piece of bash syntax is the `if` statement. Like other programming languages, `if` statements check whether a condition is true before executing the command. The syntax looks like: `if [ condition ] ; then $command ; fi`
+One more core piece of bash syntax is the `if` statement. Like other programming languages, `if` statements check whether a condition is true before executing the command. The syntax looks like: `if [ condition ] ; then command ; fi` (substituting "condition" and "command").  
 
-A very common usage in bash is to check whether a file already exists before proceeding. `-e` in an `if` statement condition asks whether a file exists  
+A very common usage in bash is to check whether a file already exists before proceeding. `-e` in an `if` statement condition asks whether a file exists:  
 
 `if [ -e samples.txt ] ; then echo "Yes, samples.txt exists" ; fi`  
 `if [ -e abcde.txt ] ; then echo "Yes, abcde.txt exists" ; fi` # this should do nothing, assuming you did not create `abcde.txt`.  
 
-We can also do the opposite - ask whether a file doesn't exist. To negate a condition, we can use a `!` symbol, like this:  
+We can also do the opposite - ask whether a file *doesn't* exist. To negate a condition, we can use a `!` symbol, like this:  
 `if [ ! -e samples.txt ] ; then echo "No, samples.txt does not exist" ; fi` # this should do nothing, as `samples.txt` should exist.  
 `if [ ! -e acde.txt ] ; then echo "No, abcde.txt does not exist" ; fi`   
 
 This can be a handy safety measure to avoid overwriting ("clobbering") an especially valuable file that took a long time to make - when built into an `if` statement, the command will happily exit without overwriting your file if you accidentally paste it into the command line.  
 for example: 
 `if [ ! -e blueberry.txt ] ; then echo "blueberry" > blueberry.txt ; fi`   
-This will only write `blueberry.txt` if it doesn't already exist. That would be handy if `blueberry.txt` took a week to write.  
+This will only write `blueberry.txt` if it doesn't already exist. That would be handy if `blueberry.txt` took a week to write and we don't want to overwrite it if we ran that command by accident.  
 
-This is also very handy if we aren't sure whether a file already exists, and we only want to make it once. For example, we mapping samples to a reference genome, we might want to check whether the reference genome is already indexed, and only index it if it is not already indexed.
+This is also very handy if we aren't sure whether a file already exists, and we only want to make it once. For example, when mapping samples to a reference genome, we might want to check whether the reference genome is already indexed, and only index it if it is not already indexed:  
 
-`cat samples_metadata.txt | while read sample reference ; do if [ ! -e "$reference"_index.txt ] ; then echo "preparing $reference" ; printf "" > "$reference"_index.txt ; fi ; echo "mapping $sample to $reference" ; done`
+`cat samples_metadata.txt | while read sample reference ; do if [ ! -e "$reference"_index.txt ] ; then echo "preparing $reference" ; printf "" > "$reference"_index.txt ; fi ; echo "mapping $sample to $reference" ; done` (this is an imaginary example to give you the idea, this command of course isn't actually indexing or mapping anything)  
 
 # gnu Parallel
-* cat samples.txt | parallel (...)
+So far we have looked at using loops to run a potentially large number of repetitive commands. These loops run one iteration at a time, only moving on to the next sample/gene/iteration once the previous has complete. Sometimes this is important, such as when writing things to a file in a particular order. In other cases however, it is a waste of time - when it doesn't matter the order that things are done, we could save potentially weeks of waiting by making our samples/genes/iterations/etc run at the same time instead of one-after-the-other. This is the case when a computer has multiple **cores/threads**. In brief, A computer core (CPU core) is the hardware that actually does the computing. When a computer has multiple cores (as almost any machine you interact with will), it can compute multiple different things at once. The term **threads** is often used interchangeably, a thread is essentially a unit of work that a CPU core can do. Some cores only do 1 thread of work (so the number of threads equals the number of cores), while some cores can "multitask" and work on 2 threads at once (so the number of threads is equal to double the number of cores). 
+
+When we run a single-threaded command (as all of the previous examples were) like a while or for loop, everything is done on only one thread - all the other available threads are sitting idly by. To be more efficient, we could have the other iterations of our loop worked on simultaneously by other threads. This can sometimes add up to enormous time savings! For example, if it takes an hour to map a sample to a reference genome and we have 24 samples to map, running them using a simple while/for loop one-at-a-time would take 24 hours to map all samples. Instead, if we have 24 threads available and map them all at once on different threads, we could have them all done in 1 hour! Using multiple threads at once is called **multithreading** or running things in **parallel**.   
+
+There are many ways we can accomplish that. Many bioinformatics programs have multithreading built in, with the program including a flag asking how many threads we want it to use - handy when we have just one command that we want done faster. When we have *multiple* commands to do at the same time, we could copy-paste them into separate terminals to run at the same time, but that would be inconvenient and annoying. Instead we can use a utility that automatically manages running things in parallel - one popular option is Gnu `parallel`. `parallel` doesn't come with bash, instead it is a separate program that needs to be installed.   
+
+[section about installing gnu parallel]
+
+The logic behind setting up a `parallel` run is similar to the `while read` loops - we need a file listing a bunch of values to loop over (samples/genes/iterations/etc), and give that to `parallel` along with the command we want to run, and `parallel` will propagate our values into the command, generating one command for each of them, and then manage those commands by feeding them to any free threads (one command per thread), either using all threads on our computer or sticking to a set number that we tell it to use. If there are more commands than threads, `parallel` will hold the extra commands back, feeding them to a thread as soon as an earlier command finishes and a thread becomes available. 
+
+The syntax looks like this:  
+
+cat samples.txt | parallel echo "processing {}"
+
+In that command, we opened `samples.txt` with `cat` and then sent that list to `parallel` through standard input. `parallel` seems each line as a separate value to iterate over, and generates separate commands for each, dropping them into the `{}` in the command `echo "processing {1}"`. It then runs all of those commands at the same time. 
+
+An alternative syntax looks like this:
+
+parallel echo "processing {}" :::: samples.txt
+
+or this:  
+
+parallel echo "processing {}" ::: sample1 sample2 sample3
+
+In those cases, we give out inputs at the end of the command - if they are listed in a file, we use four colons (`::::`) followed by the filename. If we instead want to write them out, we use three colons (`:::`) followed by a space-separated list. Each of those three syntaxes produces the same result, so it is a matter of convenience or personal preference which you would like to use.  
+
+Let's go back to an earlier task - counting the number of A's in a fasta sequence. Let's count the number of A's in the fasta sequences of ND2 for our three samples in parallel. Before we do that, there are a few more rules to know. When we want to give parallel a longer command that includes special bash characters like `|` or `>`, we need to enclose those characters in single quotes (eg, `'|'`, `'>'`) so that bash will know they belong to the `parallel` command. The easiest way to do this is to just wrap the entire `parallel` command in single quotes as a habit, like this:      
+`cat samples.txt | parallel 'echo "processing {}"'` (when we don't need them, those single quotes will just have no effect)  
+
+`cat samples.txt | parallel 'echo "analyzing ND2 from {}" ; num_As=$(grep -v ">" gene_fastas/{}_ND2.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in ND2 of {} is $num_As"'`  
+
+Parallel can also take multiple lists, propagating 
+
+
+
 
 # awk
 (in progress)
@@ -450,13 +484,20 @@ Aliases can be anything that you would like a shortcut for, here are some exampl
 `alias hub="cd ~/Documents/GitHub"`: this is an alias for me to `cd` into my Github folder without me needing to type the whole word or remember where it is. `alias ll="ls -l"`: this is a fairly popular alias, used to save you from typing all 5 digits of `ls -l`, a command that is usually used *a lot*.  
 `alias nseq="grep -c '^>'"`: this is a handy command to count the number of entries in a fasta file, something I need to do a lot.  
 `alias nvcf="grep -c -v '^#'"`: this one lets me count the number of sites in a VCF file.  
-`alias nia="ssh elsemikk@niagara.scinet.utoronto.ca"`: this allowed me to `ssh` into the niagara cluster without having to type the whole address.  
+`alias nia="ssh username@IP_address"`: this allowed me to `ssh` into a server without having to type the whole IP address.  
 
 All those aliases have the form `alias name_of_alias="command that you want to make an alias for"`.
 
 Try writing or picking a bash alias that would be useful to you. You can add this to your account's `~/.bash_aliases` file any way that you like to edit a text file, for example, using `cat` or `nano`. Once you have added an alias, it won't take effect right away, because bash won't have read your alias file. You will need to close your session and open a new session, at which point bash will read your alias file.    
 To edit the file with `cat`, run `cat >> ~/.bash_aliases`, then type or paste what you would like added, hit "enter" to add a line break, then type `ctrl+d` when you are done.  
 To edit the file with `nano`, run `nano ~/.bash_aliases`, paste or type the alias you want to add, then exit nano with ctrl+x. It will ask you if you want to save you changes; type `y` if you do.  
+
+Note: not all systems are set up this way. If your `~/.bash_aliases` is not working, you will likely have to modify another file, `~/.bashrc`, to have a code block that says:
+```
+if [ -f ~/.bash_aliases ]; then
+    . ~/.bash_aliases
+fi
+```
 
 # installing programs
 * git clone
