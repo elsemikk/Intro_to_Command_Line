@@ -423,7 +423,7 @@ When we run a single-threaded command (as all of the previous examples were) lik
 
 There are many ways we can accomplish that. Many bioinformatics programs have multithreading built in, with the program including a flag asking how many threads we want it to use - handy when we have just one command that we want done faster. When we have *multiple* commands to do at the same time, we could copy-paste them into separate terminals to run at the same time, but that would be inconvenient and annoying. Instead we can use a utility that automatically manages running things in parallel - one popular option is Gnu `parallel`. `parallel` doesn't come with bash, instead it is a separate program that needs to be installed.   
 
-[section about installing gnu parallel]
+[section about installing gnu parallel - this would have been "homework" from the previous day]
 
 The logic behind setting up a `parallel` run is similar to the `while read` loops - we need a file listing a bunch of values to loop over (samples/genes/iterations/etc), and give that to `parallel` along with the command we want to run, and `parallel` will propagate our values into the command, generating one command for each of them, and then manage those commands by feeding them to any free threads (one command per thread), either using all threads on our computer or sticking to a set number that we tell it to use. If there are more commands than threads, `parallel` will hold the extra commands back, feeding them to a thread as soon as an earlier command finishes and a thread becomes available. 
 
@@ -448,10 +448,34 @@ Let's go back to an earlier task - counting the number of A's in a fasta sequenc
 
 `cat samples.txt | parallel 'echo "analyzing ND2 from {}" ; num_As=$(grep -v ">" gene_fastas/{}_ND2.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in ND2 of {} is $num_As"'`  
 
-Parallel can also take multiple lists, propagating 
+Parallel can also take multiple lists, propagating a command with every pairwise combination of those lists. To do this, specify where each variable should go using `{1}` and `{2}` to specify the first and second variable respectively. These can either be given in separate lists using `:::` or `::::` to feed them in, in which case `{1}` vs `{2}` will depend on the order you list them in, or they can be separate columns in a single file, in which case `{1}` vs `{2}` depends on the order of the columns. Let's try it:  
 
+parallel echo "processing gene {2} from sample {1}" :::: samples.txt :::: genes_to_loop.txt
 
+or
 
+parallel echo "processing gene {2} from sample {1}" ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB
+
+If we want to have `parallel` read multiple variables from the same file, the syntax is a little different. Instead of creating all possible combinations of the variables, `parallel` will only use the combinations specified in your file (one per line). For it to interpret columns as separate variables, we will also need to tell `parallel` what the column separator is using the `--colsep` flag.  
+
+Let's create a fast and easy file with 2 columns by pasting our `samples.txt` and `genes_to_loop.txt` files together, keeping only the first three lines, like this `paste samples.txt genes_to_loop.txt | head -n 3`. Then, let's give this to parallel. In this case, the columns are separated by tabs, which we tell parallel using `--colsep "\t"` (if our columns were space separated, we would say `--colsep " "`).   
+
+`paste samples.txt genes_to_loop.txt | head -n 3 | parallel --colsep "\t" echo "processing gene {2} from sample {1}"`
+Unlike previous commands which created all possible combos of genes and samples, that only ran the three combos that correspond to the three lines of input that we have `parallel`.  
+
+Let's use this to count the A's in all genes of all samples now.  
+
+`parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB`  
+
+Just for fun, let's do each of those tasks three times. Let's use brace expansion to generate the list `1 2 3`.
+
+`parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} in iteration {3} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB ::: {1..3}`  
+
+The number of tasks that we ask `parallel` to do can get very large, especially when dealing with potentially hundreds of samples or thousands of sequences. Often, the number of commands `parallel` generates can exceed the number of threads that the computer has. By default, `parallel` will use all of them, starting a new command as soon as an earlier one finishes, so that all threads are being used. When running large numbers of commands that take a long time, this can mean that the whole server is occupied for a while, which can be annoying if you want to do a few things on the side while waiting, or if you are sharing the server. It can also be hard on your computer's hardware to have all the CPU cores running with back-to-back commands for a long time with no cooldown. To alleviate that, you can tell `parallel` how many threads to use using the `--jobs` flag. 
+
+For example, if we want to run on a max of 5 threads at a time, we can use `--jobs 5`:  
+parallel --jobs 5 echo "processing gene {2} from sample {1}" ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB
+This can of course make it finish slower if you are letting it use fewer threads than the max possible, but it is often necessary for the sake of other users and our computer's longevity.  
 
 # awk
 (in progress)
