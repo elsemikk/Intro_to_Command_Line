@@ -505,14 +505,17 @@ We may want to collect these times for a few reasons:
 Let's use `time` to compare the speed of our `parallel` command, `while` loop, and `for` loop.  
 
 parallel:  
+```bash
 time parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB  
-
+```
 for loop:  
+```bash
 time for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in "$gene" of "$sample" is $num_As" ; done ; done  
-
+```
 while loop:  
+```bash
 time cat samples.txt | while read sample ; do cat genes_to_loop.txt | while read gene ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in "$gene" of "$sample" is $num_As" ; done ; done  
-
+```
 Which one was fastest? When running a small number of very fast commands, the difference is often negligible (and the overhead time cost of setting up `parallel` can even make it slower than a `for` loop), but when dealing with heavier tasks it can save you weeks of waiting time.  
 
 ## htop
