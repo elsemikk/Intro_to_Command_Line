@@ -220,18 +220,20 @@ Variables are used for storing data. They will be remembered for the rest of you
 To set a variable, you use the syntax `name_of_variable=value_of_variable` (no spaces). For example, `num_lines=3`.  
 To use a variable, use the `$` in front of the name of the variable. For example: `head -n $num_lines ABBABABA.txt`. If the variable was assigned a value, that value will now be substituted by bash into the code. Note that unlike many coding languages, you don't have to worry about whether a bash variable is a numeric/character/etc; there are no datatypes.  
 If you want to include whitespace in your variable (the value, not the variable name), wrap it in double quotes, otherwise bash will take the first word as the value for the variable and think the rest is supposed to be a new command. For example:  
-`Thing_to_echo="This is a sentence with spaces in it"
-echo $Thing_to_echo`
+```
+Thing_to_echo="This is a sentence with spaces in it"
+echo $Thing_to_echo
+```
 
 Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" ABBABABA.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
 
 # PATH variable
-Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `$PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program. Built-in commands (like `ls`, `cd`, etc) have their code in standard locations that are already included in `$PATH`. To run other commands (eg., programs you download or scripts you write), you will either need to place them into a directory that is in PATH, or specify the whole path to the executable when you run it, or add its directory to PATH so that bash can find it.
+Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `$PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program. Basic commands (like `ls`, `grep`, etc) have their code in standard locations that are already included in `$PATH`. To run other commands (eg., programs you download or scripts you write), you will either need to place them into a directory that is in PATH, or specify the whole path to the executable when you run it, or add its directory to PATH so that bash can find it.
 
 You can find out what directories are included in your `$PATH` by running `echo $PATH`. This will spit out the contents of that variable, giving you a list of paths separated by `:` colons. These are the paths where bash searches for programs to run.  
 If you want to be able to run a program in a different directory without specifying the full path when you run it, or if a program you are running needs to be able to run dependencies, you can add a new path to your PATH variable by redefining that PATH variable with your new path separated by the rest of the paths by a ":" symbol.  
 For example, let's imagine we want to add `/home/scripts` to our $PATH. We can do that like this:  
-`PATH=$PATH:/home/script`  
+`PATH=$PATH:/home/scripts`  
 This has the effect of appending `:/home/scripts` to the existing PATH variable. Bash will now search through `/home/scripts` after searching through the other paths that were already in PATH. This modification will last until the end of your session - when you close your terminal and start a new session, $PATH will be reset to its original value.  
 (there is some subtlety around when you need to include double quotes and when you need to include the command `export`, but you probably won't need to know that unless you are doing more advanced things beyond the scope of this tutorial. It is also possible to make $PATH automatically set itself the way you want so you don't have to do so every time you start a new session - for that you will need to modify your `~/.bash_profile` file, beyond the scope of this tutorial).  
 
@@ -275,12 +277,12 @@ We can get more fancy by assigning the lengths and number of A's to variables.
 `for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c) ; num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c) ; echo "length of $gene is $length and number of A's is $num_As" ; done`
 
 More often in bioinformatics, we don't want to be reading data off the terminal, we want it to be saving that data to a file that we can analyze later. Let's do that.
-`
+```
 echo -e "gene\tlength\tnum_As" > num_As.txt ;
-for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; printf "$gene\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt; done
-`
+for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; printf "$gene\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt ; printf "\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt; done
+```
 Notes on the code:  
-* we needed to use `echo -e` instead of just `echo` to enable it to interpret `\t` as a tab character, instead of literally printing `\t`.  
+* we needed to use `echo -e` instead of just `echo` to enable it to interpret `\t` as a tab character, instead of literally printing `\t`. Not all systems have `echo -e`; if it is not available, one could use `printf "gene\tlength\tnum_As\n" instead.     
 * we needed to use printf "$gene\t" instead of echo -e "$gene\t" because echo adds a newline (line break) character to the end of what it prints, by default, while printf does not. If we used echo, we would have had to tell echo not to do that, or strip the newline off afterwards.  
 * we had to include `tr -d "\n"` a second time after running `wc -c` to count gene length, because `wc` also by default has a newline character at the end of its output. We had to strip this off so that it didn't cause a linebreak in the middle of our line. We didn't strip the newline character off of the last `wc -c` command, because we do want to have a linebreak there, as that is the end of our data entry for that gene.  
 
@@ -335,8 +337,10 @@ This loop will be a little more complicated, so let's spell it out in words befo
 
 Now let's put that into bash code:
 
-`for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "/n" >> concatenated_data.fasta ; done'
+`for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`
 Let's take a look: `concatenated_data.fasta`. Ready to open in a sequence alignment viewer or to build a phylogenetic tree with!  
+
+One thing to note: if we were to run the above code twice by accident, it would happily append a second copy of everything to `concatenated_data.fasta` without any easy way for us to realize what happened (perhaps until we get out final result and realize there are twice as many sequences in our tree than expected). When running code that builds files with `>>` like that, we either need to be extra careful not to accidentally run things twice (perhaps running a sanity check like counting sequences before moving on), or build in a fail-safe. For example, a fail-safe could be adding `rm` before the loop to get rid of any existing copies of `concatenated_data.fasta` before continuing, or using an `if` statement to check that the file doesn't already exist (described below).  
 
 ## while loops
 
@@ -363,9 +367,9 @@ First, let's make a list of all the genes we need to concatenate. There are mult
 `grep ">" sample1_allgenes.fasta | sed "s/>//g" > genes_to_loop.txt` a hack that works because we happen to have a file with all the gene names in it, we just needed to extract them from the fasta headers and fix the formatting.  
 We could also have written the file ourselves using `nano genes_to_loop.txt` or `cat > genes_to_loop.txt`.  
 
-Now let's write our loop. Recall the `for` loop version was: `for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "/n" >> concatenated_data.fasta ; done'
+Now let's write our loop. Recall the `for` loop version was: `for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`
 Here is the `while` loop version:  
-`cat samples.txt | while read sample ; do echo ">$sample" >> concatenated_data.fasta ; cat genes_to_loop.txt | while read gene ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "/n" >> concatenated_data.fasta ; done'
+`cat samples.txt | while read sample ; do echo ">$sample" >> concatenated_data.fasta ; cat genes_to_loop.txt | while read gene ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`  
 Which syntax do you prefer?  
 In general, when you just have a few things to loop through, it makes more sense to write them out as `for` loops. When you have a long list of samples/genes/etc, it can be convenient to store them in a file and use the `while` loop trick instead.  
 
@@ -385,6 +389,11 @@ You can repeat this with as many space-separated variables as you wish. This is 
 * creating different datasets with different filtering stringencies for different analyses
 * testing out several combinations of parameter settings when you don't have computational resources to test every possible combo  
 
+Before moving on, it's important to note that our `while` loops here are working by reading through very basic and cleanly-formatted text files, for which we know the contents and can confidently use knowing there are no unexpected whitespaces in sample names and we didn't use any backslashes in our sample names. Here are some notes for things you may run into:  
+* if you need backslashes, use `-r`, otherwise `read` will interpret them as special characters. For example: `cat samples.txt | while read -r sample ; do echo "Now analyzing $sample" ; done`
+* if you have multiple variables per line and are using something other than a space to separate them (especially if you have any spaces in your variables), tell bash what the delimiter is using `IFS=` ("internal field separator"). For example, to specify your file is tab-delimited (`\t`), you would run `cat samples.txt | while IFS=$'\t' read sample ; do echo "Now analyzing $sample" ; done`
+* if you made the text file using Excel or another rich text editor, delete the invisible "carriage return" line endings from the file by running it through `tr -d '\r'`, otherwise `read` will not parse it properly.
+
 ## if statements
 
 One more core piece of bash syntax is the `if` statement. Like other programming languages, `if` statements check whether a condition is true before executing the command. The syntax looks like: `if [ condition ] ; then $command ; fi`
@@ -392,7 +401,7 @@ One more core piece of bash syntax is the `if` statement. Like other programming
 A very common usage in bash is to check whether a file already exists before proceeding. `-e` in an `if` statement condition asks whether a file exists  
 
 `if [ -e samples.txt ] ; then echo "Yes, samples.txt exists" ; fi`  
-`if [ -e acde.txt ] ; then echo "Yes, abcde.txt exists" ; fi` # this should do nothing, assuming you did not create `abcde.txt`.  
+`if [ -e abcde.txt ] ; then echo "Yes, abcde.txt exists" ; fi` # this should do nothing, assuming you did not create `abcde.txt`.  
 
 We can also do the opposite - ask whether a file doesn't exist. To negate a condition, we can use a `!` symbol, like this:  
 `if [ ! -e samples.txt ] ; then echo "No, samples.txt does not exist" ; fi` # this should do nothing, as `samples.txt` should exist.  
@@ -422,7 +431,7 @@ When sharing files between users or when writing your own scripts, one concept t
 
 By default, most files that you create will have read and write permissions for you, but will not have execute permissions. That is a safety measure that stops you from accidentally running a random (or malicious) file as code. If you try to run something that does not have execute permissions, you will get the error message `Permission denied`. That means that before you can run a newly-written script, you need to tell bash that you do in fact intend for the file to be executable. This is done with the `chmod` function. `chmod` can change the owners and permissions of a file that you own. 
 
-If you want to add executable permissions to a file, you use `+x` with `chmod`, for example, `chmod +x script.py`. After doing that, you should be able to run your code. One thing to be aware of is that sometimes, drives can be set up such that nothing on the drive can be executed no matter the permissions you set. If that is the case, the owner of the server should have informed you of where you can place executable files so that they can run.  
+If you want to add executable permissions to a file, you use `+x` with `chmod`, for example, `chmod +x script.sh`. After doing that, you should be able to run your code. One thing to be aware of is that sometimes, drives can be set up such that nothing on the drive can be executed no matter the permissions you set. If that is the case, the owner of the server should have informed you of where you can place executable files so that they can run.  
 
 Other permissions are set the same way (`chmod +r` to add read permissions, `chmod +w` to add write permission). Permissions can also be taken away, using `-x`, `-r`, or `-w`.  
 
@@ -481,11 +490,14 @@ To edit the file with `nano`, run `nano ~/.bash_aliases`, paste or type the alia
 
 Here are my solutions:  
 1) `sed "s/SampleID/SpeciesName\tSampleNumber/g; s/Ceratopipra_/Ceratopipra@/g; s/_/\t/g; s/Ceratopipra@/Ceratopipra_/g" ABBABABA.txt`. 
-2) `grep "^rubrocapilla\t.*\tmentalis" ABBABABA.txt
+2) `grep "^rubrocapilla\t.*\tmentalis" ABBABABA.txt`
 3) `sed "s/rubrocapilla/PLACEHOLDER/g; s/erythrocephala/rubrocapilla/g; s/PLACEHOLDER/erythrocephala/g" ABBABABA.txt`. 
-4) `cut -f 2 ABBABABA.txt | sed "s/Ceratopipra_/Ceratopipra@/g; s/_.*$//g; s/@/_/g; s/SampleID/Species_name/g" > temp_SpeciesNames
+4)
+```
+cut -f 2 ABBABABA.txt | sed "s/Ceratopipra_/Ceratopipra@/g; s/_.*$//g; s/@/_/g; s/SampleID/Species_name/g" > temp_SpeciesNames
 cut -f 1-3 ABBABABA.txt | paste - temp_SpeciesNames > temp_FourColumns
-cut -f 4- ABBABABA.txt | paste temp_FourColumns - > `  
+cut -f 4- ABBABABA.txt | paste temp_FourColumns - >
+```  
 Note - some of those are a bit clunky and could be done much more elegantly using other tools, a different language, or more advanced syntax - this was just meant to illustrate that you can do quite a bit with only some very basic commands/syntax.  
 
 
