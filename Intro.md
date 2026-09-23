@@ -24,7 +24,7 @@ Once you have your Terminal open, you will see a screen with some text on it tha
 
 <img width="1019" height="644" alt="image" src="https://github.com/user-attachments/assets/80226990-1bd3-4b14-b8f4-39223d0228c5" />
 
-The colours may be different - those can be customized - but it should look similar. On the bottom line, it will show you username and IP address of server name separated by "@", then a ":" symbol, then the directory you are in (usually a "~" symbol when you first start up - explained below), and finally a "$" symbol. Next to the `$` is the command prompt where you type/paste commands.  
+The colours may be different - those can be customized - but it should look similar. On the bottom line, it will show your username, then an "@" symbol, then the IP address or server name of your computer, then a ":" symbol, then the directory you are in (usually a "~" symbol when you first start up - explained below), and finally a "$" symbol. Next to the `$` is the command prompt where you type/paste commands.  
 
 # Directories and paths  
 
