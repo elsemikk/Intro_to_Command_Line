@@ -316,6 +316,18 @@ We can use this when building files. For example, let's remake our `Ceratopipra_
 `printf "rubrocapilla\nchloromeros\nerythrocephala\nmentalis\ncornuta\n" > Ceratopipra_species.txt`  
 Now check that the file looks ok: `cat Ceratopipra_species.txt` or `less Ceratopipra_species.txt` (press `q` to exit `less`).  
 
+### nano
+
+`nano` is a slightly more fancy command that allows the user to edit text files interactively in the terminal. Let's try it.
+Run: `nano nano_test.txt`. This will open the editor with a new blank file, where you can type anything you want, and navigate using the arrow keys (like the command prompt, you can't point-and-click in `nano`).  
+To save your progress, type "ctrl+o". It will ask you to confirm/modify the name of the file - press "enter" to confirm.  
+To exit `nano`, type "ctrl+x". If you have unsaved changes, it will ask you whether you want to save - type "y" for yes (save) or "n" for no (discard changes).  
+
+Let's try editing a configuration file - many bioinformatics programs use "config files" (or "param files") to set parameters when there are a large number of them, so that you don't need to have long commands with an unwieldy number of flags. Let's take a look at an example config file for the program STRUCTURE: `less config_files/STRUCTURE.params` (press "q" to exit).  
+Now, let's imagine we need to make a version of this config file with a different value for the "burnin" - we need to change the text `BURNIN  1000` to `BURNIN  5000`.  
+First, make a copy of the file `cp config_files/STRUCTURE.params config_files/STRUCTURE.burnin5000.params`   
+Now, edit the file: `nano config_files/STRUCTURE.burnin5000.params`  
+Use the arrow keys to navigate to the second-last line, and modify it from `BURNIN  1000` to `BURNIN  5000`. When you are done, type "ctrl+o" to save (press enter to confirm), then ctrl+x to exit.
 
 # Day 2 materials
 (in progress)
