@@ -2,7 +2,7 @@
 by Else Mikkelsen, Bioinformatics postdoc at the Biodiversity Research Centre, University of British Columbia  
 Last updated: September 2026  
 
-Welcome! This workshop is designed to provide an entry into using the command line and building pipelines in bash. It is designed to start from the beginning and require no prior experience on the command line, while  providing enough tips and tricks to remain useful to users with an intermediate level of experience.  
+Welcome! This workshop is designed to provide an entry into using the command line and building pipelines in bash. It is designed to start from the beginning and require no prior experience on the command line, while  providing enough tips and tricks to remain useful to users with an intermediate level of experience. It focuses on practical skills with no computer science background expected. It focuses on command line skills that can be applied to any area of bioinformatics (or beyond).  
 
 **This workshop is currently a work-in-progress - some sections have not yet been written**
 
