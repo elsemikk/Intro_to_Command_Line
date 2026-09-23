@@ -340,7 +340,7 @@ Use the arrow keys to navigate to the second-last line, and modify it from `BURN
 # efficiency commands
 df, screen, history, ssh, scp
 
-# grep and regex
+# grep and regex and globbing
 * using grep to grab lines
 * using grep -v to exclude lines
 * using grep -c to count matching lines
@@ -357,6 +357,33 @@ egrep:
 * “?” optional character
 
 # sed
+`sed` is a powerful command line tool that can be used for a variety of tasks: here we will focus on using it to manipulate text through find-and-replace, one of its most common uses in bioinformatics. Technically, `sed` is a a complete programming language, but in practice it is primarily used for simple text editing tasks. `sed` is especially versatile when used with regular expressions (above). 
+
+In bioinformatics, we are frequently faced with tasks that require us to delete text, add text, or find-and-replace text from text files. As long as we are able to precisely explain what we what to add/delete/replace, `sed` should be able to do it.  
+The syntax of `sed`'s find-and-replace looks like this: `sed "s/text_to_find/text_to_replace_it_with/g" input.txt` or `cat input.txt | sed "s/text_to_find/text_to_replace_it_with/g"`.  
+In that syntax, the `s` in `s/text_to_find/text_to_replace_it_with/g` stands for "substitute", and tells `sed` that this is a find-and-replace task. The `/` symbols are delimiting the text that we want to find and replace; we actually don't *need* to use `/` in particular, that is just a convention - we could use other symbols like `|` if we wanted to (`s|text_to_find|text_to_replace_it_with|g`) (which comes in handy when there are `/` in the text we want to find/replace). The `g` in  `s/text_to_find/text_to_replace_it_with/g` stands for "global" and tells `sed` to replace all possible instances of the text it finds - we will look at alternatives below.  
+
+Let's start with some easy examples. Imagine that there was just a name change - the taxon we are studying has had its name changed from `chloromeros` to `viridus` (or, maybe we discovered our specimen was misidentified). Instead of going into our text files and changing the names by hand, we can ask `sed` to do it:  
+`cat samples.txt | sed "s/chloromeros/viridus/g" > samples_renamed.txt` Check `samples_renamed.txt` to verify the change was made.  
+Oops, our collaborator has requested that instead of changing the samples to `viridus`, we change them to `chloromeros_viridus`. We could generate a third file, but we could also ask `sed` to edit the file in-place using the `-i` flag, like this:  
+`sed -i "s/viridus/chloromeros_viridus/g" samples_renamed.txt`. Check `samples_renamed.txt` to verify the change was made.  
+
+The range of things that `sed` can do becomes much broader when we combine it with regular expressions to more precisely or more broadly specify what text we want `sed` to find.
+For example, let's imagine we want to change the headers of a DNA sequence file. These files are normally stored in `fasta` format, where headers always start with a ">" symbol. 
+Let's imagine we want to add the sample name specifically to the start of a fasta header. We could do that like this:  
+`cat gene_fastas/sample1_ND2.fasta | sed "s/^>/>sample1 /g"`  
+That will have sed look for lines starting (`^`) with a ">" symbol, and replace the `>` with `>sample1 `. The rest of the original fasta header will still be there behind `>sample1 `, what if we want to have `sed` delete that pre-existing text, but don't know ahead of time what that text might be? We can use regular expressions to have `sed` grab the whole line starting with `>`, like this:  
+`cat gene_fastas/sample1_ND2.fasta | sed "s/^>.*$/>sample1/g"`  
+The `.*$` stands for "anything (`.`), repeated any number of times (`*`), until the end of the line (`$`). The `.*$` idiom comes in really hand when we want to grab everything up to the end of a line.  
+
+Let's go back to a task we did manually before (with `nano`) - editing a STRUCTURE param file (`config_files/STRUCTURE.params`). Previously, we went in by hand to change the value of `BURNIN` from 1000 to 5000. Doing that by hand takes time and introduces opportunity for typos. Let's do that with `sed` instead.  
+If we already know the current value of BURNIN, we could edit the file like this:  
+`sed "s/BURNIN  1000/BURNIN  5000/g"  config_files/STRUCTURE.params`  
+If we don't know the existing value of BURNIN in our file, we could edit it like this:  
+`sed "s/BURNIN.*$/BURNIN  5000/g"  config_files/STRUCTURE.params`  
+
+
+
 * using sed "s///g" to find-and-replace
 * using rename when it is filenames you want to change
 
