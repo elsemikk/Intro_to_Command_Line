@@ -1,9 +1,14 @@
-# Intro to the Command Line for Bioinformatics 
-# Workshop
+# Intro to bash for bioinformatics - getting started on the command line  
+by Else Mikkelsen, Bioinformatics postdoc at the Biodiversity Research Centre, University of British Columbia  
+Last updated: September 2026  
 
-# Day 1: Navigating the command line
+Welcome! This workshop is designed to provide an entry into using the command line and building pipelines in bash. It is designed to start from the beginning and require no prior experience on the command line, while  providing enough tips and tricks to remain useful to users with an intermediate level of experience.  
 
-## Anatomy of the Command Line
+**This workshop is currently a work-in-progress - some sections have not yet been written**
+
+# Day 1: Navigating the command line  
+
+## Anatomy of the Command Line  
 
 ### broad overview and terms  
 Most of the time when using computers, we are using a **graphical user interface** (GUI), something that lets us point our mouse and click on buttons or browse through menus. A more direct way of communicating with the computer is through the **command line**, where you type lines of text containing commands for the computer. To use the command line, you need a program called a **shell** to interpret your commands, and the most popular shell used in bioinformatics (and more widely) is **bash**. Bash is used with Linux and UNIX operating systems, and also comes installed on macs. To use the shell, you need an application referred to as a **terminal**. The terminal is the application you open and interact with, the command line is where you type your commands, and the shell (bash) is the program that interprets your commands and tells your operating system what to do.  
