@@ -20,7 +20,7 @@ Here are general instructions for getting into a terminal:
 *Mac* if you are on Mac, you should have an application called Terminal. It is often located in your `Applications/Utilities` subfolder; [this page](https://support.apple.com/en-ca/guide/terminal/apd5265185d-f365-44cb-8b09-71a064a42125/mac) from Apple explains more about how to open it on different MacOs versions if you are having trouble locating it. Note that the default shell that comes with newer macs is not bash, it is zsh - it is extremely similar, so almost all of the code in this tutorial will work the same, but if you do more complicated things you may notice a difference.  
 *Windows* Windows doesn't come with bash, so you will need to install it yourself. One popular option is [git bash](https://gitforwindows.org/). Alternatively, you can just `ssh` into a server if you have access to one.  
 
-Once you have your Terminal open, you will a screen with some text on it that should look something like this:  
+Once you have your Terminal open, you will see a screen with some text on it that should look something like this:  
 
 <img width="1019" height="644" alt="image" src="https://github.com/user-attachments/assets/80226990-1bd3-4b14-b8f4-39223d0228c5" />
 
