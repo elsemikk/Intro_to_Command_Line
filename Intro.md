@@ -10,7 +10,7 @@ Welcome! This workshop is designed to provide an entry into using the command li
 
 ## Anatomy of the Command Line  
 
-### broad overview and terms  
+### Broad overview and terms  
 Most of the time when using computers, we are using a **graphical user interface** (GUI), something that lets us point our mouse and click on buttons or browse through menus. A more direct way of communicating with the computer is through the **command line**, where you type lines of text containing commands for the computer. To use the command line, you need a program called a **shell** to interpret your commands, and the most popular shell used in bioinformatics (and more widely) is **bash**. Bash is used with Linux and UNIX operating systems, and also comes installed on macs. To use the shell, you need an application referred to as a **terminal**. The terminal is the application you open and interact with, the command line is where you type your commands, and the shell (bash) is the program that interprets your commands and tells your computer what to do.  
 
 Here, we will go over the basics of working on the command line and writing simple bash code. This requires you to have access to a terminal program with bash. Accessing that varies depending on your operating system. In practice, most bioinformatics work is done on a server accessed remotely, rather than done locally on a laptop. In this workshop, we will be working on a Linux server - the instructions will have been emailed to you ahead of time, and we will spend the first few minutes making sure you are logged in.   
@@ -381,10 +381,14 @@ If we already know the current value of BURNIN, we could edit the file like this
 `sed "s/BURNIN  1000/BURNIN  5000/g"  config_files/STRUCTURE.params`  
 If we don't know the existing value of BURNIN in our file, we could edit it like this:  
 `sed "s/BURNIN.*$/BURNIN  5000/g"  config_files/STRUCTURE.params`  
+That will delete everything that originally came after `BURNIN` in our param file. That is fine for this case - the only other text in that line is usage notes. But what if we wanted to preserve those usage notes? Let's ask it to stop when it hits those usage notes, which in STRUCTURE param files start with `//`. Instead of grabbing everything to the end of the line (`BURNIN.*$`), let's only go until we encounter `//` (`BURNIN.*//`). We will also have to add `//` to our replacement text (`BURNIN  5000 //`) so that our output file still has those symbols delimiting the comments.  
+`sed "s/BURNIN.*///BURNIN  5000 ///g"  config_files/STRUCTURE.params`  
+Whoops! `sed` could not process that command. It is confusing the `/` symbols used as separators in its syntax with '/' referring to text in our search pattern. No problem, we can just use something else as the separator in `sed`'s syntax, it is not picky. I like to use `|` in those cases:  
+`sed "s|BURNIN.*//|BURNIN  5000 //|g"  config_files/STRUCTURE.params`  
+You can use almost any character you want as sed's separator - whatever looks aesthetically nicest to you.  
+`sed "s~BURNIN.*//~BURNIN  5000 //~g"  config_files/STRUCTURE.params`  
 
 
-
-* using sed "s///g" to find-and-replace
 * using rename when it is filenames you want to change
 
 # bash variables
