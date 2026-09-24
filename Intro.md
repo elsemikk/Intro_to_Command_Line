@@ -4,7 +4,28 @@ Last updated: September 2026
 
 Welcome! This workshop is designed to provide an entry into using the command line and building pipelines in bash. It is designed to start from the beginning and require no prior experience on the command line, while  providing enough tips and tricks to remain useful to users with an intermediate level of experience. It focuses on practical skills with no computer science background expected. It focuses on command line skills that can be applied to any area of bioinformatics (or beyond).  
 
-**This workshop is currently a work-in-progress - some sections have not yet been written**
+**This workshop is currently a work-in-progress - some sections have not yet been written**  
+
+### Contents:  
+[Anatomy of the Command Line](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#anatomy-of-the-command-line)  
+[Directories and paths](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#directories-and-paths)  
+[Running commands - basic navigation commands](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#running-commands---basic-navigation-commands)  
+[Flags](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#flags)  
+[Looking at files](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#looking-at-files)  
+[Piping and building pipelines](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#piping-and-building-pipelines)  
+[Making a file from scratch](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#making-a-file-from-scratch)  
+[grep, regex, and globbing](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#grep-and-regex-and-globbing)  
+[sed](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#sed)  
+[bash variables](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#bash-variables)  
+[PATH](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#path-variable)  
+[for loops, while loops, and if statements](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#for-loops-while-loops-if-statements)  
+[gnu parallel](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#gnu-parallel)  
+[time](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#time)  
+[htop](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#htop)  
+[awk](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#awk)
+[file permissions](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#file-permissions)  
+[Aliases](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#aliases)  
+[installing programs](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#installing-programs)  
 
 # Day 1: Navigating the command line  
 
