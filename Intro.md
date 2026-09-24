@@ -18,7 +18,9 @@ Here, we will go over the basics of working on the command line and writing simp
 Here are general instructions for getting into a terminal:  
 *Linux* if you are on Linux, you should already have an application called Terminal, which can be opened from your applications, or with `ctrl + alt + t`.  
 *Mac* if you are on Mac, you should have an application called Terminal. It is often located in your `Applications/Utilities` subfolder; [this page](https://support.apple.com/en-ca/guide/terminal/apd5265185d-f365-44cb-8b09-71a064a42125/mac) from Apple explains more about how to open it on different MacOs versions if you are having trouble locating it. Note that the default shell that comes with newer macs is not bash, it is zsh - it is extremely similar, so almost all of the code in this tutorial will work the same, but if you do more complicated things you may notice a difference.  
-*Windows* Windows doesn't come with bash, so you will need to install it yourself. One popular option is [git bash](https://gitforwindows.org/). Alternatively, you can just `ssh` into a server if you have access to one.  
+*Windows* Windows doesn't come with bash, so you will need to install it yourself. One popular option is [git bash](https://gitforwindows.org/). Alternatively, you can just `ssh` into a server if you have access to one. If working on a Windows machine, there are a few things to keep in mind: 
+* Bash uses forward slashes (`/`) rather than back slashes (`\`) in computer paths. If you copy-paste a path from your filesystem, you will have to change the back slashes to forward slashes.  
+* If using WSL, pasting may be different. If you are having difficulty, try ctrl+shift+insert.  
 
 Once you have your Terminal open, you will see a screen with some text on it that should look something like this:  
 
@@ -39,10 +41,10 @@ To run a command, type or paste the command into the command line, and then hit 
 Here we will go over some of the most-commonly used commands: commands for getting around on the command line.  
 * `pwd` - print current working directory  
 * `ls` - lists the contents of your current working directory  
-* `mkdir $name_of_directory` - makes a new directory  
-* `cd $name_of_directory` - change to a new working directory  
-* `rmdir $name_of_directory` - remove (delete) an empty directory 
-* `man $name_of_command` - open the manual for a command (then press "q" to quit the manual)
+* `mkdir name_of_directory` - makes a new directory  
+* `cd name_of_directory` - change to a new working directory  
+* `rmdir name_of_directory` - remove (delete) an empty directory 
+* `man name_of_command` - open the manual for a command (then press "q" to quit the manual)
 
 (in the above list, the variables starting with $ are placeholders I wrote which you will replace when writing your command - don't include those `$` symbols)
 
@@ -68,12 +70,12 @@ At this point, make sure you are back in the main tutorial directory. Let's dele
 If you run `ls`, you should now see that the test directory is gone. Careful! There is no "undo" on the command line. Luckily, `rmdir` will refuse to delete a directory that is not empty.  
 
 Now let's move on to some slightly more complex commands. Before we do, here are some important general tips for running commands on the command line:  
-* Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file"). As best practice though, don't include spaces in the name of any file or directory - instead_you_can_experiment_with_underscores, or.you.can.try.using.dots, OrYouCanTryWritingInCamelCase.  
+* Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file"). As best practice though, don't include spaces in the name of any file or directory - instead_you_can_experiment_with_underscores, OrYouCanTryWritingInCamelCase.  
 * Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor to use straight quotes instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.
 * Rich text editors will also add invisible characters called "carriage returns". You will not be able to see these in your document, but the command line sure can! These invisible characters break code and cause major headaches; using a plain text editor will avoid that problem.  
 * Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click.  
 * Time saver: in many systems, you can press ctrl+a to jump your cursor to the start of the line, and then ctrl+e to jump back to the end of the line. Saves some time if you made a typo way at the beginning of the line!  
-* to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit.  
+* to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit. (Note, `man` is not included in Git bash).  
 
 ## Flags  
 An important aspect of running commands on the command line is setting flags. These are settings that can alter the behaviour of the command you are running. They are usually single letters or short words, that are placed after a command (separated by a space), like this: `command -a -b -c --flag_d`. That command has four flags: `-a`, `-b`, `-c`, and `--flag_d`. Flags are attached to dashes - generally a single dash for single-letter flags or two dashes for flags that are words. If a flag is a word, it cannot have a space in it (instead, underscores `_` can be used). Often, there will be two synonymous flags you can choose between that do the same thing, a single-letter option for brevity, or a short-word option you can use to make it easier to remember what it does when you go back and read your code in the future.  
@@ -81,6 +83,14 @@ An important aspect of running commands on the command line is setting flags. Th
 The other thing we have given some commands is/are argument(s). These are also settings that alter the action of the command you are running or the flag you set - they are often the name of input files or output files, or parameters that you need to change/specify for the program you are running. These are distinguished from flags because they are not preceded by dashes. Sometimes arguments are required (eg, `mkdir` would not have anything to do if you didn't tell it the name of the directory it should make), and sometimes they are not required (eg, `ls` defaults to listing your current working directory if you don't give it any arguments).  
 
 Let's add some flags to `ls`. If we just run `ls`, it will tell us the contents of our current working directory. If we add  the flag `-l` and run `ls -l`, it will now give us a more lengthy summary of our files, including handy information like the size of our files, which user owns them, and date/time when they were last modified. Let's now add another flag, `-h`: `ls -l -h` or `ls -lh` (for single-letter flags, you can either give each flag their own dash, or smoosh them together behind the same dash, whatever style looks best to you). `-h` stands for "human-readable", and will convert the file sizes from number of bytes to abbreviations (K for Kilobyte, M for Megabyte, etc).   
+
+Now let's add a flag to `mkdir`. `mkdir` normally won't make multiple levels of nested directories at the same time, and gives us an error message if we try to make a directory that already exists. If we add the `-p` flag, it will change the behaviour: it will make nested ("parent") directories as needed, and won't give us a message if we try to make a directory that already exists.  Try it:  
+```
+mkdir test_directory/test_subdirectory #won't work if test_directory doesn't exist
+mkdir -p test_directory/test_subdirectory #makes test_directory and test_subdirectory at the same time
+mkdir test_directory/test_subdirectory #gives a message warning us that it already exists
+mkdir -p test_directory/test_subdirectory #doesn't give any message
+``` 
 
 # Looking at files
 
@@ -388,6 +398,11 @@ Whoops! `sed` could not process that command. It is confusing the `/` symbols us
 You can use almost any character you want as sed's separator - whatever looks aesthetically nicest to you.  
 `sed "s~BURNIN.*//~BURNIN  5000 //~g"  config_files/STRUCTURE.params`  
 
+Now let's do some slightly more complicated edits with `sed`.  
+Imagine that we are having a collaborator do the data visualization for our file `ABBABABA.txt`. Their code is very finicky, and they have sent us a list of edits that they want us to do on the file for their code to work:  
+* Edit all the population names in column 1 to start with the word "Population"
+* change the file from tab-delimited columns to space-delimited columns
+* delete all underscores (_)
 
 * using rename when it is filenames you want to change
 
