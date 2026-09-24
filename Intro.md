@@ -806,8 +806,24 @@ fi
 
 # installing programs
 * git clone
-* wget, tar -zxvf
+* wget
 * dealing with compressed files (gzip, gunzip, zless, zcat)
+
+To use a new program, the first step is of course to download it. This can be done many different ways depending on the source of the file. 
+
+### Downloading a file from the Internet  
+Many programs are distributed as files on the Internet, whether that be releases hosted on Github, a scientist's personal website, or elsewhere. To get those files, you could go the graphical point-and-click route of clicking the link in a browser, downloading it, and moving the file where you want. However, that often is not an option when working on servers which may not have an Internet browser at all. Instead, we can download the file using the URL with the command `wget`. `wget` is run like this: `wget 
+
+
+Many programs come as something called a "tar ball". This is a compressed folder with a `.tar` extension, and it allows you to more efficiently download whole directories full of potentially large files. Once downloaded, to open the tar file up so that you can use its contents, you use the `tar` command. Typically, you will need to run it like this:  
+`tar -zxvf directory_name.tar`  
+* `-z`: use `gzip` with the compression
+* `-x`: extract (uncompress the tarball)
+* `-v`: (optional) verbose - list out the files as they get extracted
+* `-f`: the name of the tar file to extract
+
+Afterwards, your `tar` file should have turned into a normal directory full of files.  
+
 
 # Practice Problems
 1) count how many different populations there are in column P1.
