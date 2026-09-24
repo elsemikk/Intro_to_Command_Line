@@ -806,24 +806,31 @@ fi
 
 # installing programs
 * git clone
-* wget
 * dealing with compressed files (gzip, gunzip, zless, zcat)
 
 To use a new program, the first step is of course to download it. This can be done many different ways depending on the source of the file. 
 
 ### Downloading a file from the Internet  
-Many programs are distributed as files on the Internet, whether that be releases hosted on Github, a scientist's personal website, or elsewhere. To get those files, you could go the graphical point-and-click route of clicking the link in a browser, downloading it, and moving the file where you want. However, that often is not an option when working on servers which may not have an Internet browser at all. Instead, we can download the file using the URL with the command `wget`. `wget` is run like this: `wget 
+Many programs are distributed as files on the Internet, whether that be releases hosted on Github, a scientist's personal website, or elsewhere. To get those files, you could go the graphical point-and-click route of clicking the link in a browser, downloading it, and moving the file where you want. However, that often is not an option when working on servers which may not have an Internet browser at all. Instead, we can download the file using the URL with the command `wget`. `wget` is run like this: `wget URL_of_thing_to_download`.  
 
+For example, this command would download a photo I took of a Vested Blackberry flower:  
+`wget https://inaturalist-open-data.s3.amazonaws.com/photos/700497446/original.jpg`  
 
-Many programs come as something called a "tar ball". This is a compressed folder with a `.tar` extension, and it allows you to more efficiently download whole directories full of potentially large files. Once downloaded, to open the tar file up so that you can use its contents, you use the `tar` command. Typically, you will need to run it like this:  
+To run it, you need to know the address of the thing you want to download. To find this from an Internet browser, you can right-click on a link and choose "copy link address" (or equivalent). (The address should start with `http`, `https`, or `ftp`) Then, just pastes that address into your `wget` command. `wget` will download the file into your current working directory.    
+<img width="590" height="366" alt="image" src="https://github.com/user-attachments/assets/6d80db48-88bd-4b16-ac5a-04163d8cd7fc" />
+
+Upon downloading, many programs come as something called a "tar ball". This is a compressed folder with a `.tar` or `tar.gz` extension, and it allows you to more efficiently download whole directories full of potentially large files. Once downloaded, to open the tar file up so that you can use its contents, you use the `tar` command. Typically, you will need to run it like this:  
 `tar -zxvf directory_name.tar`  
-* `-z`: use `gzip` with the compression
-* `-x`: extract (uncompress the tarball)
-* `-v`: (optional) verbose - list out the files as they get extracted
-* `-f`: the name of the tar file to extract
+* `-z`: use `gzip` with the compression (used for `.tar.gz` files)  
+* `-x`: extract (uncompress the tarball)  
+* `-v`: (optional) verbose - list out the files as they get extracted  
+* `-f`: the name of the tar file to extract  
 
 Afterwards, your `tar` file should have turned into a normal directory full of files.  
 
+Note: sometimes a piece of software will come as a `.zip` file instead of a `.tar.gz` file. Those can be uncompressed using the command `unzip` instead of `tar`, like this: `unzip example_directory.zip`. Still others may come as `.gz` (not tar) files - those can be unzipped with `gunzip` like this: `gunzip  example_directory.gz`.  
+
+Sometimes, your downloaded tool will come ready-to-run with no further efforts required. Other times, you will have to do additional steps to install the software before you can run it. These steps vary, so a deep overview is beyond the scope of this workshop - usually, a program will come with instructions on their website explaining exactly what needs to be done for installation to succeed. These instructions will often involve using the command `make`, which reads something called a `makefile` to prepare the code to be ready to run on your machine in a process called compiling.   
 
 # Practice Problems
 1) count how many different populations there are in column P1.
