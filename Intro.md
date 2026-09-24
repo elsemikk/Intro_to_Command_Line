@@ -400,11 +400,41 @@ You can use almost any character you want as sed's separator - whatever looks ae
 
 Now let's do some slightly more complicated edits with `sed`.  
 Imagine that we are having a collaborator do the data visualization for our file `ABBABABA.txt`. Their code is very finicky, and they have sent us a list of edits that they want us to do on the file for their code to work:  
-* Edit all the population names in column 1 to start with the word "Population"
-* change the file from tab-delimited columns to space-delimited columns
-* delete all underscores (_)
+1) delete all underscores (_)
+2) Edit all the population names in column 1 to start with the word "Population"
+3) change the file from tab-delimited columns to space-delimited columns
+4) make the numbers in the last column whole numbers by erasing the decimal places, don't worry about rounding up or down. (Hmm, seems like a questionable request, maybe we should have a conversation with our collaborator...)
+5) add the following line of data: chloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310  
 
-* using rename when it is filenames you want to change
+Try them out on your own first!  
+Here are some solutions:  
+We can test them out on a small subset of lines using `head`.  
+
+1) To delete underscores, we can do find-and-replace, but instead of replacing underscores with something, we will replace them with nothing:  
+`head ABBABABA.txt | sed "s/_//g"`  
+
+2) To prepend text to column 1, we can take advantage that we are dealing with the start of the line, so we can sneak "Population" there by telling `sed` to put it at the start of the line:
+`head ABBABABA.txt | sed "s/^/Population/g"`  
+
+3) We can do a simple find-and-replace to turn all tabs into spaces. Tabs are designated by `\t`.  
+`head ABBABABA.txt | sed "s/\t/ /g"`  
+
+4) This one is trickier - we want to erase the decimal place and all the numbers that follow it, while affecting only the numbers in the last column without affecting the other columns. We can take advantage that the last column is right before the linebreak, which `sed` detects with the `$` sign. To build the regex, we need to "escape" the decimal signal so that sed interprets it as a literal `.` and not the special regex symbol for wildcard. We escape it like this: `\.`. The dot will then be followed by any number (`[0-9]`), with numbers repeated any number of times (`*`) until the end of the line (`$`). Putting it together gives us `\.[0-9]*$`.     
+`head ABBABABA.txt | sed "s/\.[0-9]*$//g"`  
+
+5) For adding the line of data, `sed` is not really the right tool for the job. Instead, we could use `cat`, `printf`, `echo`, `nano`, or etc. However, we could do it with `sed` if we really wanted to! One way we could do it is to have `sed` find the end (`$`) of the header line (`BABA$`), and replace it with a line break (`\n`) followed by the line we want to add. Don't forget to also replace the BABA part of the header that `sed` grabbed.  
+`head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"`
+
+We can put those separate find-and-replace actions together into one `sed` command by separating them with semicolons `; `, like this:  
+`sed "s/text_to_find/text_to_replace_it_with/g; s/text_to_find2/text_to_replace_it_with2/g"`  
+Let's smoosh our 5 `sed` commands from above together:  
+`head ABBABABA.txt | sed "s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g; s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"`  
+Oops! That new line we added didn't have the correct changes made to it. `sed` does actions in the order you list. To have that newly added text properly edited, we should change the order of the actions that we ask for:  
+`head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g; s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g"`  
+There - the command isn't particularly easy-to-read, but it does all the alterations our collaborator asked for, saving us from editing the file from hand (where we could easily make a typo).  
+
+### renaming files
+`sed` alters the contents of a file, but can't alter filenames. Sometimes we may want to edit filenames en masse using find-and-replace the way that `sed` does for text. The command `rename` does this using much of the same syntax as `sed`. It does not come pre-installed with all versions of `bash`, but is the command to look for if you run into that task.  
 
 # bash variables
 
