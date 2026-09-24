@@ -22,7 +22,7 @@ Welcome! This workshop is designed to provide an entry into using the command li
 [gnu parallel](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#gnu-parallel)  
 [time](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#time)  
 [htop](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#htop)  
-[awk](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#awk)
+[awk](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#awk)  
 [file permissions](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#file-permissions)  
 [Aliases](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#aliases)  
 [installing programs](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#installing-programs)  
@@ -375,13 +375,51 @@ df, screen, history, ssh, scp
 * using grep to grab lines
 * using grep -v to exclude lines
 * using grep -c to count matching lines
-* using simple regex (^, $, escape characters, ., *)
 * emphasizing difference between different quote symbols
-* [] ranges
-* “.” wildcard
-* “*” repeats (including zero)
-* “^” start of line
-* “$” end of line
+
+Quick regex cheatsheet:  
+* [A-Za-z0-9] ranges  
+* “^” start of line  
+* “$” end of line  
+* “.” wildcard  
+* “*” repeats (including zero)  
+* \t tab  
+* \n newline (line break)  
+
+We can make our `grep` expressions more powerful using **regular expressions** ("regex"). Sometimes we may want to search for bits of text that are either more broad or more specific than just searching for a single plain string of text. Regular expressions are concise bits of code that communicate a particular text search pattern to the computer. For example, if you want to search for "the word blueberry, with either a capital B or lowercase b, but only if it occurs in the beginning of the line", you can communicate that to the computer concisely with the expression "^[bB]lueberry". Regex expressions are often difficult to interpret when reading them, as humans, and can become quite complex. Entire books have been written about writing regular expressions, but here we will focus on just a handful of tricks to get you going.  
+
+Note that regular expressions are not unique to grep or to the command line - they are a general tool used in many programming languages and contexts. Working on the command line in bioinformatics, some of the most common contexts are: searching for lines using `grep`, conducting find-and-replace with `sed`, or doing more complex text manipulation with `awk`. What they have in common is that they are typically used to conduct matching - having the computer search through text to find matches to the regular expression.  
+
+First, the basics: regex are composed of both plain characters that are taken at facevalue ("blueberry) means (blueberry), and special characters that have a deeper meaning ("\t" means tab). The characters are case-sensitive, so searching for "blueberry" will not match "Blueberry".  
+```bash
+grep "FM433680" ABBABABA.txt #several matches
+grep "fm433680" ABBABABA.txt #no matches
+```
+Letters and digits (`abc`, `ABC`, `012`, etc) are taken at face-value unless combined with special characters.  
+We can build uncertainty into our regex using square brackets`[]`. Square brackets allow us to list multiple different characters/digits/etc that could occur in a match. For example, `"[ABC123]"` will match A, B, C, 1, 2, or 3. `"r[ua]n"` will match both "run" and "ran".  
+```bash
+grep "InambariE" ABBABABA.txt
+grep "InambariW" ABBABABA.txt
+grep "Inambari[WE]" ABBABABA.txt #matches both InambariW and InambariE
+```
+
+If we need to match a wide variety of digits/letters that are in sequence, we can simplify using ranges. For example, instead of typing `"[ABC]"` we can type `"[A-C]"`. The computer will understand ranges of letters (eg `"[A-Z]"`, `"[a-z]"` or numbers (eg `"[0-9]"`), just keep in mind that capital and lowercase letters are distinct, and the characters need to be in alphanumeric order.  
+
+Some special characters are used as symbols to represent other aspects of matching. For example, the `$` character doesn't get interpreted as a dollar sign - instead, it means "end of the line". For instance, searching for "blueberry$" will match "blueberry" only if it occurs right at the end of a line. Conversely, `^` means "start of the line, so searching for "^blueberry" will match "blueberry" only if it occurs right at the start of a line. Combining those, searching for `"^blueberry$"` would match "blueberry" only when it is the only text in a line (ie, it stretches from the start to the end of its line).  
+
+```bash
+grep "chloromeros" ABBABABA.txt
+grep "^chloromeros" ABBABABA.txt
+```
+
+The escape character, `\`, lets us change how a character is interpreted. It can give a plain character special meaning, or it can strip the special meaning off a special character. It acts on the character that immediately follows it:  
+* `\n`: newline, matches a linebreak  
+* `\t`: tab, matches a tab character  
+* `\^`: escaped `^`, matches a literal `^` instead of the start of a line  
+* `\$`: escaped `$`, matches a literal `$` instead of the end of a line  
+If we want to match a literal backslash `\`, we can use an escape character `\` on a backslash `\`, to create the somewhat silly regex pattern of `\\`.  
+
+Two more frequently used special characters are `.` and `*`.  The `.` character is a wildcard - it matches anything. For example, `"A.." matches any three characters starting with "A" - ABC, Art, Ant, Arm, A12, AAA, etc. The `*` character is the repeat character - it means that the thing right before it can be repeated any number of times, including zero. For example `"A*"` matches "AAAAAAAAAAAA" or "AA" or "A", etc... and it even matches "" (nothing). This is especially powerful to combine the two into `".*"`, which means "anything, repeated any number of times (including zero).  
 
 egrep:
 * ”+” repeats (not including zero)
