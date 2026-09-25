@@ -372,12 +372,21 @@ Use the arrow keys to navigate to the second-last line, and modify it from `BURN
 df, screen, history, ssh, scp
 
 # grep and regex and globbing
-* using grep to grab lines
-* using grep -v to exclude lines
 * using grep -c to count matching lines
-* emphasizing difference between different quote symbols
 
-Quick regex cheatsheet:  
+Let's grab all the lines that correspond to `FM433680`:  
+`grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt`  
+Let's grab all the lines that correspond to `FM433680` that also involve AtlanticForest:  
+`grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep "AtlanticForest"`  
+
+We can also invert matches using the `-v` flag, which grabs all lines that *don't* match our pattern. This allows us to exclude lines.  
+Let's grab all the lines that correspond to `FM433680` and then *exclude* lines that involve AtlanticForest:  
+`grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep -v "AtlanticForest"`  
+
+`grep` also includes a flag for counting: `-c`. `grep -c` returns the number of lines containing matches (essentially a shortcut alternative to passing the matching lines to `wc -l`.  
+Let's count the number of lines involving `Ceratopipra_chloromeros_FM433680`: `grep -c "Ceratopipra_chloromeros_FM433680" ABBABABA.txt`  
+
+Quick simple regex cheatsheet:  
 * [A-Za-z0-9] ranges  
 * “^” start of line  
 * “$” end of line  
@@ -419,11 +428,8 @@ The escape character, `\`, lets us change how a character is interpreted. It can
 * `\$`: escaped `$`, matches a literal `$` instead of the end of a line  
 If we want to match a literal backslash `\`, we can use an escape character `\` on a backslash `\`, to create the somewhat silly regex pattern of `\\`.  
 
-Two more frequently used special characters are `.` and `*`.  The `.` character is a wildcard - it matches anything. For example, `"A.." matches any three characters starting with "A" - ABC, Art, Ant, Arm, A12, AAA, etc. The `*` character is the repeat character - it means that the thing right before it can be repeated any number of times, including zero. For example `"A*"` matches "AAAAAAAAAAAA" or "AA" or "A", etc... and it even matches "" (nothing). This is especially powerful to combine the two into `".*"`, which means "anything, repeated any number of times (including zero).  
-
-egrep:
-* ”+” repeats (not including zero)
-* “?” optional character
+Two more frequently used special characters are `.` and `*`.  The `.` character is a wildcard - it matches anything. For example, `"A.." matches any three characters starting with "A" - ABC, Art, Ant, Arm, A12, AAA, etc. The `*` character is the repeat character - it means that the thing right before it can be repeated any number of times, including zero. For example `"A*"` matches "AAAAAAAAAAAA" or "AA" or "A", etc... and it even matches "" (nothing). This is especially powerful to combine the two into `".*"`, which means "anything, any number of times (including zero). For example, `"A.*"` matches "Antbird", "Apple", "A123486 54321asdf ghjk", "A", etc.  
+With those in hand (`.`, `*`, `^`, `$`, `\n`, `\t`), you can get quite a lot done. If you find yourself needing to accomplish more advanced text matching, there are quite a few more regex rules out there for more advanced pattern matching.  
 
 # sed
 `sed` is a powerful command line tool that can be used for a variety of tasks: here we will focus on using it to manipulate text through find-and-replace, one of its most common uses in bioinformatics. Technically, `sed` is a a complete programming language, but in practice it is primarily used for simple text editing tasks. `sed` is especially versatile when used with regular expressions (above). 
