@@ -67,8 +67,6 @@ Here we will go over some of the most-commonly used commands: commands for getti
 * `rmdir name_of_directory` - remove (delete) an empty directory 
 * `man name_of_command` - open the manual for a command (then press "q" to quit the manual)
 
-(in the above list, the variables starting with $ are placeholders I wrote which you will replace when writing your command - don't include those `$` symbols)
-
 First, find out where you are in your computer's filesystem using the `pwd` command ("print working directory"). This will print text as output in the next line of your terminal. This printed output text is called "standard output". The standard output of `pwd` will be the full path from the root of your computer's filesystem to your current working directory. When you run commands, your working directory is the default place where your computer will look for input files, and is the default place where output files appear.  
 
 To find out what is in your working directory, type `ls` into your command prompt, then hit "enter". The text that pops up in your terminal (the "standard output" of `ls`) is a list of all the files in your current working directory.  
@@ -93,7 +91,7 @@ If you run `ls`, you should now see that the test directory is gone. Careful! Th
 Now let's move on to some slightly more complex commands. Before we do, here are some important general tips for running commands on the command line:  
 * Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file"). As best practice though, don't include spaces in the name of any file or directory - instead_you_can_experiment_with_underscores, OrYouCanTryWritingInCamelCase.  
 * Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor to use straight quotes instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.
-* Rich text editors will also add invisible characters called "carriage returns". You will not be able to see these in your document, but the command line sure can! These invisible characters break code and cause major headaches; using a plain text editor will avoid that problem.  
+* Many text editors will also add invisible characters called "carriage returns". You will not be able to see these in your document, but the command line sure can! These invisible characters break code and cause major headaches; using a plain text editor meant for code that is set to not add carriage returns will avoid that problem.  
 * Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click.  
 * Time saver: in many systems, you can press ctrl+a to jump your cursor to the start of the line, and then ctrl+e to jump back to the end of the line. Saves some time if you made a typo way at the beginning of the line!  
 * to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit. (Note, `man` is not included in Git bash).  
@@ -129,7 +127,7 @@ Now we will look at some important commands for reading and manipulating files:
 * `uniq` - remove repeated lines (if they are adjacent)  
 * `paste` - merge files horizontally (paste columns together line-by-line)  
 
-The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. The most simple way to run it is `cat $Name_of_file`. Let's try it:  
+The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. The most simple way to run it is `cat Name_of_file`. Let's try it:  
 `cat ABBABABA1.txt`  
 That will print the contents of the file `ABBABABA1.txt`.  
 `cat` can also take multiple files as input and concatenate them together in the order they are listed. For example:  
@@ -317,7 +315,7 @@ echo "how many characters are in this sentence" | wc -c
 echo "column1\tcolumn2" #in some versions, \t will by default be interpreted as a tab, while in others it is not
 echo "Here is a random number: $RANDOM" #we can include variables in echo - these are explained farther below
 ```
-`echo` just repeats whatever we give it and passes that from `stdin` to `stdout`, whether that means printing to our terminal or passing the content through a pipe. We can use that to build text files.  
+`echo` just repeats whatever we give it as an argument and passes it to `stdout`, whether that means printing to our terminal or passing the content through a pipe. We can use that to build text files.  
 Let's use `echo` to make a phylogenetic tree file, something that many population genetics programs ask for as input:  
 `echo "(cornuta,(mentalis,(erythrocephala,(rubrocapilla,chloromeros))))" > Ceratopipra_phylogeny.nwk`  
 Now check that the file looks ok: `cat Ceratopipra_phylogeny.nwk` or `less Ceratopipra_phylogeny.nwk` (press `q` to exit `less`). 
@@ -427,6 +425,7 @@ The escape character, `\`, lets us change how a character is interpreted. It can
 * `\^`: escaped `^`, matches a literal `^` instead of the start of a line  
 * `\$`: escaped `$`, matches a literal `$` instead of the end of a line  
 If we want to match a literal backslash `\`, we can use an escape character `\` on a backslash `\`, to create the somewhat silly regex pattern of `\\`.  
+Note: not all of this works with all versions of `grep`. On some versions of grep, to search `\t` as tab, you need the flag `grep -P`. Further, since `grep` searches line-by-line, it cannot search for `\n`, though that piece of regex is useful in other contexts.  
 
 Two more frequently used special characters are `.` and `*`.  The `.` character is a wildcard - it matches anything. For example, `"A.." matches any three characters starting with "A" - ABC, Art, Ant, Arm, A12, AAA, etc. The `*` character is the repeat character - it means that the thing right before it can be repeated any number of times, including zero. For example `"A*"` matches "AAAAAAAAAAAA" or "AA" or "A", etc... and it even matches "" (nothing). This is especially powerful to combine the two into `".*"`, which means "anything, any number of times (including zero). For example, `"A.*"` matches "Antbird", "Apple", "A123486 54321asdf ghjk", "A", etc.  
 With those in hand (`.`, `*`, `^`, `$`, `\n`, `\t`), you can get quite a lot done. If you find yourself needing to accomplish more advanced text matching, there are quite a few more regex rules out there for more advanced pattern matching.  
@@ -442,6 +441,7 @@ Let's start with some easy examples. Imagine that there was just a name change -
 `cat samples.txt | sed "s/chloromeros/viridus/g" > samples_renamed.txt` Check `samples_renamed.txt` to verify the change was made.  
 Oops, our collaborator has requested that instead of changing the samples to `viridus`, we change them to `chloromeros_viridus`. We could generate a third file, but we could also ask `sed` to edit the file in-place using the `-i` flag, like this:  
 `sed -i "s/viridus/chloromeros_viridus/g" samples_renamed.txt`. Check `samples_renamed.txt` to verify the change was made.  
+Warning! `sed -i` edits in-place with no backup; changes are permanent and can't be undone if they don't go as expected.  
 
 The range of things that `sed` can do becomes much broader when we combine it with regular expressions to more precisely or more broadly specify what text we want `sed` to find.
 For example, let's imagine we want to change the headers of a DNA sequence file. These files are normally stored in `fasta` format, where headers always start with a ">" symbol. 
@@ -681,9 +681,9 @@ You can repeat this with as many space-separated variables as you wish. This is 
 * testing out several combinations of parameter settings when you don't have computational resources to test every possible combo  
 
 Before moving on, it's important to note that our `while` loops here are working by reading through very basic and cleanly-formatted text files, for which we know the contents and can confidently use knowing there are no unexpected whitespaces in sample names and we didn't use any backslashes in our sample names. Here are some notes for things you may run into:  
-* if you need backslashes, use `-r`, otherwise `read` will interpret them as special characters. For example: `cat samples.txt | while read -r sample ; do echo "Now analyzing $sample" ; done`
-* if you have multiple variables per line and are using something other than a space to separate them (especially if you have any spaces in your variables), tell bash what the delimiter is using `IFS=` ("internal field separator"). For example, to specify your file is tab-delimited (`\t`), you would run `cat samples.txt | while IFS=$'\t' read sample ; do echo "Now analyzing $sample" ; done`
-* if you made the text file using Excel or another rich text editor, delete the invisible "carriage return" line endings from the file by running it through `tr -d '\r'`, otherwise `read` will not parse it properly.
+* if you need backslashes, use `-r`, otherwise `read` will interpret them as special characters. For example: `cat samples.txt | while read -r sample ; do echo "Now analyzing $sample" ; done`  
+* if you have multiple variables per line and are using something other than a space to separate them (especially if you have any spaces in your variables), tell bash what the delimiter is using `IFS=` ("internal field separator"). For example, to specify your file is tab-delimited (`\t`), you would run `cat samples.txt | while IFS=$'\t' read sample reference ; do echo "Now mapping $sample to $reference" ; done`  
+* if you made the text file using Excel or another rich text editor, delete the invisible "carriage return" line endings from the file by running it through `tr -d '\r'`, otherwise `read` will not parse it properly.  
 
 ## if statements
 
@@ -801,11 +801,11 @@ time parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fa
 ```
 for loop:  
 ```bash
-time for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in "$gene" of "$sample" is $num_As" ; done ; done  
+time for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in $gene of $sample is $num_As" ; done ; done  
 ```
 while loop:  
 ```bash
-time cat samples.txt | while read sample ; do cat genes_to_loop.txt | while read gene ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in "$gene" of "$sample" is $num_As" ; done ; done  
+time cat samples.txt | while read sample ; do cat genes_to_loop.txt | while read gene ; do echo "analyzing gene $gene from $sample" ; num_As=$(grep -v ">" gene_fastas/"$sample"_"$gene".fasta | tr -d -c "A" | wc -c) ; echo "The number of As in $gene of $sample is $num_As" ; done ; done  
 ```
 Which one was fastest? When running a small number of very fast commands, the difference is often negligible (and the overhead time cost of setting up `parallel` can even make it slower than a `for` loop), but when dealing with heavier tasks it can save you weeks of waiting time.  
 
@@ -924,7 +924,7 @@ Sometimes, your downloaded tool will come ready-to-run with no further efforts r
 
 Here are my solutions:  
 1) `sed "s/SampleID/SpeciesName\tSampleNumber/g; s/Ceratopipra_/Ceratopipra@/g; s/_/\t/g; s/Ceratopipra@/Ceratopipra_/g" ABBABABA.txt`. 
-2) `grep "^rubrocapilla\t.*\tmentalis" ABBABABA.txt`
+2) `grep -P "^rubrocapilla\t.*\tmentalis" ABBABABA.txt`
 3) `sed "s/rubrocapilla/PLACEHOLDER/g; s/erythrocephala/rubrocapilla/g; s/PLACEHOLDER/erythrocephala/g" ABBABABA.txt`. 
 4)
 ```
