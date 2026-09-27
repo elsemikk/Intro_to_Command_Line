@@ -73,26 +73,37 @@ To find out what is in your working directory, type `ls` into your command promp
 
 Next, let's move around the filesystem. We can do this using the `cd` ("change directory") command. To use it, type `cd` followed by a space, then the name/path of the directory you want to move to. If the directory you want to move to is in your current working directory, you can just give the name of the directory. If it is somewhere else, you will have to specify the path to that directory. Let's move into the directory for this tutorial. If you downloaded the tutorial folder manually, you will need to know where on your computer it ended up.  
 
-`cd Intro_2_command_line`  
+Assuming the tutorial folder is in your current working directory, you enter it like this:
+```bash
+cd Intro_2_command_line
+```  
 
 Now that we are in the tutorial directory, let's start by making a new directory. We can make a directory using the `mkdir` command: just type `mkdir` followed by a space, then the name of the new directory. For example, run:  
-`mkdir test`  
+```bash
+mkdir test
+```  
 If you now run `ls`, you will see a new directory named `test`. Let's enter this directory:  
-`cd test`  
+```bash
+cd test
+```  
 If you run `ls`, you should see nothing - we are just in an empty directory that we just created. Let's go back up. There are a few ways we can do this. We could specify the whole path to the folder above us. Alternatively, we could use a handy shorthand. In bash, a single dot `.` stands for your current working directory. If you run `cd .` nothing will happen - you will change directories to the directory you are already in. Two dots `..` stands for the directory just above your working directory. Run:  
-`cd ..`  
+```bash
+cd ..
+```  
 That should bring you back up to the directory we were just in. You can stack these together, for example `cd ../../..` to go up three levels. You can also use them to navigate to other folders relative to your working directory. For example `cd ../raw_data` to go up one level and then down into a directory called `raw_data`.  
 One last `cd` trick: You can use `cd -` as shorthand to go back to your previous working directory, a handy shortcut if you find yourself constantly needing to move back and forth between two directories.  
 
 At this point, make sure you are back in the main tutorial directory. Let's delete that test folder we just made. You can delete directories using the `rmdir` command. Run it like this:  
-`rmdir test`.  
+```bash
+rmdir test
+```  
 If you run `ls`, you should now see that the test directory is gone. Careful! There is no "undo" on the command line. Luckily, `rmdir` will refuse to delete a directory that is not empty.  
 
 Now let's move on to some slightly more complex commands. Before we do, here are some important general tips for running commands on the command line:  
 * Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file"). As best practice though, don't include spaces in the name of any file or directory - instead_you_can_experiment_with_underscores, OrYouCanTryWritingInCamelCase.  
-* Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor to use straight quotes instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.
+* Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor to use straight quotes instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.  
 * Many text editors will also add invisible characters called "carriage returns". You will not be able to see these in your document, but the command line sure can! These invisible characters break code and cause major headaches; using a plain text editor meant for code that is set to not add carriage returns will avoid that problem.  
-* Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click.  
+* Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click).  
 * Time saver: in many systems, you can press ctrl+a to jump your cursor to the start of the line, and then ctrl+e to jump back to the end of the line. Saves some time if you made a typo way at the beginning of the line!  
 * to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit. (Note, `man` is not included in Git bash).  
 
@@ -103,13 +114,14 @@ The other thing we have given some commands is/are argument(s). These are also s
 
 Let's add some flags to `ls`. If we just run `ls`, it will tell us the contents of our current working directory. If we add  the flag `-l` and run `ls -l`, it will now give us a more lengthy summary of our files, including handy information like the size of our files, which user owns them, and date/time when they were last modified. Let's now add another flag, `-h`: `ls -l -h` or `ls -lh` (for single-letter flags, you can either give each flag their own dash, or smoosh them together behind the same dash, whatever style looks best to you). `-h` stands for "human-readable", and will convert the file sizes from number of bytes to abbreviations (K for Kilobyte, M for Megabyte, etc).   
 
-Now let's add a flag to `mkdir`. `mkdir` normally won't make multiple levels of nested directories at the same time, and gives us an error message if we try to make a directory that already exists. If we add the `-p` flag, it will change the behaviour: it will make nested ("parent") directories as needed, and won't give us a message if we try to make a directory that already exists.  Try it:  
-```
+Now let's add a flag to `mkdir`. `mkdir` has a couple default behaviours that can be annoying: it won't make multiple levels of nested directories at the same time, and it gives us an error message if we try to make a directory that already exists. If we add the `-p` flag, it will change those behaviours: it will make nested ("parent") directories as needed, and won't give us a message if we try to make a directory that already exists.  Try it:  
+```bash
 mkdir test_directory/test_subdirectory #won't work if test_directory doesn't exist
 mkdir -p test_directory/test_subdirectory #makes test_directory and test_subdirectory at the same time
 mkdir test_directory/test_subdirectory #gives a message warning us that it already exists
-mkdir -p test_directory/test_subdirectory #doesn't give any message
-``` 
+mkdir -p test_directory/test_subdirectory #doesn't give any message, just does nothing
+```  
+(Turning off `mkdir`'s warning messages may seem pointless at first, but saves us from getting endless messages spat out at us if we have to re-run pipelines that involve huge numbers of `mkdir` commands)  
 
 # Looking at files
 
@@ -128,19 +140,26 @@ Now we will look at some important commands for reading and manipulating files:
 * `paste` - merge files horizontally (paste columns together line-by-line)  
 
 The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. The most simple way to run it is `cat Name_of_file`. Let's try it:  
-`cat ABBABABA1.txt`  
+```bash
+cat ABBABABA1.txt
+```  
 That will print the contents of the file `ABBABABA1.txt`.  
 `cat` can also take multiple files as input and concatenate them together in the order they are listed. For example:  
-`cat ABBABABA1.txt ABBABABA2.txt`  
+```bash
+cat ABBABABA1.txt ABBABABA2.txt
+```  
 That will print the contents of `ABBABABA1.txt` and then the contents of `ABBABABA2.txt`.  
 Often, we need to save this output, rather than just printing it to the command line. We can redirect it to a file using the `>` symbol to point to a file where the output should be printed. This could be just the file name (in which case it will appear in your current working directory), or it could also include a path to save it in a different directory. Warning! Redirecting output using `>` will overwrite the contents of the file if it already exists, without any warnings. There are many sad stories of people losing their work by accidentally overwriting files using `>`. When a file is overwritten in that way, it is called "clobbering".  
 Let's use `cat` to combine two files together and save the results.  
-```
+```bash
 mkdir -p processed_data 
 cat ABBABABA1.txt ABBABABA2.txt > processed_data/ABBABABA_concatenated.txt
+#note we saved it to a subdirectory of our current working directory, processed_data 
 ```  
 Oops! We forgot about `ABBABABA3.txt`. We could add it by running `cat ABBABABA1.txt ABBABABA2.txt ABBABABA3.txt > processed_data/ABBABABA_concatenated.txt`, which would erase and remake `processed_data/ABBABABA_concatenated.txt`, an annoying solution. Instead, we can concatenate `ABBABABA3.txt` to the end of `processed_data/ABBABABA_concatenated.txt` without overwriting it, by using `>>` instead of `>`, like this:  
-`cat ABBABABA3.txt >> processed_data/ABBABABA_concatenated.txt`   
+```bash
+cat ABBABABA3.txt >> processed_data/ABBABABA_concatenated.txt
+```   
 `>` and `>>` are special components of bash code. Both are used to redirect output to a file, but `>` starts the file fresh while `>>` appends things to a file without modifying/overwriting any content that may already be there.  
 
 A few more basic actions we often need to do are to copy, move, or delete files. Copying a file is done with `cp`, which makes a duplicate of the file. This duplicate can be in the same or different directory. If it is in the same directory as the original, it needs to have a new name (you can't have two files with the same name in the same directory), but if it is in a different directory it can have the same name as the original.  
@@ -150,12 +169,17 @@ mkdir -p backups
 cp processed_data/ABBABABA_concatenated.txt backups/ABBABABA_concatenated_backup.txt
 ```
 When running `cp`, we first give the name/path of the original file we want to copy, and then give the name/path of the duplicate we want to create.  
-Let's backup `ABBABABA1.txt` too: `cp ABBABABA1.txt backups/ABBABABA2.txt`.  
+Let's backup `ABBABABA1.txt` too: 
+```bash
+cp ABBABABA1.txt backups/ABBABABA2.txt
+```  
 Oops! Did you see that typo? We accidentally named our ABBABABA**1** backup ABBABABA**2**! Let's rename it before we confuse our future selves. We can rename files using the `mv` command. `mv` moves a file from one place to another, without leaving a copy of the original behind (unlike `cp`). We can move files from one directory to another, or we can "move" files without changing their directories. When we move files, we can keep their name or change their name. That means that we can edit the name of a file by "moving" it within the same directory to a different name, like this:  
-`mv backups/ABBABABA2.txt backups/ABBABABA1.txt`  
+```bash
+mv backups/ABBABABA2.txt backups/ABBABABA1.txt
+```  
 To use `mv`, provide the name/path of the file you want to move, followed by the name/path that you want to move it to. Note that if you want to move it to a new directory without changing the name, you can just give the name of the directory without specifying a name for the file, and it will keep its original name. (Careful! Make sure that directory exists, otherwise you will rename your file to the name of the directory you intended it to move to).  
 Let's try some more:  
-```
+```bash
 cp ABBABABA1.txt backups
 mv backups/ABBABABA1.txt backups/blueberry
 cp ABBABABA2.txt backups/blueberry
@@ -166,7 +190,10 @@ Next, we can delete files using `rm`. `rm` removes (permanently deletes) files t
 
 Now let's take a look at `processed_data/ABBABABA_concatenated.txt` that we made previously. However, this is a big file, it would not be convenient to run `cat processed_data/ABBABABA_concatenated.txt` and have all that text print to our command line. Instead, let's use another handy command: `less`, which lets us scroll through files without printing them out.   
 
-Let's try it: `less processed_data/ABBABABA_concatenated.txt`  
+Let's try it: 
+```bash
+less processed_data/ABBABABA_concatenated.txt
+```  
 
 Your screen will now show the contents of `processed_data/ABBABABA_concatenated.txt`. From here, you can scroll up and down to look through the file. There are a series of keyboard shortcuts to help navigating when using `less`, for example:  
 * press `spacebar` to jump to the next "page"  
@@ -178,8 +205,10 @@ If you get stuck while typing something, press `ctrl + c` to cancel what you jus
 To exit `less` and go back to the command line, type `q` for "quit".  
 
 Another nice way to preview files is using `head` and `tail`. `head` prints only lines from the beginning of a file, while `tail` prints only lines at the end of the file. Try it out:  
-`head processed_data/ABBABABA_concatenated.txt`  
-`tail processed_data/ABBABABA_concatenated.txt`  
+```bash
+head processed_data/ABBABABA_concatenated.txt  
+tail processed_data/ABBABABA_concatenated.txt
+```  
 By default, they print 10 lines. We can change this using the `-n` (AKA `--lines`) flag. For example `head -n 5 processed_data/ABBABABA_concatenated.txt` prints only the first 5 lines while `tail -n 5 processed_data/ABBABABA_concatenated.txt` prints only the last 5 lines. You can also use `-` or `+` symbols to remove only the first/last n lines without knowing exact what line number they are. Try comparing the results of these:    
 * `head -n 2` AKA `head -n +2`: print the first two lines (start at the beginning and then stop at line 2).  
 * `head -n -2`: remove the last 2 lines (start at the beginning and then stop at line -2, ie, 2 lines before the end). Not all versions support using negative line numbers with `head`, in which case you get the error message `head: illegal line count`.  
@@ -189,8 +218,11 @@ By default, they print 10 lines. We can change this using the `-n` (AKA `--lines
 <img width="361" height="354" alt="image" src="https://github.com/user-attachments/assets/ca0fc1c7-bc67-4e09-a69c-411c89926f4d" />
 
 Another useful piece of info to know about a file is how long it is. We can look at this using the `wc` (word count) command.  
-Try running: `wc processed_data/ABBABABA_concatenated.txt`.  
-This will show you three pieces of info: the number of lines in the file, the number of words, and the number of bytes. Often all we want to know is the number of lines, which we can specify using the `-l` flag, like this: `wc -l processed_data/ABBABABA_concatenated.txt`.   
+Try running: 
+```bash
+wc processed_data/ABBABABA_concatenated.txt
+```  
+This will show you three pieces of info: the number of lines in the file, the number of words, and the number of bytes. Often all we want to know is the number of lines, which we can specify using the `-l` flag, like this: `wc -l processed_data/ABBABABA_concatenated.txt`. This syntax use useful for calculating the sizes of datasets we are working with, in cases where each line represents a data point.   
 
 ## Piping and building pipelines
 
