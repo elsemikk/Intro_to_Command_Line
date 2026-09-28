@@ -7,25 +7,25 @@ Welcome! This workshop is designed to provide an entry into using the command li
 **This workshop is currently a work-in-progress - some sections have not yet been written**  
 
 ### Contents:  
-[Anatomy of the Command Line](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#anatomy-of-the-command-line)  
-[Directories and paths](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#directories-and-paths)  
-[Running commands - basic navigation commands](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#running-commands---basic-navigation-commands)  
-[Flags](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#flags)  
-[Looking at files](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#looking-at-files)  
-[Piping and building pipelines](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#piping-and-building-pipelines)  
-[Making a file from scratch](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#making-a-file-from-scratch)  
-[grep, regex, and globbing](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#grep-and-regex-and-globbing)  
-[sed](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#sed)  
-[bash variables](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#bash-variables)  
-[PATH](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#path-variable)  
-[for loops, while loops, and if statements](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#for-loops-while-loops-if-statements)  
-[gnu parallel](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#gnu-parallel)  
-[time](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#time)  
-[htop](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#htop)  
-[awk](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#awk)  
-[file permissions](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#file-permissions)  
-[Aliases](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#aliases)  
-[installing programs](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro.md#installing-programs)  
+[Anatomy of the Command Line](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#anatomy-of-the-command-line)  
+[Directories and paths](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#directories-and-paths)  
+[Running commands - basic navigation commands](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#running-commands---basic-navigation-commands)  
+[Flags](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#flags)  
+[Looking at files](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#looking-at-files)  
+[Piping and building pipelines](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#piping-and-building-pipelines)  
+[Making a file from scratch](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#making-a-file-from-scratch)  
+[grep, regex, and globbing](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#grep-and-regex-and-globbing)  
+[sed](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#sed)  
+[bash variables](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#bash-variables)  
+[PATH](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#path-variable)  
+[for loops, while loops, and if statements](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#for-loops-while-loops-if-statements)  
+[gnu parallel](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#gnu-parallel)  
+[time](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#time)  
+[htop](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#htop)  
+[awk](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#awk)  
+[file permissions](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#file-permissions)  
+[Aliases](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#aliases)  
+[installing programs](https://github.com/elsemikk/Intro_to_Command_Line/blob/main/Intro_to_Command_Line.md#installing-programs)  
 
 # Day 1: Navigating the command line  
 
@@ -224,9 +224,19 @@ wc processed_data/ABBABABA_concatenated.txt
 ```  
 This will show you three pieces of info: the number of lines in the file, the number of words, and the number of bytes. Often all we want to know is the number of lines, which we can specify using the `-l` flag, like this: `wc -l processed_data/ABBABABA_concatenated.txt`. This syntax use useful for calculating the sizes of datasets we are working with, in cases where each line represents a data point.   
 
+### Exercises  
+1) Make a directory named `exercise_1`, and then make a  subdirectory named `exercise_1/exercise_1_subdirectory`. Change your working directory to enter `exercise_1/exercise_1_subdirectory`, and then make a directory in `exercise_1` named `exercise_1_subdirectory2` without changing your working directory again.
+2) Make a copy of `ABBABABA.txt` and place it in `exercise_1/exercise_1_subdirectory`. Rename that file "exercise_1_testfile.txt`. Then, move it into `exercise_1/exercise_1_subdirectory2`.  
+3) Look at the last 30 lines of `input_data/placeholder.txt`. Then in a separate command, determine the length of `input_data/placeholder.txt`  
+
+
 --- 
 
-# Day 2: Pipelines  
+#### Break
+
+---
+
+# Part 2: Pipelines  
 
 
 ## Piping and building pipelines
@@ -236,13 +246,13 @@ Often, we want to do many different manipulations to data, and it is a waste of 
 To build a pipeline, you use "pipe" symbols (`|`) to separate commands, for example like this: `command_one --settings input_file | command_two --settings | command_three --settings > output_file`. Data passes through the pipes between commands. You can string together as many commands as you would like as long as the commands are able to receive input from "standard input" (stdin) and send output through "standard output" (stdout).  
 Let's take a moment to go through that jargon. There are three streams of data on the command line: `stdin`, `stdout`, and `stderr`:   
 * `stdin`: "standard input" - input data that is either read from a file (using `<`), typed from the keyboard, or passed to a command using a pipe `|`. Some commands accept `stdin` as input, while others wouldn't know what to do with it. For example, `mkdir` does not do anything with stdin.  
-* `stdout`: "standard output" - output that is produced by a command. By default this is printed to the terminal, but it can also be directed to be saved to a file (using `>` or `>>`) or piped to another command using `|`. Many commands produce `stdout`, but some do not - for example, `mkdir` does not produce any stdout (it makes a directory without printing anything)  
+* `stdout`: "standard output" - output that is produced by a command. By default this is printed to the terminal, but it can also be directed to be saved to a file (using `>` or `>>`) or piped to another command using `|`. Many commands produce `stdout`, but some do not - for example, `mkdir` does not produce any stdout (it makes a directory without printing anything).  
 * `stderr`: "standard error" - another stream of output that is produced by a command; usually error messages or extra info that is not needed in the main output, like status updates. By default it is printed to the command line, and will not be redirected with `|` or `>` or `>>`. To save it to a file, use `2>` or `2>>`. To make it go to the same place as standard output, use `2>&1`. To make it not be printed, use `2>/dev/null` (explained farther below).  
 
 Let's find out how many samples are in our dataset. Scroll back to look at the file `processed_data/ABBABABA_concatenated.txt`. This file contains sample names in column 2. These samples might be repeated multiple times. To find out how many samples we have, we should see how many unique sample IDs occur in column 2. We can do that using the `cut`, `sort`, `uniq`, and `wc` commands. (There are of course fancier ways we could code it in other languages, but let's build a pipeline with just bash basics).  
 
 First, let's isolate column 2. `cut` grabs the columns that we specify, and we can use the `-f` flag to tell it which fields (column numbers) to select. By default, `cut` expects columns to be tab-delimited, otherwise we would need to tell it what delimits our columns using the `-d` flag.  
-Let's check that it works! To avoid printing out the whole long file, let's just grab the first 5 lines and pass those to `cut` as a test. Try these:  
+Let's check that it works! To avoid printing out the whole long file, let's just grab the first 5 lines with `head` and pass those to `cut` as a test. Try these:  
 ```bash
 head processed_data/ABBABABA_concatenated.txt | cut -f 2
 head processed_data/ABBABABA_concatenated.txt | cut -f 2-4 #we can ask for a range of columns
@@ -264,8 +274,13 @@ head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -n #sort numeric
 ```
 
 Can you decipher what this is doing?  
-`head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -t "." -k 2 -n `  
-Answer: It is taking column 8 and then sorting it by the numbers after the decimals, numerically (It is using the "." as the column delimiter).  
+```bash
+head processed_data/ABBABABA_concatenated.txt | cut -f 8 | sort -t "." -k 2 -n
+```
+<details>
+  <summary>Answer</summary>
+ It is taking column 8 and then sorting it by the numbers after the decimals, numerically (It is using the "." as the column delimiter).  
+</details>  
 
 `head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort` is doing what we want. We can then send it to `uniq` to deduplicate the list. Another nice thing `uniq` can do is to count how many times each line was repeated using the `-c` flag (neat but not what we need right now).
 
@@ -276,16 +291,25 @@ head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq -c #count
 
 `head processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq` is doing what we want.  
 Lastly, we just need to count how many samples are in this de-duplicated list. We can do that using `wc -l`. Let's commit this time and run it on the whole file, instead of running `head` first.  
-`cut -f 2 processed_data/ABBABABA_concatenated.txt | sort | uniq | wc -l`  
+```bash
+cut -f 2 processed_data/ABBABABA_concatenated.txt | sort | uniq | wc -l
+```  
 There we have it, the number of samples in the file.  
 Oh, but wait! You may have noticed earlier that one of the lines in the file was the header, not an actual sample! Our number is therefore one too high. We could just subtract this in our heads, but what if we forget about the header the next time we run this code? Let's get rid of it. There are two easy ways to do this - we could use `tail` to cut it off, or we could use pattern matching to exclude it. We have already learned about `tail`, so try building a pipeline incorporating `tail` to remove the header from our count.  
-
-
-Solution:  
-`tail -n +2 processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq | wc -l`  
+<details>
+  <summary>Solution</summary>
+    
+Here are two possible answers:  
+```bash
+tail -n +2 processed_data/ABBABABA_concatenated.txt | cut -f 2 | sort | uniq | wc -l
+```  
 or  
-`cut -f 2 processed_data/ABBABABA_concatenated.txt | tail -n +2 | sort | uniq | wc -l`  
-(we can put tail before or after `cut`, but we can't put it after `sort`, since we don't necessarily know ahead of time where it will end up after sorting.  
+```bash
+cut -f 2 processed_data/ABBABABA_concatenated.txt | tail -n +2 | sort | uniq | wc -l
+```  
+(We can put tail before or after `cut`, but we can't put it after `sort`, since we don't necessarily know ahead of time where it will end up after sorting).  
+
+</details>  
 
 One last basic file editing piece for our toolkit is `paste`. The `paste` command can take multiple files/inputs and merge them horizontally as columns, separated by tabs (by default).  
 
@@ -294,13 +318,26 @@ Let's pretend that our SampleID data was in a different file than the rest of ou
 cut -f 2 ABBABABA.txt > toy_SampleID  
 cut -f 1,3- ABBABABA.txt > toy_OtherColumns
 ```
-Now that we are set up in this scenario, let's try putting those files back together. We can use `paste` to do that: `paste toy_SampleID toy_OtherColumns > toy_MergedColumns`  
+Now we have set up a scenario where we have our data split across two files with corresponding rows. Let's try putting those files back together. We can use `paste` to do that: 
+```bash
+paste toy_SampleID toy_OtherColumns > toy_MergedColumns
+```  
 Check if it worked: `head toy_MergedColumns`  
 Note that `paste` will paste them together in the order you specify.  
 When using `paste`, make sure you are very confident that all of your lines are in the same order! Paste will not warn you if your files are sorted differently or differ in length.  
 
-## Redirecting standard error
+### Side note: Redirecting standard error
 Before we move on, let's talk about standard error (stderr) - this is often error messages, but it can also include useful status updates that we may want to save (programmers can make whatever they want get printed as `stderr`). Redirecting `stderr` is similar to redirecting `stdout`, but the code is slightly different so that you can redirect stderr and stdout to separate places as needed. By default, `stderr` gets printed to the command line, and if you redirect the `stdout`, `stderr` will continue to get printed to the command line. To redirect `stderr`, instead of using `>` or `>>`, use `2>` or `2>>`. (The inputs and outputs are assigned "file descriptors": "2" is stderr, while "1" is stdout and "0" is stdin). For example: `command --settings input_file > output.txt 2> errors.log` will send stdout and stderr to separate files. This is handy for saving error messages to a log so that you can refer to them later if needed.  
+Try it out:  
+```bash
+mkdir test #will give you the warning "mkdir: test: File exists" if the directory "test" already exists. If you don't get the warning message, try running it a second time.
+
+#redirect stderr to a file
+mkdir test 2>> error_messages.txt #if you ran mkdir test above, it will give an error message. However, you won't see it, as it has been printed to error_messages.txt
+
+#read the error messages you saved:
+cat error_messages.txt
+```
 
 If you want the `stderr` to instead be printed alongside `stdout` in the same file (with the lines interspersed as they are generated), you can use `2>&1` which means "send stderr to the same place as stdout". For example: `command --settings input_file > output.txt 2>&1` will send both `stderr` and `stdout` to the same place. This can be handy when both `stdout` and `stderr` are log messages that you want to save to a single log file, or if you want to be able to send error messages through a pipe to be processed by the next command.  
 
