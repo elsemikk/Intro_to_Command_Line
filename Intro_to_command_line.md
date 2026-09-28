@@ -353,11 +353,17 @@ Four tools useful for building up new text files from scratch include:
 * `nano` - edit a text file
 
 ### cat
-We have already used `cat` to print the contents of a file or concatenate files together. We can also use `cat` in a slightly different way - instead of making `cat` open a file to read the contents, we can give cat nothing, like this: `cat`.  
+We have already used `cat` to print the contents of a file or concatenate files together. We can also use `cat` in a slightly different way - instead of making `cat` open a file to read the contents, we can give cat nothing, like this: 
+```bash
+cat
+```  
 `cat` will then wait infinitely for us to type input. Anything we type (`stdin`) it will print (to `stdout`).  
 To end the session with `cat`, type `ctrl+d` for "done".  
 That didn't do anything, `cat` just repeated everything we typed back at us. To be more useful, we can redirect the `stdout` to a file, using `>` or `>>`.  
-Try this out: `cat > testing_cat.txt`  
+Try this out: 
+```bash
+cat > testing_cat.txt
+```  
 Type anything you want, then press `ctrl+d` when you are done. Take a look at the file you made: `less testing_cat.txt` (press `q` to exit `less`).  
 A few things of note:  
 * use `>` when you want to overwrite any existing content that may exist, use `>>` when you want to append something to the end of a file without overwriting it.
@@ -365,8 +371,10 @@ A few things of note:
 * there is no backspace after you move to a new line. Once you hit enter and move to the next line, `cat` has already sent that previous line through `stdout` and it has been written to your file.
 * if you exit `cat` with ctrl+c ("cancel") instead of ctrl+d ("done"), the line you are currently on will not be written.
 
-A typical use-case for `cat` is creating very short text files that we need as input for other commands, and that are easy to copy-paste or type on the command line. For example, let's create a file listing some species names:  
-`cat > Ceratopipra_species.txt`
+One typical use-case for `cat` is creating very short text files that we need as input for other commands, and that are easy to copy-paste or type on the command line. For example, let's create a file listing some species names:  
+```bash
+cat > Ceratopipra_species.txt
+```
 Copy-paste the contents below into the terminal, hit "enter" once to generate a linebreak if needed, then type ctrl+d to finish.
 ```
 rubrocapilla
@@ -391,7 +399,9 @@ echo "Here is a random number: $RANDOM" #we can include variables in echo - thes
 ```
 `echo` just repeats whatever we give it as an argument and passes it to `stdout`, whether that means printing to our terminal or passing the content through a pipe. We can use that to build text files.  
 Let's use `echo` to make a phylogenetic tree file, something that many population genetics programs ask for as input:  
-`echo "(cornuta,(mentalis,(erythrocephala,(rubrocapilla,chloromeros))))" > Ceratopipra_phylogeny.nwk`  
+```bash
+echo "(cornuta,(mentalis,(erythrocephala,(rubrocapilla,chloromeros))))" > Ceratopipra_phylogeny.nwk
+```  
 Now check that the file looks ok: `cat Ceratopipra_phylogeny.nwk` or `less Ceratopipra_phylogeny.nwk` (press `q` to exit `less`). 
 Note that echo automatically adds a newline character to the end of whatever it prints.  
 
@@ -421,20 +431,32 @@ printf "column1\tcolumn2\n" #the \t is interpreted as a tab
 printf "Here is a random number: $RANDOM\n" 
 ```
 We can use this when building files. For example, let's remake our `Ceratopipra_species.txt` using `printf` instead of `echo`:  
-`printf "rubrocapilla\nchloromeros\nerythrocephala\nmentalis\ncornuta\n" > Ceratopipra_species.txt`  
+```bash
+printf "rubrocapilla\nchloromeros\nerythrocephala\nmentalis\ncornuta\n" > Ceratopipra_species.txt
+```  
 Now check that the file looks ok: `cat Ceratopipra_species.txt` or `less Ceratopipra_species.txt` (press `q` to exit `less`).  
 
 ### nano
 
 `nano` is a slightly more fancy command that allows the user to edit text files interactively in the terminal. Let's try it.
-Run: `nano nano_test.txt`. This will open the editor with a new blank file, where you can type anything you want, and navigate using the arrow keys (like the command prompt, you can't point-and-click in `nano`).  
-To save your progress, type "ctrl+o". It will ask you to confirm/modify the name of the file - press "enter" to confirm.  
+Run: 
+```bash
+nano nano_test.txt
+```
+This will open the editor with a new blank file, where you can type anything you want, and navigate using the arrow keys (like the command prompt, you can't point-and-click in `nano`).  
+To save your progress, type "ctrl+o" ("o" for "out"). It will ask you to confirm/modify the name of the file - press "enter" to confirm.  
 To exit `nano`, type "ctrl+x". If you have unsaved changes, it will ask you whether you want to save - type "y" for yes (save) or "n" for no (discard changes).  
 
 Let's try editing a configuration file - many bioinformatics programs use "config files" (or "param files") to set parameters when there are a large number of them, so that you don't need to have long commands with an unwieldy number of flags. Let's take a look at an example config file for the program STRUCTURE: `less config_files/STRUCTURE.params` (press "q" to exit).  
-Now, let's imagine we need to make a version of this config file with a different value for the "burnin" - we need to change the text `BURNIN  1000` to `BURNIN  5000`.  
-First, make a copy of the file `cp config_files/STRUCTURE.params config_files/STRUCTURE.burnin5000.params`   
-Now, edit the file: `nano config_files/STRUCTURE.burnin5000.params`  
+Now, let's imagine we need to make a version of this config file with a different value for the "burnin" (a parameter in that program) - we need to change the text `BURNIN  1000` to `BURNIN  5000`.  
+First, make a copy of the file to edit:  
+```bash
+cp config_files/STRUCTURE.params config_files/STRUCTURE.burnin5000.params
+```   
+Now, edit the file: 
+```bash
+nano config_files/STRUCTURE.burnin5000.params
+```  
 Use the arrow keys to navigate to the second-last line, and modify it from `BURNIN  1000` to `BURNIN  5000`. When you are done, type "ctrl+o" to save (press enter to confirm), then ctrl+x to exit.
 
 # Day 2 materials
