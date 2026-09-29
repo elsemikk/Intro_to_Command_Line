@@ -831,8 +831,8 @@ done
 ```
 
 More often in bioinformatics, we don't want to be reading data off the terminal, we want it to be saving that data to a file that we can analyze later. Let's do that.
-```
-echo -e "gene\tlength\tnum_As" > num_As.txt ;
+```bash
+printf "gene\tlength\tnum_As\n" > num_As.txt ;
 for gene in MC1R ND2 COII CYTB ; do
    echo "analyzing $gene"
    printf "$gene\t" >> num_As.txt
@@ -844,12 +844,13 @@ done
 #for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; printf "$gene\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt ; printf "\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt ; done
 ```
 Notes on the code:  
-* we needed to use `echo -e` instead of just `echo` to enable it to interpret `\t` as a tab character, instead of literally printing `\t`. Not all systems have `echo -e`; if it is not available, one could use `printf "gene\tlength\tnum_As\n" instead.     
 * we needed to use printf "$gene\t" instead of echo -e "$gene\t" because echo adds a newline (line break) character to the end of what it prints, by default, while printf does not. If we used echo, we would have had to tell echo not to do that, or strip the newline off afterwards.  
 * we had to include `tr -d "\n"` a second time after running `wc -c` to count gene length, because `wc` also by default has a newline character at the end of its output. We had to strip this off so that it didn't cause a linebreak in the middle of our line. We didn't strip the newline character off of the last `wc -c` command, because we do want to have a linebreak there, as that is the end of our data entry for that gene.  
 
 Take a look at `num_As.txt` to see the results:  
-`cat num_As.txt`  
+```bash
+cat num_As.txt
+```  
 How does it look? Does it look like the sort of file you could use for downstream analyses/visualizations?
 
 Note this is not the most efficient way to complete this task, but it illustrates how we can accomplish bioinformatics tasks by stringing together simple bash tools.
@@ -874,11 +875,19 @@ For many cases of subsampling, we need multiple iterations (eg, checking for con
 
 ```bash
 mkdir -p random_genes  
-for iteration in {1..10} ; do sort -R genes.txt | head -n 10 > random_genes/random_genes."$iteration".txt ; done`  
+for iteration in {1..10} ; do sort -R genes.txt | head -n 10 > random_genes/random_genes."$iteration".txt ; done
+```
+  
 That should have made ten files each containing a list of ten random genes - check them out: `ls random_genes`  
 Let's look at the first line of each file we just made:  
 ```bash
-for iteration in {1..10} ; do printf "the first gene is: " ; head -n 1 random_genes/random_genes."$iteration".txt ; done
+for iteration in {1..10} ; do
+   printf "the first gene is: "
+   head -n 1 random_genes/random_genes."$iteration".txt
+done
+
+#equivalent loop collapsed into one line:
+#for iteration in {1..10} ; do printf "the first gene is: " ; head -n 1 random_genes/random_genes."$iteration".txt ; done
 ```
 
 ## nested loops
@@ -913,11 +922,17 @@ done
 Now, it does iteration 1 of MC1R for all samples before moving on to iteration 2.
 
 Let's put nested loops to use. One task we may sometimes have to do in bioinformatics is concatenating DNA sequences stored in separate files. Perhaps we want to make a phylogeny, and need a single DNA sequence alignment with multiple species, but our DNA sequences are scattered across separate files, with each gene sequence of each sample stored in separate files. We could open each file one-at-a-time, copy-pasting the sequences into a new text file, but what if we make a mistake? What if we have hundreds of files and are short on time? What if we realize later that we want to exclude a gene, and need to redo the whole task? To be faster, more reproducible, and avoid typos, we can easily do this on the command line.  
-We can first break down what we need to do. For each gene of each species, we need to open the sequence file and grab the DNA sequence. This is usually stored in fasta format, which contains a header (that starts with ">") followed by a line (or lines) of DNA sequence. Then we need to paste this DNA sequence into a new file. We need that new file to contain a fasta header for each sample, and then have a line of DNA sequence with each of our genes back-to-back in the same order. (Let's assume that this is our data, and we already know that our files contain DNA sequence that is homologous and properly aligned across all samples, so we can concatenate the files without worries).  
+We can first break down what we need to do. For each gene of each species, we need to open the sequence file and grab the DNA sequence. This is usually stored in fasta format, which contains a header (that starts with ">") followed by a line (or lines) of DNA sequence, like this:
+```
+>example_sample
+ATGGAACACTCATACAAGATGATGATACATCATCATAGATGTGTNNTTGATATA
+ATAATCAGACGACGCTATTAGACNNNTTTTGATATGAAAGGGCCGCGATTTTGA
+```
+Then we need to paste this DNA sequence into a new file. We need that new file to contain a fasta header for each sample, and then have a line of DNA sequence with each of our genes back-to-back in the same order. (Let's assume that this is our data, and we already know that our files contain DNA sequence that is homologous and properly aligned across all samples, so we can concatenate the files without worries).  
 
 This loop will be a little more complicated, so let's spell it out in words before writing the loop:  
 1) for each sample:
-2) make a fasta header entry in the new file (with a linebreak after it)
+2) make a fasta header entry (starting with ">") in the new file (with a linebreak after it)
 3) for each gene in that sample:
 4) open the gene fasta file for that sample, and remove the fasta header and line breaks
 5) paste that DNA sequence into the new file
@@ -952,24 +967,44 @@ sample2
 sample3
 ```
 Let's build a loop using this file:
-`cat samples.txt | while read sample ; do echo "Now analyzing $sample" ; done`  
+```bash
+cat samples.txt | while read sample ; do echo "Now analyzing $sample" ; done
+```  
 `read` will go through the file line-by-line in each loop iteration, stopping the `while` loop when it hits the end of the file.  
-[Note - I have used a slightly less efficient syntax here, using `cat` to read the file. This is technically unnecessary; instead the file can be given to bash through stdin, like this: `while read sample ; do echo "Now analyzing $sample" ; done < samples.txt`. I used the slightly less efficient version as it is a little easier to read. If you were to run a huge number of while loops, it would be better to use the more efficient syntax].  
+(Note - I have used a slightly less efficient syntax here, using `cat` to read the file. This is technically unnecessary; instead the file can be given to bash through stdin, like this: `while read sample ; do echo "Now analyzing $sample" ; done < samples.txt`. I used the slightly less efficient version as it is a little easier to read. If you were to run a huge number of while loops, it would be better to use the more efficient syntax).  
 
 Note that as in `for` loops, we can name our variable anything we want:  
 `cat samples.txt | while read blueberry ; do echo "Now analyzing $blueberry" ; done`  
 
 Let's repeat our gene-concatenating example using `while` loops. First, let's make a file listing all the genes that we want.
-First, let's make a list of all the genes we need to concatenate. There are multiple ways we could do this, for example:  
-`for gene in MC1R ND2 COII CYTB ; do echo "$gene" >> genes_to_loop.txt ; done` a safe way, but which requires you to type out all the gene names
-`ls sample1_*.fasta | grep -v "allgenes" | sed "s/sample1_//g; s/.fasta//g" > genes_to_loop.txt` a hack that technically works, but is vulnerable to breaking if `ls` finds something you weren't expecting.
-`grep ">" sample1_allgenes.fasta | sed "s/>//g" > genes_to_loop.txt` a hack that works because we happen to have a file with all the gene names in it, we just needed to extract them from the fasta headers and fix the formatting.  
+To do that, we will need to make a list of all the genes we need to concatenate. There are multiple ways we could do this, for example:  
+```bash
+#a safe way, but which requires you to type out all the gene names
+for gene in MC1R ND2 COII CYTB ; do echo "$gene" >> genes_to_loop.txt ; done
+
+#a hack that technically works, but is vulnerable to breaking if ls finds something you weren't expecting.
+ls sample1_*.fasta | grep -v "allgenes" | sed "s/sample1_//g; s/.fasta//g" > genes_to_loop.txt
+
+#a hack that works because we happen to have a file with all the gene names in it, we just needed to extract them from the fasta headers and fix the formatting
+grep ">" sample1_allgenes.fasta | sed "s/>//g" > genes_to_loop.txt
+```  
 We could also have written the file ourselves using `nano genes_to_loop.txt` or `cat > genes_to_loop.txt`.  
 
 Now let's write our loop. Recall the `for` loop version was: `for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`
 Here is the `while` loop version:  
-`cat samples.txt | while read sample ; do echo ">$sample" >> concatenated_data.fasta ; cat genes_to_loop.txt | while read gene ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`  
-Which syntax do you prefer?  
+```bash
+cat samples.txt | while read sample ; do
+   echo ">$sample" >> concatenated_data.fasta
+   cat genes_to_loop.txt | while read gene ; do
+      grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta
+   done
+   printf "\n" >> concatenated_data.fasta
+done
+
+#equivalent loop collapsed into one line:
+#cat samples.txt | while read sample ; do echo ">$sample" >> concatenated_data.fasta ; cat genes_to_loop.txt | while read gene ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done
+```  
+Which syntax do you prefer? The `for` loop or the `while` loop?  
 In general, when you just have a few things to loop through, it makes more sense to write them out as `for` loops. When you have a long list of samples/genes/etc, it can be convenient to store them in a file and use the `while` loop trick instead.  
 
 One thing that you can do with `while read` that you can't do easily with `for` loops is to have `read` parse multiple variables on a line. By default, `read` reads lines as space-separated lists of variables. For example, let's look at `samples_metadata.txt`. 
@@ -978,9 +1013,17 @@ sample1 referenceA
 sample2 referenceA
 sample3 referenceB
 ```
-`cat samples_metadata.txt | while read sample ; do echo "Now analyzing $sample" ; done` 
+We can have `read` store the two columns separately, so that we can put both variables into our code.  
+
+First, check the behaviour of `read` when we don't tell it about our two columns:  
+```bash
+cat samples_metadata.txt | while read sample ; do echo "Now analyzing $sample." ; done
+```
+
 We can simply list another variable name, and `read` will interpret the two space-separated words as separate variables.   
-`cat samples_metadata.txt | while read sample reference ; do echo "Now analyzing $sample using $reference"; done` 
+```bash
+cat samples_metadata.txt | while read sample reference ; do echo "Now analyzing $sample using $reference"; done
+``` 
 You can repeat this with as many space-separated variables as you wish. This is handy when you need to loop through different samples/genes/iterations/etc while using slightly different settings for each one, for example:  
 * mapping different samples to different reference genomes
 * dealing with X/Y or Z/W chromosomes as haploid vs diploid for different samples
