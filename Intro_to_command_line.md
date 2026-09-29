@@ -459,11 +459,92 @@ nano config_files/STRUCTURE.burnin5000.params
 ```  
 Use the arrow keys to navigate to the second-last line, and modify it from `BURNIN  1000` to `BURNIN  5000`. When you are done, type "ctrl+o" to save (press enter to confirm), then ctrl+x to exit.
 
-# Day 2 materials
-(in progress)
+--- 
 
-# efficiency commands
-df, screen, history, ssh, scp
+### break
+
+---
+
+# Part 3
+
+# Day-to-day on the command line  
+
+We have now looked at a lot of command line basics - moving around on the command line, editing files, and constructing a pipeline. Let's look at some housekeeping and day-to-day tasks to make life on the command line a little easier or more efficient.  
+
+### history
+
+Forgot to write down the parameters you used with an important command? Can't remember the last thing you did? Bash saves a text file listing all the commands that you have run. The number of commands it will remember is variable, typically 500 by default. To access this list, you can use the command `history`. Usually you won't want to print the whole 500 lines to your terminal, so you will either combine it with `less` or `tail`, for example. Try it out:  
+```bash
+history | less #press q to exit when done
+history | tail #view the last few lines (most recently-run commands)
+```
+
+### screen
+
+If `ssh`ing into a remote server using your command line, you may run into the problem of needing to run a long command that will crash if you lose Internet connection, need to close your laptop, or lose `ssh` connection for any other reason. Luckily, there are workarounds that can allow you to close a session on your computer's terminal without your session ending on the remote server. Any processes you have running there will continue to run without you, and your command line will be right as you left it when you `ssh` back in again. The command that lets you do this is `screen`.  
+
+To use screen, run it like this: `screen -S name_of_screen_session`. Giving each session a unique name allows you to have multiple sessions running and switch between them.  Let's try! (Warning - all other text will be cleared from your Terminal)  
+```bash
+screen -S test_screen_session
+```
+Now, run some random test commands to fill your Terminal with some text. For example:  
+```bash
+echo "this is just some filler"
+echo "running some random commands"
+echo "will this text still be here if lose our connection and have to restart the session?"
+```
+To leave ("detach") a `screen` session, type `ctrl-a + d` (hold down ctrl while typing "a", then "d")  
+If you are on a remote server, you could now shut down your computer if needed and your remote `screen` session would still be waiting for you when you got back.  
+To "reattach" a screen session, run:
+```bash
+screen -r
+```
+You should now see all the text that was originally in your terminal in that screen session before you detached.  
+
+If you have multiple screen sessions running, you can list them using the command `screen -ls`. In those cases, the output may look something like this:  
+```
+There are several suitable screens on:
+	97592.test2	(Detached)
+	97463.test	(Detached)
+Type "screen [-d] -r [pid.]tty.host" to resume one of them.
+```
+In the above example, there are two screen sessions, named "test" and "test2". Each screen session is given an ID number - in the above example, "test" has ID number 97463 and "test2" has ID number 97592. You can use these ID numbers to select which session you want to reattach, like this:  
+```bash
+screen -r 97592
+```
+You will of course need to change the ID number to match that of your own session (found using `screen -ls`).  
+If your `screen` sessions get tangled and a session won't reattach because it thinks it is already attached somewhere else (which can happen if your connection got cut off and you login again), you can tell it to detach from wherever it is currently attached and attach to your session using the `-d` flag, like this: `screen -d -r 97592`. 
+
+Once you are done with a `screen` session and want to close it permanently (stopping anything that may be running in that session), run `exit` from within the session.  
+
+`screen` has many more use-cases and features to explore later if it becomes part of your routine, but those features should be able to save you from losing work from broken `ssh` connections.  
+
+### checking storage space
+Bioinformatics files can be huge. Often storage space is a limitation, so it helps to know what we are working with. To find out how much storage space is free on your system, use the `df` command:  
+```bash
+df
+```
+This will show you a list of drives on your system, and how much storage space they have in use vs available to use. The rightmost column will tell you the path to the directory being referred to, column 2 tells you how much total space exists on that drive, and column 4 tells you how much of it is unused and available to you. The default formatting can be hard to read, if you use the `-h` ("human-readable") flag it will translate the report into units of Bytes, Kibibytes, Mebibytes, Gibibytes, etc (those are not typos, they are units using a slightly different base than kilobytes, megabytes, etc... they are close enough to ignore the differences unless you are doing something very precise).  
+```bash
+df -h
+```
+Here is an example:
+```
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   926Gi    13Gi    57Gi    19%    459k  600M    0%   /
+devfs            203Ki   203Ki     0Bi   100%     702     0  100%   /dev
+/dev/disk3s6     926Gi    10Gi    57Gi    15%      10  600M    0%   /System/Volumes/VM
+/dev/disk3s2     926Gi    17Gi    57Gi    23%    2.2k  600M    0%   /System/Volumes/Preboot
+```
+In the above example, the main filesystem has a capacity of 926 Gi (= 994 gigabytes), of which 57 Gi are free and available to use.  
+
+Make sure to check your storage space every now and then if you are working with very large files (eg, whole genome datasets, large sequencing runs). It is quite unpleasant to have a program running for hours or days only to exit with a "disk space full" error message. 
+
+### copying files between servers
+
+Transferring files between your computer and remote servers can be a major headache when starting out. There are plenty of programs to smooth the process (eg, Filezilla) and provide a graphical user interface for the process, but it can be annoying to interrupt your flow by leaving the command line and clicking through a different application. Instead, it would be nice to just copy files between computers/servers the way that you can with the `cp` command within a computer. `scp` fills that niche.  
+
+`scp` stands for "secure copy", and works similar to `cp` - just provide the path to the file you want to copy, and then the path to where you want to copy it to. The difference is that for a file on a different computer/server, you need to provide the IP address of that server - you should already know this IP address from using the `ssh` command. 
 
 # grep and regex and globbing
 * using grep -c to count matching lines
