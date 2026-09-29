@@ -795,21 +795,53 @@ for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fa
 ```
 (`tr -d "\n"` deletes the line break character that would otherwise be counted by `wc -c`).  
 
+Our command is getting a little long, so from here I will be breaking the code into multiple lines for readability. 
+```bash
+for gene in MC1R ND2 COII CYTB ; do
+	echo "analyzing $gene" 
+	grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c
+done
+```
+It is a matter of personal preference whether you prefer to write your loops on one line or indented across multiple lines; both do the same thing. If converting from a multiline loop back to a single line, remember to put the `;` symbols back separating each command ( a function that linebreaks are replacing in the multiline code).  
+
 Now let's add another command to count the number of "A" nucleotides in each gene sequence. We can do that similar to the previous one: take our fasta file, remove the header, delete everything except for the "A"'s, and then count how many characters remain.    
 ```bash
-for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c ; done
+for gene in MC1R ND2 COII CYTB ; do
+	echo "analyzing $gene"
+	grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c
+	grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c
+done
+
+#equivalent loop collapsed into one line:
+#for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c ; done
 ```
 
 We can get more fancy by assigning the lengths and number of A's to variables.
 
 ```bash
-for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c) ; num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c) ; echo "length of $gene is $length and number of A's is $num_As" ; done
+for gene in MC1R ND2 COII CYTB ; do
+	echo "analyzing $gene"
+	length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c)
+	num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c)
+	echo "length of $gene is $length and number of A's is $num_As"
+done
+
+#equivalent loop collapsed into one line:
+#for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c) ; num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c) ; echo "length of $gene is $length and number of A's is $num_As" ; done
 ```
 
 More often in bioinformatics, we don't want to be reading data off the terminal, we want it to be saving that data to a file that we can analyze later. Let's do that.
 ```
 echo -e "gene\tlength\tnum_As" > num_As.txt ;
-for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; printf "$gene\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt ; printf "\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt; done
+for gene in MC1R ND2 COII CYTB ; do
+	echo "analyzing $gene"
+	printf "$gene\t" >> num_As.txt
+	grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt
+	printf "\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt
+done
+
+#equivalent loop collapsed into one line:
+#for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; printf "$gene\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt ; printf "\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt ; done
 ```
 Notes on the code:  
 * we needed to use `echo -e` instead of just `echo` to enable it to interpret `\t` as a tab character, instead of literally printing `\t`. Not all systems have `echo -e`; if it is not available, one could use `printf "gene\tlength\tnum_As\n" instead.     
@@ -824,11 +856,13 @@ Note this is not the most efficient way to complete this task, but it illustrate
 
 ## brace expansion
 Another nifty trick that we can use to upgrade our loops (or other commands) is **brace expansion**. This is a shortcut for generating lists or repetitive text without needing to type everything out. A common use for this trick is to generate a range of numbers by specifying only the first and last number of a series. The syntax of this is to separate the two numbers by two dots (`..`) and surround them in curly brackets (`{}`). You can then insert the braces anywhere you want them to get expanded. Let's try some:  
-`echo {1..10}`    
-`echo {7..21}`  
+```bash
+echo {1..10}
+echo {7..21}
+```  
 A handy time-saver that also eliminates the risk of a hard-to-spot typo.  
 
-[Tip: if you are needing even more functionality that isn't being met with brace expansion (eg, using variables to specify the range of numbers), you could check out the command `seq`.]  
+(Tip: if you are needing even more functionality that isn't being met with brace expansion (eg, using variables to specify the range of numbers), you could check out the command `seq`).  
 
 A great use for brace expansion in bioinformatics pipelines is to use them with `for` loops to perform multiple iterations/replicates of a stochastic step.  
 For example, let's subsample a list of genes by selecting only 10 random genes from a long list of genes. Perhaps we are running a computationally intensive analysis that can only handle 10 genes, or perhaps we need small samples of random data to build a null distribution to compare to some result (for example to calculate a p-value).  
@@ -838,20 +872,44 @@ We can shuffle our list with `sort -R` (sort randomly) and then take the first 1
 
 For many cases of subsampling, we need multiple iterations (eg, checking for consistency between replicates or building up a null distribution). We can use a `for` loop with brace expansion to quickly and easily generate as many replicates as we would like.  
 
-`mkdir -p random_genes  
+```bash
+mkdir -p random_genes  
 for iteration in {1..10} ; do sort -R genes.txt | head -n 10 > random_genes/random_genes."$iteration".txt ; done`  
 That should have made ten files each containing a list of ten random genes - check them out: `ls random_genes`  
 Let's look at the first line of each file we just made:  
-`for iteration in {1..10} ; do printf "the first gene is: " ; head -n 1 random_genes/random_genes."$iteration".txt ; done`
+```bash
+for iteration in {1..10} ; do printf "the first gene is: " ; head -n 1 random_genes/random_genes."$iteration".txt ; done
+```
 
 ## nested loops
 We can also put loops inside of other loops! This allows us to iterate over multiple things at once. For example, maybe we need to run 10 iterations each for 10 different genes each for 10 samples. Or, perhaps we want to run a program while testing combinations of 3 different settings for one parameter and 2 different settings for another parameter, with 5 replicates per combo.  
 Nesting loops is simple; just put a loop in the middle of another loop. Make sure that you include the `do ; done` syntax for each loop. If you make a mistake with the syntax, usually nothing will happen - bash will stay waiting for you to complete typing the loop (press ctrl-c to cancel).   
-`for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do for iteration in {1..3} ; do echo "iteration $iteration for gene $gene of $sample" ; done ; done ; done`  
+```bash
+for sample in sample1 sample2 sample3 ; do
+	for gene in MC1R ND2 COII CYTB ; do
+		for iteration in {1..3} ; do
+			echo "iteration $iteration for gene $gene of $sample"
+		done
+	done
+done
+#equivalent loop collapsed into one line:
+#for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do for iteration in {1..3} ; do echo "iteration $iteration for gene $gene of $sample" ; done ; done ; done
+```  
 
 Note the order - bash loops through the innermost loop before changing the value of the next loop (it goes through all the iterations of sample1 MC1R before moving on to ND2, and completes all the genes of sample1 before moving on to the first iteration of sample2. If we change the order of the loops, it will change the order of the iterations.
 
-`for gene in MC1R ND2 COII CYTB ; do for iteration in {1..3} ; do for sample in sample1 sample2 sample3 ; do echo "iteration $iteration for gene $gene of $sample" ; done ; done ; done`  
+```bash
+for gene in MC1R ND2 COII CYTB ; do
+	for iteration in {1..3} ; do
+		for sample in sample1 sample2 sample3 ; do
+			echo "iteration $iteration for gene $gene of $sample"
+		done
+	done
+done
+
+#equivalent loop collapsed into one line:
+#for gene in MC1R ND2 COII CYTB ; do for iteration in {1..3} ; do for sample in sample1 sample2 sample3 ; do echo "iteration $iteration for gene $gene of $sample" ; done ; done ; done
+```  
 Now, it does iteration 1 of MC1R for all samples before moving on to iteration 2.
 
 Let's put nested loops to use. One task we may sometimes have to do in bioinformatics is concatenating DNA sequences stored in separate files. Perhaps we want to make a phylogeny, and need a single DNA sequence alignment with multiple species, but our DNA sequences are scattered across separate files, with each gene sequence of each sample stored in separate files. We could open each file one-at-a-time, copy-pasting the sequences into a new text file, but what if we make a mistake? What if we have hundreds of files and are short on time? What if we realize later that we want to exclude a gene, and need to redo the whole task? To be faster, more reproducible, and avoid typos, we can easily do this on the command line.  
@@ -867,7 +925,18 @@ This loop will be a little more complicated, so let's spell it out in words befo
 
 Now let's put that into bash code:
 
-`for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`
+```bash
+for sample in sample1 sample2 sample3 ; do
+	echo ">$sample" >> concatenated_data.fasta
+	for gene in MC1R ND2 COII CYTB ; do
+		grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta
+		done
+	printf "\n" >> concatenated_data.fasta
+done
+
+#equivalent loop collapsed into one line:
+#for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done
+```
 Let's take a look: `concatenated_data.fasta`. Ready to open in a sequence alignment viewer or to build a phylogenetic tree with!  
 
 One thing to note: if we were to run the above code twice by accident, it would happily append a second copy of everything to `concatenated_data.fasta` without any easy way for us to realize what happened (perhaps until we get out final result and realize there are twice as many sequences in our tree than expected). When running code that builds files with `>>` like that, we either need to be extra careful not to accidentally run things twice (perhaps running a sanity check like counting sequences before moving on), or build in a fail-safe. For example, a fail-safe could be adding `rm` before the loop to get rid of any existing copies of `concatenated_data.fasta` before continuing (or clobbering it with `>`), or using an `if` statement to check that the file doesn't already exist (described below).  
