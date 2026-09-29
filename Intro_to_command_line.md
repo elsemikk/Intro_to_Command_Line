@@ -465,7 +465,7 @@ Use the arrow keys to navigate to the second-last line, and modify it from `BURN
 
 ---
 
-# Part 3
+# Part 4
 
 # Day-to-day on the command line  
 
@@ -706,22 +706,22 @@ We can test them out on a small subset of lines using `head`.
 head ABBABABA.txt | sed "s/_//g"
 ```  
 
-3) To prepend text to column 1, we can take advantage that we are dealing with the start of the line, so we can sneak "Population" there by telling `sed` to put it at the start of the line:
+2) To prepend text to column 1, we can take advantage that we are dealing with the start of the line, so we can sneak "Population" there by telling `sed` to put it at the start of the line:
 ```bash
 head ABBABABA.txt | sed "s/^/Population/g"
 ```  
 
-5) We can do a simple find-and-replace to turn all tabs into spaces. Tabs are designated by `\t`.  
+3) We can do a simple find-and-replace to turn all tabs into spaces. Tabs are designated by `\t`.  
 ```bash
 head ABBABABA.txt | sed "s/\t/ /g"
 ```  
 
-7) This one is trickier - we want to erase the decimal place and all the numbers that follow it, while affecting only the numbers in the last column without affecting the other columns. We can take advantage that the last column is right before the linebreak, which `sed` detects with the `$` sign. To build the regex, we need to "escape" the decimal signal so that sed interprets it as a literal `.` and not the special regex symbol for wildcard. We escape it like this: `\.`. The dot will then be followed by any number (`[0-9]`), with numbers repeated any number of times (`*`) until the end of the line (`$`). Putting it together gives us `\.[0-9]*$`.     
+4) This one is trickier - we want to erase the decimal place and all the numbers that follow it, while affecting only the numbers in the last column without affecting the other columns. We can take advantage that the last column is right before the linebreak, which `sed` detects with the `$` sign. To build the regex, we need to "escape" the decimal signal so that sed interprets it as a literal `.` and not the special regex symbol for wildcard. We escape it like this: `\.`. The dot will then be followed by any number (`[0-9]`), with numbers repeated any number of times (`*`) until the end of the line (`$`). Putting it together gives us `\.[0-9]*$`.     
 ```bash
 head ABBABABA.txt | sed "s/\.[0-9]*$//g"
 ```  
 
-9) For adding the line of data, `sed` is not really the right tool for the job. Instead, we could use `cat`, `printf`, `echo`, `nano`, or etc. However, we could do it with `sed` if we really wanted to! One way we could do it is to have `sed` find the end (`$`) of the header line (`BABA$`), and replace it with a line break (`\n`) followed by the line we want to add. Don't forget to also replace the BABA part of the header that `sed` grabbed.  
+5) For adding the line of data, `sed` is not really the right tool for the job. Instead, we could use `cat`, `printf`, `echo`, `nano`, or etc. However, we could do it with `sed` if we really wanted to! One way we could do it is to have `sed` find the end (`$`) of the header line (`BABA$`), and replace it with a line break (`\n`) followed by the line we want to add. Don't forget to also replace the BABA part of the header that `sed` grabbed.  
 ```bash
 head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"
 ```
@@ -751,7 +751,7 @@ Variables are used for storing data. They will be remembered for the rest of you
 * looping through a bunch of samples/files and running the same commands on all of them
 
 To set a variable, you use the syntax `name_of_variable=value_of_variable` (no spaces). For example, `num_lines=3`.  
-To use a variable, use the `$` in front of the name of the variable. For example: `head -n $num_lines ABBABABA.txt`. If the variable was assigned a value, that value will now be substituted by bash into the code. Note that unlike many coding languages, you don't have to worry about whether a bash variable is a numeric/character/etc; there are no datatypes.  
+To call a variable in a command, put a `$` in front of the name of the variable. For example: `head -n $num_lines ABBABABA.txt`. If the variable was assigned a value, that value will now be substituted by bash into the code. Note that unlike many coding languages, you don't have to worry about whether a bash variable is a numeric/character/etc; there are no datatypes.  
 If you want to include whitespace in your variable (the value, not the variable name), wrap it in double quotes, otherwise bash will take the first word as the value for the variable and think the rest is supposed to be a new command. For example:  
 ```
 Thing_to_echo="This is a sentence with spaces in it"
@@ -760,26 +760,13 @@ echo $Thing_to_echo
 
 Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" ABBABABA.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
 
-# PATH variable
-Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `$PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program. Basic commands (like `ls`, `grep`, etc) have their code in standard locations that are already included in `$PATH`. To run other commands (eg., programs you download or scripts you write), you will either need to place them into a directory that is in PATH, or specify the whole path to the executable when you run it, or add its directory to PATH so that bash can find it.
+---
 
-You can find out what directories are included in your `$PATH` by running `echo $PATH`. This will spit out the contents of that variable, giving you a list of paths separated by `:` colons. These are the paths where bash searches for programs to run.  
-If you want to be able to run a program in a different directory without specifying the full path when you run it, or if a program you are running needs to be able to run dependencies, you can add a new path to your PATH variable by redefining that PATH variable with your new path separated by the rest of the paths by a ":" symbol.  
-For example, let's imagine we want to add `/home/scripts` to our $PATH. We can do that like this:  
-`PATH=$PATH:/home/scripts`  
-This has the effect of appending `:/home/scripts` to the existing PATH variable. Bash will now search through `/home/scripts` after searching through the other paths that were already in PATH. This modification will last until the end of your session - when you close your terminal and start a new session, $PATH will be reset to its original value.  
-(there is some subtlety around when you need to include double quotes and when you need to include the command `export`, but you probably won't need to know that unless you are doing more advanced things beyond the scope of this tutorial. It is also possible to make $PATH automatically set itself the way you want so you don't have to do so every time you start a new session - for that you will need to modify your `~/.bash_profile` file, beyond the scope of this tutorial).  
+### break
 
-When you start accumulating multiple versions of the same program (eg, updating while keeping old versions for reproducibility of old pipelines, or sharing between users), things can get confusing. If you have multiple versions of the same program visible to bash in your $PATH, bash will use the first one that it finds when going through the list of paths in $PATH. You can check which copy bash is using by using the `which` command, which tells you the full path to a particular program (if bash can find it in $PATH).  
-For example, try running `which ls` and `which python` (or how about `which which`!).  
+---
 
-If you want bash to search a new path *before* searching other paths, so that it will use programs in that directory instead of other possible copies, you can instead prepend your new path to the front of the $PATH variable, like this:  
-`PATH=/home/scripts:$PATH` (note we have the `:` symbol separating our paths)  
-That will now be the first thing that bash searches, the the versions in that directory will take priority over other versions that may be in other directories.  
-
-Note that in practice, you don't necessarily often need to modify $PATH - instead, you can just give bash the full path to the program you are running, so that there will be no confusion in the future over which version was actually run when you look at your code. However, even with that habit you may encounter situations where you need to modify $PATH because a program needs to be able to locate other dependencies when running.  
-
-# day 3 materials (in progress)
+# Part 3: loops
 
 # for loops, while loops, if statements  
 While often used for only very simple tasks, bash is a full programming language that includes the ability to write loops and evaluate "if" statements. These come in extremely handy in bioinformatics, especially when needing to do repetitive tasks with many samples/genes/etc.  
@@ -795,19 +782,29 @@ A `while` loop similarly repeats a chunk of code, but it does so for as long as 
 The syntax of a `for` loop goes like this: `for item in item1 item2 item3 ; do SOMETHING ; done`. (note the placement of the `;` symbols, do, and done). SOMETHING can be any command (or multiple commands), and item1/item2/item3 can be a list of any number of words or numbers.
 
 Let's start simple, looping through a short list and just echoing out the name of each thing in our list:  
-`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; done`  
+```bash
+for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; done
+```  
 Note that we could have listed out as many gene names as we want, separated by spaces - bash will keep reading through the list until it hits the ";" symbol.  
 That command looped through each of the genes, and executed `echo "analyzing $gene"` for each one. Note that we could name the items in our list anything we want; we could equally have run `for blueberry in MC1R ND2 COII CYTB ; do echo "analyzing $blueberry" ; done`.  
 
 When running loops, we can do more than one command in each loop. To do more than one thing, separate subsequent commands with a `;` symbol.  
 Let's add a command to check the length of a fasta file for each gene. A simple way we can do that is to take our fasta file, remove the header (line(s) starting with ">"), delete linebreaks, and then count how many characters are left.   
-`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; done` (`tr -d "\n"` deletes the line break character that would otherwise be counted by `wc -c`).  
+```bash
+for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; done
+```
+(`tr -d "\n"` deletes the line break character that would otherwise be counted by `wc -c`).  
+
 Now let's add another command to count the number of "A" nucleotides in each gene sequence. We can do that similar to the previous one: take our fasta file, remove the header, delete everything except for the "A"'s, and then count how many characters remain.    
-`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c ; done`
+```bash
+for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c ; done
+```
 
 We can get more fancy by assigning the lengths and number of A's to variables.
 
-`for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c) ; num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c) ; echo "length of $gene is $length and number of A's is $num_As" ; done`
+```bash
+for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c) ; num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c) ; echo "length of $gene is $length and number of A's is $num_As" ; done
+```
 
 More often in bioinformatics, we don't want to be reading data off the terminal, we want it to be saving that data to a file that we can analyze later. Let's do that.
 ```
@@ -1138,6 +1135,35 @@ Afterwards, your `tar` file should have turned into a normal directory full of f
 Note: sometimes a piece of software will come as a `.zip` file instead of a `.tar.gz` file. Those can be uncompressed using the command `unzip` instead of `tar`, like this: `unzip example_directory.zip`. Still others may come as `.gz` (not tar) files - those can be unzipped with `gunzip` like this: `gunzip  example_directory.gz`.  
 
 Sometimes, your downloaded tool will come ready-to-run with no further efforts required. Other times, you will have to do additional steps to install the software before you can run it. These steps vary, so a deep overview is beyond the scope of this workshop - usually, a program will come with instructions on their website explaining exactly what needs to be done for installation to succeed. These instructions will often involve using the command `make`, which reads something called a `makefile` to prepare the code to be ready to run on your machine in a process called compiling.   
+
+# PATH variable
+Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `$PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program. Basic commands (like `ls`, `grep`, etc) have their code in standard locations that are already included in `$PATH`. To run other commands (eg., programs you download or scripts you write), you will either need to place them into a directory that is in PATH, or specify the whole path to the executable when you run it, or add its directory to PATH so that bash can find it.
+
+You can find out what directories are included in your `$PATH` by running `echo $PATH`. This will spit out the contents of that variable, giving you a list of paths separated by `:` colons. These are the paths where bash searches for programs to run.  
+If you want to be able to run a program in a different directory without specifying the full path when you run it, or if a program you are running needs to be able to run dependencies, you can add a new path to your PATH variable by redefining that PATH variable with your new path separated by the rest of the paths by a ":" symbol.  
+For example, let's imagine we want to add `/home/scripts` to our $PATH. We can do that like this:  
+`PATH=$PATH:/home/scripts`  
+This has the effect of appending `:/home/scripts` to the existing PATH variable. Bash will now search through `/home/scripts` after searching through the other paths that were already in PATH. This modification will last until the end of your session - when you close your terminal and start a new session, $PATH will be reset to its original value.  
+(there is some subtlety around when you need to include double quotes and when you need to include the command `export`, but you probably won't need to know that unless you are doing more advanced things beyond the scope of this tutorial. It is also possible to make $PATH automatically set itself the way you want so you don't have to do so every time you start a new session - for that you will need to modify your `~/.bash_profile` file, beyond the scope of this tutorial).  
+
+When you start accumulating multiple versions of the same program (eg, updating while keeping old versions for reproducibility of old pipelines, or sharing between users), things can get confusing. If you have multiple versions of the same program visible to bash in your $PATH, bash will use the first one that it finds when going through the list of paths in $PATH. You can check which copy bash is using by using the `which` command, which tells you the full path to a particular program (if bash can find it in $PATH).  
+For example, try running `which ls` and `which python` (or how about `which which`!).  
+
+If you want bash to search a new path *before* searching other paths, so that it will use programs in that directory instead of other possible copies, you can instead prepend your new path to the front of the $PATH variable, like this:  
+`PATH=/home/scripts:$PATH` (note we have the `:` symbol separating our paths)  
+That will now be the first thing that bash searches, the the versions in that directory will take priority over other versions that may be in other directories.  
+
+Note that in practice, you don't necessarily often need to modify $PATH - instead, you can just give bash the full path to the program you are running, so that there will be no confusion in the future over which version was actually run when you look at your code. However, even with that habit you may encounter situations where you need to modify $PATH because a program needs to be able to locate other dependencies when running.  
+
+
+
+
+
+
+
+
+
+
 
 # Practice Problems
 1) count how many different populations there are in column P1.
