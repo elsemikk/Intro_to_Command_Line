@@ -626,6 +626,12 @@ Note: not all of this works with all versions of `grep`. On some versions of gre
 Two more frequently used special characters are `.` and `*`.  The `.` character is a wildcard - it matches anything. For example, `"A.."` matches any three characters starting with "A" - ABC, Art, Ant, Arm, A12, AAA, etc. The `*` character is the repeat character - it means that the thing right before it can be repeated any number of times, including zero. For example `"A*"` matches "AAAAAAAAAAAA" or "AA" or "A", etc... and it even matches "" (nothing). This is especially powerful to combine the two into `".*"`, which means "anything, any number of times (including zero). For example, `"A.*"` matches "Antbird", "Apple", "A123486 54321asdf ghjk", "A", etc.  
 With those in hand (`.`, `*`, `^`, `$`, `\n`, `\t`), you can get quite a lot done. If you find yourself needing to accomplish more advanced text matching, there are quite a few more regex rules out there for more advanced pattern matching.  
 
+Let's make some examples from a `.gff` file, which is a file used to store genome annotation data (the location of genomic features like genes or repetitive elements, etc).  
+
+```bash
+
+```
+
 # sed
 `sed` is a powerful command line tool that can be used for a variety of tasks: here we will focus on using it to manipulate text through find-and-replace, one of its most common uses in bioinformatics. Technically, `sed` is a a complete programming language, but in practice it is primarily used for simple text editing tasks. `sed` is especially versatile when used with regular expressions (above). 
 
@@ -634,30 +640,50 @@ The syntax of `sed`'s find-and-replace looks like this: `sed "s/text_to_find/tex
 In that syntax, the `s` in `s/text_to_find/text_to_replace_it_with/g` stands for "substitute", and tells `sed` that this is a find-and-replace task. The `/` symbols are delimiting the text that we want to find and replace; we actually don't *need* to use `/` in particular, that is just a convention - we could use other symbols like `|` if we wanted to (`s|text_to_find|text_to_replace_it_with|g`) (which comes in handy when there are `/` in the text we want to find/replace). The `g` in  `s/text_to_find/text_to_replace_it_with/g` stands for "global" and tells `sed` to replace all possible instances of the text it finds - we will look at alternatives below.  
 
 Let's start with some easy examples. Imagine that there was just a name change - the taxon we are studying has had its name changed from `chloromeros` to `viridus` (or, maybe we discovered our specimen was misidentified). Instead of going into our text files and changing the names by hand, we can ask `sed` to do it:  
-`cat samples.txt | sed "s/chloromeros/viridus/g" > samples_renamed.txt` Check `samples_renamed.txt` to verify the change was made.  
-Oops, our collaborator has requested that instead of changing the samples to `viridus`, we change them to `chloromeros_viridus`. We could generate a third file, but we could also ask `sed` to edit the file in-place using the `-i` flag, like this:  
-`sed -i "s/viridus/chloromeros_viridus/g" samples_renamed.txt`. Check `samples_renamed.txt` to verify the change was made.  
-Warning! `sed -i` edits in-place with no backup; changes are permanent and can't be undone if they don't go as expected.  
+```bash
+cat samples.txt | sed "s/chloromeros/viridus/g" > samples_renamed.txt
+```
+Check `samples_renamed.txt` to verify the change was made.  
+Oops, our collaborator has requested that instead of changing the samples to `viridus`, we change them to `chloromeros_viridus` so it's easier for them to remember. We could generate a third file, but we could also ask `sed` to edit the file in-place using the `-i` flag, like this:  
+```bash
+sed -i "s/viridus/chloromeros_viridus/g" samples_renamed.txt
+```
+Check `samples_renamed.txt` to verify the change was made.  
+Warning! `sed -i` directly edits a file in-place with no backup; changes are permanent and can't be undone if they don't go as expected.  
 
 The range of things that `sed` can do becomes much broader when we combine it with regular expressions to more precisely or more broadly specify what text we want `sed` to find.
 For example, let's imagine we want to change the headers of a DNA sequence file. These files are normally stored in `fasta` format, where headers always start with a ">" symbol. 
 Let's imagine we want to add the sample name specifically to the start of a fasta header. We could do that like this:  
-`cat gene_fastas/sample1_ND2.fasta | sed "s/^>/>sample1 /g"`  
-That will have sed look for lines starting (`^`) with a ">" symbol, and replace the `>` with `>sample1 `. The rest of the original fasta header will still be there behind `>sample1 `, what if we want to have `sed` delete that pre-existing text, but don't know ahead of time what that text might be? We can use regular expressions to have `sed` grab the whole line starting with `>`, like this:  
-`cat gene_fastas/sample1_ND2.fasta | sed "s/^>.*$/>sample1/g"`  
-The `.*$` stands for "anything (`.`), repeated any number of times (`*`), until the end of the line (`$`). The `.*$` idiom comes in really hand when we want to grab everything up to the end of a line.  
+```bash
+cat gene_fastas/sample1_ND2.fasta | sed "s/^>/>sample1 /g"
+```  
+That will have sed look for lines starting (`^`) with a ">" symbol, and replace the `>` with `>sample1 `. The rest of the original fasta header will still be there behind `>sample1 `... what if we want to have `sed` delete that pre-existing text, but don't know ahead of time what that text might be? We can use regular expressions to have `sed` grab the whole line starting with `>`, like this:  
+```bash
+cat gene_fastas/sample1_ND2.fasta | sed "s/^>.*$/>sample1/g"
+```  
+Here is where regex can start to look like a jumble that is hard to read without practice. `^>` is what we saw before - lines starting (`^`) with `>`. The `.*$` stands for "anything (`.`), repeated any number of times (`*`), until the end of the line (`$`). The `.*$` idiom comes in really hand when we want to grab everything up to the end of a line.  
 
 Let's go back to a task we did manually before (with `nano`) - editing a STRUCTURE param file (`config_files/STRUCTURE.params`). Previously, we went in by hand to change the value of `BURNIN` from 1000 to 5000. Doing that by hand takes time and introduces opportunity for typos. Let's do that with `sed` instead.  
 If we already know the current value of BURNIN, we could edit the file like this:  
-`sed "s/BURNIN  1000/BURNIN  5000/g"  config_files/STRUCTURE.params`  
+```bash
+sed "s/BURNIN  1000/BURNIN  5000/g"  config_files/STRUCTURE.params
+```  
 If we don't know the existing value of BURNIN in our file, we could edit it like this:  
-`sed "s/BURNIN.*$/BURNIN  5000/g"  config_files/STRUCTURE.params`  
+```bash
+sed "s/BURNIN.*$/BURNIN  5000/g"  config_files/STRUCTURE.params
+```  
 That will delete everything that originally came after `BURNIN` in our param file. That is fine for this case - the only other text in that line is usage notes. But what if we wanted to preserve those usage notes? Let's ask it to stop when it hits those usage notes, which in STRUCTURE param files start with `//`. Instead of grabbing everything to the end of the line (`BURNIN.*$`), let's only go until we encounter `//` (`BURNIN.*//`). We will also have to add `//` to our replacement text (`BURNIN  5000 //`) so that our output file still has those symbols delimiting the comments.  
-`sed "s/BURNIN.*///BURNIN  5000 ///g"  config_files/STRUCTURE.params`  
-Whoops! `sed` could not process that command. It is confusing the `/` symbols used as separators in its syntax with '/' referring to text in our search pattern. No problem, we can just use something else as the separator in `sed`'s syntax, it is not picky. I like to use `|` in those cases:  
-`sed "s|BURNIN.*//|BURNIN  5000 //|g"  config_files/STRUCTURE.params`  
+```bash
+sed "s/BURNIN.*///BURNIN  5000 ///g"  config_files/STRUCTURE.params
+```  
+Whoops! `sed` could not process that command. It is confusing the `/` symbols used as separators in its syntax with the '/' that is supposed to be part of our search pattern. No problem, we can just use something else as the separator in `sed`'s syntax, it is not picky. I like to use `|` in those cases:  
+```bash
+sed "s|BURNIN.*//|BURNIN  5000 //|g"  config_files/STRUCTURE.params
+```  
 You can use almost any character you want as sed's separator - whatever looks aesthetically nicest to you.  
-`sed "s~BURNIN.*//~BURNIN  5000 //~g"  config_files/STRUCTURE.params`  
+```bash
+sed "s~BURNIN.*//~BURNIN  5000 //~g"  config_files/STRUCTURE.params
+```  
 
 Now let's do some slightly more complicated edits with `sed`.  
 Imagine that we are having a collaborator do the data visualization for our file `ABBABABA.txt`. Their code is very finicky, and they have sent us a list of edits that they want us to do on the file for their code to work:  
@@ -669,30 +695,50 @@ Imagine that we are having a collaborator do the data visualization for our file
 
 Try them out on your own first!  
 Here are some solutions:  
+
+<details>
+  <summary>Solution</summary> 
+
 We can test them out on a small subset of lines using `head`.  
 
 1) To delete underscores, we can do find-and-replace, but instead of replacing underscores with something, we will replace them with nothing:  
-`head ABBABABA.txt | sed "s/_//g"`  
+```bash
+head ABBABABA.txt | sed "s/_//g"
+```  
 
-2) To prepend text to column 1, we can take advantage that we are dealing with the start of the line, so we can sneak "Population" there by telling `sed` to put it at the start of the line:
-`head ABBABABA.txt | sed "s/^/Population/g"`  
+3) To prepend text to column 1, we can take advantage that we are dealing with the start of the line, so we can sneak "Population" there by telling `sed` to put it at the start of the line:
+```bash
+head ABBABABA.txt | sed "s/^/Population/g"
+```  
 
-3) We can do a simple find-and-replace to turn all tabs into spaces. Tabs are designated by `\t`.  
-`head ABBABABA.txt | sed "s/\t/ /g"`  
+5) We can do a simple find-and-replace to turn all tabs into spaces. Tabs are designated by `\t`.  
+```bash
+head ABBABABA.txt | sed "s/\t/ /g"
+```  
 
-4) This one is trickier - we want to erase the decimal place and all the numbers that follow it, while affecting only the numbers in the last column without affecting the other columns. We can take advantage that the last column is right before the linebreak, which `sed` detects with the `$` sign. To build the regex, we need to "escape" the decimal signal so that sed interprets it as a literal `.` and not the special regex symbol for wildcard. We escape it like this: `\.`. The dot will then be followed by any number (`[0-9]`), with numbers repeated any number of times (`*`) until the end of the line (`$`). Putting it together gives us `\.[0-9]*$`.     
-`head ABBABABA.txt | sed "s/\.[0-9]*$//g"`  
+7) This one is trickier - we want to erase the decimal place and all the numbers that follow it, while affecting only the numbers in the last column without affecting the other columns. We can take advantage that the last column is right before the linebreak, which `sed` detects with the `$` sign. To build the regex, we need to "escape" the decimal signal so that sed interprets it as a literal `.` and not the special regex symbol for wildcard. We escape it like this: `\.`. The dot will then be followed by any number (`[0-9]`), with numbers repeated any number of times (`*`) until the end of the line (`$`). Putting it together gives us `\.[0-9]*$`.     
+```bash
+head ABBABABA.txt | sed "s/\.[0-9]*$//g"
+```  
 
-5) For adding the line of data, `sed` is not really the right tool for the job. Instead, we could use `cat`, `printf`, `echo`, `nano`, or etc. However, we could do it with `sed` if we really wanted to! One way we could do it is to have `sed` find the end (`$`) of the header line (`BABA$`), and replace it with a line break (`\n`) followed by the line we want to add. Don't forget to also replace the BABA part of the header that `sed` grabbed.  
-`head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"`
+9) For adding the line of data, `sed` is not really the right tool for the job. Instead, we could use `cat`, `printf`, `echo`, `nano`, or etc. However, we could do it with `sed` if we really wanted to! One way we could do it is to have `sed` find the end (`$`) of the header line (`BABA$`), and replace it with a line break (`\n`) followed by the line we want to add. Don't forget to also replace the BABA part of the header that `sed` grabbed.  
+```bash
+head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"
+```
 
-We can put those separate find-and-replace actions together into one `sed` command by separating them with semicolons `; `, like this:  
-`sed "s/text_to_find/text_to_replace_it_with/g; s/text_to_find2/text_to_replace_it_with2/g"`  
+We can put those separate find-and-replace actions together into one `sed` command by separating them with semicolons `; `, like this: `sed "s/text_to_find/text_to_replace_it_with/g; s/text_to_find2/text_to_replace_it_with2/g"`
+
 Let's smoosh our 5 `sed` commands from above together:  
-`head ABBABABA.txt | sed "s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g; s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"`  
+```bash
+head ABBABABA.txt | sed "s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g; s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"
+```  
 Oops! That new line we added didn't have the correct changes made to it. `sed` does actions in the order you list. To have that newly added text properly edited, we should change the order of the actions that we ask for:  
-`head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g; s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g"`  
+```bash
+head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g; s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g"
+```  
 There - the command isn't particularly easy-to-read, but it does all the alterations our collaborator asked for, saving us from editing the file from hand (where we could easily make a typo).  
+
+</details>  
 
 ### renaming files
 `sed` alters the contents of a file, but can't alter filenames. Sometimes we may want to edit filenames en masse using find-and-replace the way that `sed` does for text. The command `rename` does this using much of the same syntax as `sed`. It does not come pre-installed with all versions of `bash`, but is the command to look for if you run into that task.  
