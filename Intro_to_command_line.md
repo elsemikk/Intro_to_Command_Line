@@ -1320,11 +1320,48 @@ tail ABBABABA.txt | awk '{ print "reported value is: "$4, "our calculation is: "
 
 ```
 
-So far, we have not added any conditions, and so by default `awk` performs the action on every line. We can add conditions so that awk will filter our lines for us. 
+So far, we have not added any conditions, and so by default `awk` performs the action on every line. We can add conditions so that awk will filter our lines for us. These conditions can be text pattern matching (eg, using regular expressions), asking whether a number is greater than (`>`), or less than (`<`) a certain value, or asking whether a column is equal to (`=`) something.  
 
+Let's try some:  
+1) filter for records with a Z-score greater than 1.96
+2) filter for records where P3 is AtlanticForest
+3) filter for records where *D* has a negative value
+4) filter for records where ABBA is greater than BBAA (where phylogenetic assumptions are violated...)
 
-We can also change the field separated of the output columns using the OFS variable:
+```bash
+head -n 50 ABBABABA.txt | awk '$5>1.96 { print }'
+head -n 50 ABBABABA.txt | awk '$3="AtlanticForest" { print }'
+head -n 50 ABBABABA.txt | awk '$4<0 { print }'
+cat ABBABABA.txt | awk '$9>$8 { print }'
+```
+Side note: you do not have to run `cat` to pipe a file into `awk`. I have written the simple examples this way to portray `awk` embedded in a pipeline. `awk` can read files on its own like this: `awk '$9>$8 { print}' ABBABABA.txt`.  
+Side side note: you do not actually have to include `{ print }` in the commands above; when the `{}` action item is missing, it defaults to print. I have included it to make the structure of an `awk` command more clear.
 
+We can use regex pattern-matching in our `awk` pattern using the tilde operator `~`. It will check whether the regex to the right of the `~` is included in the line/column:
+```bash
+#column3 is InambariW or InambariE
+cat ABBABABA.txt | awk '$3 ~ /Inambari[WE]/ { print }'
+
+#column 2 contains "Ceratopipra_erythrocephala_B" followed by either 2 or 3
+cat ABBABABA.txt | awk '$2 ~ /Ceratopipra_erythrocephala_B[23]/ { print }'
+
+#column 10 contains a number that ends in ".943"
+cat ABBABABA.txt | awk '$10 ~ /[1-9]*\.943$/ { print }'
+
+```
+Tip: if you can't interpret a piece of regex, you can paste it into a regex translator tool, for example: [regexr](https://regexr.com/).
+
+There is a lot more that `awk` can do, but we will leave it there!  
+With some more advanced tricks, awk can do more than just the simple pattern matching and arithmetic in our examples. Here are some tasks of things that I have used `awk` to do recently:  
+* designate a new sample as my reference sample, and repolarize all my genotype calls according to the new reference  
+* randomize genotype phasing  
+* convert my data's file format from a fasta format to a program's bespoke input format  
+* remove all sites that are missing data in at least 2 out of 3 focal samples, regardless of missingness in other samples  
+* infer the most parsimonious ancestral states for my DNA sequences
+* break up my sequencing dataset into genomic chunks that are at least 500 bp in size and separated from other chunks by at least 1 kb of gaps 
+* filter out sites that are non-variable in my ingroup while ignoring variants restricted to my outgroup
+* generate a multi-sample fasta sequence file from a VCF genotype file, padding gaps with N's.
+* undo genotype imputation  
 
 # file permissions
 When sharing files between users or when writing your own scripts, one concept that you may encounter is **permissions**. Permissions control who can view or edit a file, and whether a file can be executed as code. Those three actions are controlled separately, and are as follows:  
