@@ -517,7 +517,7 @@ If your `screen` sessions get tangled and a session won't reattach because it th
 
 Once you are done with a `screen` session and want to close it permanently (stopping anything that may be running in that session), run `exit` from within the session.  
 
-`screen` has many more use-cases and features to explore later if it becomes part of your routine, but those features should be able to save you from losing work from broken `ssh` connections.  
+`screen` has many more use-cases and features to explore later if it becomes part of your routine, but the features we went over should be able to save you from losing work from broken `ssh` connections. Note that there are other alternatives to screen, such as `tmux`, so you can shop around for the option that works best for you.  
 
 ### checking storage space
 Bioinformatics files can be huge. Often storage space is a limitation, so it helps to know what we are working with. To find out how much storage space is free on your system, use the `df` command:  
@@ -544,22 +544,42 @@ Make sure to check your storage space every now and then if you are working with
 
 Transferring files between your computer and remote servers can be a major headache when starting out. There are plenty of programs to smooth the process (eg, Filezilla) and provide a graphical user interface for the process, but it can be annoying to interrupt your flow by leaving the command line and clicking through a different application. Instead, it would be nice to just copy files between computers/servers the way that you can with the `cp` command within a computer. `scp` fills that niche.  
 
-`scp` stands for "secure copy", and works similar to `cp` - just provide the path to the file you want to copy, and then the path to where you want to copy it to. The difference is that for a file on a different computer/server, you need to provide the IP address of that server - you should already know this IP address from using the `ssh` command. 
+`scp` stands for "secure copy", and works similar to `cp` - just provide the path to the file you want to copy, and then the path to where you want to copy it to. The difference is that for a file on a different computer/server, you need to provide your username and the address of that server - you should already know this address from using the `ssh` command and when given your login credentials. This may either be in the form of a regular IP address (eg, 123.4.56.78) or a name for the server (eg, exampleserver.test.university.ca). You will also need to know your username (the same username you use to login with ssh). Like `ssh`, your username and the server address get put together separated by an `@` symbol, like this: `username@exampleserver.test.university.ca`. Then, you add the path to the file you want to copy (or the path you want to copy it to) separated by a `:` symbol, like this: `username@exampleserver.test.university.ca:/home/path/to/the/thing/to/copy`.  
+`scp` can either copy files from your local computer to a remote server like this: `scp path/to/local_file username@exampleserver.test.university.ca:/home/path/to/where/you/want/it/copied` or copy files from a remote server to your local computer like this: `scp username@exampleserver.test.university.ca:/home/path/to/file/on/remote/server path/to/where/you/want/it/copied `. Just like `cp`, the path to the file you want copied goes first (whether that is on the remote server or local computer), and the path to the place where you want the copy placed goes second (whether that is on the remote server or local computer). 
+
+Note that if you logged into the remote server and want to run `scp` to fetch/place files on your laptop, it is not trivial since most laptops don't have a stable IP address. There are workarounds, but the easiest is to just open a new terminal on your laptop and `scp` from your laptop instead of doing it from your account on the remote server.    
+
+Note: if using UBC's ARC servers, an alternative is to use ARC [OnDemand](https://ondemand.arc.ubc.ca/) for file transfers. Once you log in, you can go to "files" and upload or download files there, if you prefer a graphical user interface.  
 
 # grep and regex and globbing
-* using grep -c to count matching lines
 
-Let's grab all the lines that correspond to `FM433680`:  
-`grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt`  
-Let's grab all the lines that correspond to `FM433680` that also involve AtlanticForest:  
-`grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep "AtlanticForest"`  
+A frequent task that we encounter is needing to filter files by grabbing or excluding particular lines. The tool to do this with is `grep`. `grep` takes a search pattern as an argument, and then goes through a file (or `stdin`) looking for lines that contain a match to that pattern. By default, the pattern can appear anywhere on the line, and `grep` will grab the whole line. Let's try it!
+
+Let's go to our `ABBABABA.txt` file and grab all the lines that mention sample `FM433680`:  
+```bash
+grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt
+```  
+Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `FM433680` that also mention AtlanticForest:  
+```bash
+grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep "AtlanticForest"
+```  
 
 We can also invert matches using the `-v` flag, which grabs all lines that *don't* match our pattern. This allows us to exclude lines.  
-Let's grab all the lines that correspond to `FM433680` and then *exclude* lines that involve AtlanticForest:  
-`grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep -v "AtlanticForest"`  
+Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `FM433680`, and then *exclude* lines that involve AtlanticForest:  
+```bash
+grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep -v "AtlanticForest"
+```  
 
 `grep` also includes a flag for counting: `-c`. `grep -c` returns the number of lines containing matches (essentially a shortcut alternative to passing the matching lines to `wc -l`.  
-Let's count the number of lines involving `Ceratopipra_chloromeros_FM433680`: `grep -c "Ceratopipra_chloromeros_FM433680" ABBABABA.txt`  
+Let's count the number of lines involving `Ceratopipra_chloromeros_FM433680`: 
+```bash
+grep -c "Ceratopipra_chloromeros_FM433680" ABBABABA.txt
+
+#alternative less efficient version:
+grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | wc -l
+```
+
+We can make our `grep` expressions more powerful using **regular expressions** ("regex"). Sometimes we may want to search for bits of text that are either more broad or more specific than just searching for a single plain string of text. Regular expressions are concise bits of code that communicate a particular text search pattern to the computer. For example, if you want to search for "the word blueberry, with either a capital B or lowercase b, but only if it occurs in the beginning of the line", you can communicate that to the computer concisely with the expression "^[bB]lueberry". Regex expressions are often difficult to interpret when reading them, as humans, and can become quite complex. Entire books have been written about writing regular expressions, but here we will focus on just a handful of tricks to get you going.  
 
 Quick simple regex cheatsheet:  
 * [A-Za-z0-9] ranges  
@@ -569,8 +589,6 @@ Quick simple regex cheatsheet:
 * “*” repeats (including zero)  
 * \t tab  
 * \n newline (line break)  
-
-We can make our `grep` expressions more powerful using **regular expressions** ("regex"). Sometimes we may want to search for bits of text that are either more broad or more specific than just searching for a single plain string of text. Regular expressions are concise bits of code that communicate a particular text search pattern to the computer. For example, if you want to search for "the word blueberry, with either a capital B or lowercase b, but only if it occurs in the beginning of the line", you can communicate that to the computer concisely with the expression "^[bB]lueberry". Regex expressions are often difficult to interpret when reading them, as humans, and can become quite complex. Entire books have been written about writing regular expressions, but here we will focus on just a handful of tricks to get you going.  
 
 Note that regular expressions are not unique to grep or to the command line - they are a general tool used in many programming languages and contexts. Working on the command line in bioinformatics, some of the most common contexts are: searching for lines using `grep`, conducting find-and-replace with `sed`, or doing more complex text manipulation with `awk`. What they have in common is that they are typically used to conduct matching - having the computer search through text to find matches to the regular expression.  
 
@@ -601,10 +619,11 @@ The escape character, `\`, lets us change how a character is interpreted. It can
 * `\t`: tab, matches a tab character  
 * `\^`: escaped `^`, matches a literal `^` instead of the start of a line  
 * `\$`: escaped `$`, matches a literal `$` instead of the end of a line  
+
 If we want to match a literal backslash `\`, we can use an escape character `\` on a backslash `\`, to create the somewhat silly regex pattern of `\\`.  
 Note: not all of this works with all versions of `grep`. On some versions of grep, to search `\t` as tab, you need the flag `grep -P`. Further, since `grep` searches line-by-line, it cannot search for `\n`, though that piece of regex is useful in other contexts.  
 
-Two more frequently used special characters are `.` and `*`.  The `.` character is a wildcard - it matches anything. For example, `"A.." matches any three characters starting with "A" - ABC, Art, Ant, Arm, A12, AAA, etc. The `*` character is the repeat character - it means that the thing right before it can be repeated any number of times, including zero. For example `"A*"` matches "AAAAAAAAAAAA" or "AA" or "A", etc... and it even matches "" (nothing). This is especially powerful to combine the two into `".*"`, which means "anything, any number of times (including zero). For example, `"A.*"` matches "Antbird", "Apple", "A123486 54321asdf ghjk", "A", etc.  
+Two more frequently used special characters are `.` and `*`.  The `.` character is a wildcard - it matches anything. For example, `"A.."` matches any three characters starting with "A" - ABC, Art, Ant, Arm, A12, AAA, etc. The `*` character is the repeat character - it means that the thing right before it can be repeated any number of times, including zero. For example `"A*"` matches "AAAAAAAAAAAA" or "AA" or "A", etc... and it even matches "" (nothing). This is especially powerful to combine the two into `".*"`, which means "anything, any number of times (including zero). For example, `"A.*"` matches "Antbird", "Apple", "A123486 54321asdf ghjk", "A", etc.  
 With those in hand (`.`, `*`, `^`, `$`, `\n`, `\t`), you can get quite a lot done. If you find yourself needing to accomplish more advanced text matching, there are quite a few more regex rules out there for more advanced pattern matching.  
 
 # sed
