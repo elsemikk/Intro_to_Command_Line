@@ -1042,21 +1042,38 @@ One more core piece of bash syntax is the `if` statement. Like other programming
 
 A very common usage in bash is to check whether a file already exists before proceeding. `-e` in an `if` statement condition asks whether a file exists:  
 
-`if [ -e samples.txt ] ; then echo "Yes, samples.txt exists" ; fi`  
-`if [ -e abcde.txt ] ; then echo "Yes, abcde.txt exists" ; fi` # this should do nothing, assuming you did not create `abcde.txt`.  
+```bash
+if [ -e samples.txt ] ; then echo "Yes, samples.txt exists" ; fi  
+if [ -e abcde.txt ] ; then echo "Yes, abcde.txt exists" ; fi # this should do nothing, assuming you did not create `abcde.txt`.  
+```
 
 We can also do the opposite - ask whether a file *doesn't* exist. To negate a condition, we can use a `!` symbol, like this:  
-`if [ ! -e samples.txt ] ; then echo "No, samples.txt does not exist" ; fi` # this should do nothing, as `samples.txt` should exist.  
-`if [ ! -e acde.txt ] ; then echo "No, abcde.txt does not exist" ; fi`   
+```bash
+if [ ! -e samples.txt ] ; then echo "No, samples.txt does not exist" ; fi # this should do nothing, as `samples.txt` should exist.  
+if [ ! -e acde.txt ] ; then echo "No, abcde.txt does not exist" ; fi
+```   
 
 This can be a handy safety measure to avoid overwriting ("clobbering") an especially valuable file that took a long time to make - when built into an `if` statement, the command will happily exit without overwriting your file if you accidentally paste it into the command line.  
 for example: 
-`if [ ! -e blueberry.txt ] ; then echo "blueberry" > blueberry.txt ; fi`   
-This will only write `blueberry.txt` if it doesn't already exist. That would be handy if `blueberry.txt` took a week to write and we don't want to overwrite it if we ran that command by accident.  
+```bash
+if [ ! -e blueberry.txt ] ; then echo "blueberry" > blueberry.txt ; fi
+```   
+This will only write `blueberry.txt` if it doesn't already exist. That would be handy if `blueberry.txt` took a week to write and we don't want to overwrite it if we ran that command by accident. You can safely run that command as many times as you like and it will only modify `blueberry.txt` the first time (you can verify the timestamp with `ls-l`).   
 
 This is also very handy if we aren't sure whether a file already exists, and we only want to make it once. For example, when mapping samples to a reference genome, we might want to check whether the reference genome is already indexed, and only index it if it is not already indexed:  
 
-`cat samples_metadata.txt | while read sample reference ; do if [ ! -e "$reference"_index.txt ] ; then echo "preparing $reference" ; printf "" > "$reference"_index.txt ; fi ; echo "mapping $sample to $reference" ; done` (this is an imaginary example to give you the idea, this command of course isn't actually indexing or mapping anything)  
+```bash
+cat samples_metadata.txt | while read sample reference ; do
+   if [ ! -e "$reference"_index.txt ] ; then
+      echo "preparing $reference" ; printf "" > "$reference"_index.txt
+   fi
+   echo "mapping $sample to $reference"
+done
+
+#equivalent loop collapsed into one line:
+#cat samples_metadata.txt | while read sample reference ; do if [ ! -e "$reference"_index.txt ] ; then echo "preparing $reference" ; printf "" > "$reference"_index.txt ; fi ; echo "mapping $sample to $reference" ; done
+```
+(this is an imaginary example to give you the idea, this command of course isn't actually indexing or mapping anything)  
 
 # gnu Parallel
 So far we have looked at using loops to run a potentially large number of repetitive commands. These loops run one iteration at a time, only moving on to the next sample/gene/iteration once the previous has complete. Sometimes this is important, such as when writing things to a file in a particular order. In other cases however, it is a waste of time - when it doesn't matter the order that things are done, we could save potentially weeks of waiting by making our samples/genes/iterations/etc run at the same time instead of one-after-the-other. This is the case when a computer has multiple **cores/threads**. In brief, A computer core (CPU core) is the hardware that actually does the computing. When a computer has multiple cores (as almost any machine you interact with will), it can compute multiple different things at once. The term **threads** is often used interchangeably, a thread is essentially a unit of work that a CPU core can do. Some cores only do 1 thread of work (so the number of threads equals the number of cores), while some cores can "multitask" and work on 2 threads at once (so the number of threads is equal to double the number of cores). 
@@ -1071,72 +1088,102 @@ The logic behind setting up a `parallel` run is similar to the `while read` loop
 
 The syntax looks like this:  
 
+```bash
 cat samples.txt | parallel echo "processing {}"
+```
 
-In that command, we opened `samples.txt` with `cat` and then sent that list to `parallel` through standard input. `parallel` seems each line as a separate value to iterate over, and generates separate commands for each, dropping them into the `{}` in the command `echo "processing {1}"`. It then runs all of those commands at the same time. 
+In that command, we opened `samples.txt` with `cat` and then sent that list to `parallel` through standard input. `parallel` sees each line as a separate value to iterate over, and generates separate commands for each, dropping them into the `{}` in the command `echo "processing {1}"`. It then runs all of those commands at the same time. 
 
-An alternative syntax looks like this:
+An alternative syntax looks like this:  
 
+```bash
 parallel echo "processing {}" :::: samples.txt
 
-or this:  
+#or this:  
 
 parallel echo "processing {}" ::: sample1 sample2 sample3
+```
 
-In those cases, we give out inputs at the end of the command - if they are listed in a file, we use four colons (`::::`) followed by the filename. If we instead want to write them out, we use three colons (`:::`) followed by a space-separated list. Each of those three syntaxes produces the same result, so it is a matter of convenience or personal preference which you would like to use.  
+In those cases, we give our inputs at the end of the command - if they are listed in a file, we use four colons (`::::`) followed by the filename. If we instead want to write them out, we use three colons (`:::`) followed by a space-separated list. Each of those three syntaxes produces the same result, so it is a matter of convenience or personal preference which you would like to use.  
 
-Let's go back to an earlier task - counting the number of A's in a fasta sequence. Let's count the number of A's in the fasta sequences of ND2 for our three samples in parallel. Before we do that, there are a few more rules to know. When we want to give parallel a longer command that includes special bash characters like `|` or `>`, we need to enclose those characters in single quotes (eg, `'|'`, `'>'`) so that bash will know they belong to the `parallel` command. The easiest way to do this is to just wrap the entire `parallel` command in single quotes as a habit, like this:      
-`cat samples.txt | parallel 'echo "processing {}"'` (when we don't need them, those single quotes will just have no effect)  
+Let's go back to an earlier task - counting the number of A's in a DNA sequence. Let's count the number of A's in the fasta-format DNA sequences of ND2 for our three samples in parallel. Before we do that, there are a few more rules to know. When we want to give parallel a longer command that includes special bash characters like `|` or `>`, we need to enclose those characters in single quotes (eg, `'|'`, `'>'`) so that bash will know they belong to the `parallel` command. The easiest way to do this is to just wrap the entire `parallel` command in single quotes as a habit, like this:      
+```bash
+cat samples.txt | parallel 'echo "processing {}"'
+```
+(when we don't need them, those single quotes will just have no effect)  
 
-`cat samples.txt | parallel 'echo "analyzing ND2 from {}" ; num_As=$(grep -v ">" gene_fastas/{}_ND2.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in ND2 of {} is $num_As"'`  
+Here is our A-counting code modified to work in parallel:  
+```bash
+cat samples.txt | parallel 'echo "analyzing ND2 from {}" ; num_As=$(grep -v ">" gene_fastas/{}_ND2.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in ND2 of {} is $num_As"'`  
+```
 
 Parallel can also take multiple lists, propagating a command with every pairwise combination of those lists. To do this, specify where each variable should go using `{1}` and `{2}` to specify the first and second variable respectively. These can either be given in separate lists using `:::` or `::::` to feed them in, in which case `{1}` vs `{2}` will depend on the order you list them in, or they can be separate columns in a single file, in which case `{1}` vs `{2}` depends on the order of the columns. Let's try it:  
 
+```bash
 parallel echo "processing gene {2} from sample {1}" :::: samples.txt :::: genes_to_loop.txt
 
-or
+#or
 
 parallel echo "processing gene {2} from sample {1}" ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB
+```
 
-If we want to have `parallel` read multiple variables from the same file, the syntax is a little different. Instead of creating all possible combinations of the variables, `parallel` will only use the combinations specified in your file (one per line). For it to interpret columns as separate variables, we will also need to tell `parallel` what the column separator is using the `--colsep` flag.  
+If we want to have `parallel` read multiple variables from the same file, the syntax is a little different. Parallel will read each line, seeing each column as a separate variable. Note that instead of creating all possible combinations of the variables, `parallel` will only use the combinations specified in your file (one per line). For it to interpret columns as separate variables, we will also need to tell `parallel` what the column separator is using the `--colsep` flag.  
 
-Let's create a fast and easy file with 2 columns by pasting our `samples.txt` and `genes_to_loop.txt` files together, keeping only the first three lines, like this `paste samples.txt genes_to_loop.txt | head -n 3`. Then, let's give this to parallel. In this case, the columns are separated by tabs, which we tell parallel using `--colsep "\t"` (if our columns were space separated, we would say `--colsep " "`).   
+Let's create a fast and easy file with 2 columns by pasting our `samples.txt` and `genes_to_loop.txt` files together, keeping only the first three lines, like this:
+```bash
+paste samples.txt genes_to_loop.txt | head -n 3
+```
+Then, let's give this to parallel. In this case, the columns are separated by tabs, which we tell parallel using `--colsep "\t"` (if our columns were space separated, we would say `--colsep " "`).   
 
-`paste samples.txt genes_to_loop.txt | head -n 3 | parallel --colsep "\t" echo "processing gene {2} from sample {1}"`
+```bash
+paste samples.txt genes_to_loop.txt | head -n 3 | parallel --colsep "\t" echo "processing gene {2} from sample {1}"
+```
 Unlike previous commands which created all possible combos of genes and samples, that only ran the three combos that correspond to the three lines of input that we have `parallel`.  
 
 Let's use this to count the A's in all genes of all samples now.  
 
-`parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB`  
+```bash
+parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB
+```  
 
-Just for fun, let's do each of those tasks three times. Let's use brace expansion to generate the list `1 2 3`.
+Just for fun, let's have it repeat each of those tasks three times. Let's use brace expansion to generate the list `1 2 3` to be our iteration numbers.
 
-`parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} in iteration {3} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB ::: {1..3}`  
+```bash
+parallel 'echo "analyzing gene {2} from {1}" ; num_As=$(grep -v ">" gene_fastas/{1}_{2}.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in {2} of {1} in iteration {3} is $num_As"' ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB ::: {1..3}
+```  
 
 The number of tasks that we ask `parallel` to do can get very large, especially when dealing with potentially hundreds of samples or thousands of sequences. Often, the number of commands `parallel` generates can exceed the number of threads that the computer has. By default, `parallel` will use all of them, starting a new command as soon as an earlier one finishes, so that all threads are being used. When running large numbers of commands that take a long time, this can mean that the whole server is occupied for a while, which can be annoying if you want to do a few things on the side while waiting, or if you are sharing the server. It can also be hard on your computer's hardware to have all the CPU cores running with back-to-back commands for a long time with no cooldown. To alleviate that, you can tell `parallel` how many threads to use using the `--jobs` flag. 
 
-For example, if we want to run on a max of 5 threads at a time, we can use `--jobs 5`:  
+For example, if we want to run a max of 5 things at a time, we can use `--jobs 5`:  
+```bash
 parallel --jobs 5 echo "processing gene {2} from sample {1}" ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB
+```
 This can of course make it finish slower if you are letting it use fewer threads than the max possible, but it is often necessary for the sake of other users and our computer's longevity.  
+Note: `--jobs` tells `parallel` how many things to run at once, not how many threads total to use - `parallel` doesn't know how many threads a given command is going to use. For simple cases like the ones we went through, each command is only using one threads so `--jobs` ends up equal to the number of threads that will be used. When running programs that use more threads in a single command, you may need to lower `--jobs` if you want any threads to remain free.
 
 A few more notes:  
 * since `parallel` often needs us to wrap our commands in single quotes (`'`), this can become a problem when a command wants us to include quotes. Sometimes we can get around this by using double quotes instead of single quotes (for example, instead of `echo 'test' | sed 's/test/blue berry/g'`, switch to `echo "test" | sed "s/test/blue berry/g"`. Other times when we really need *single* quotes in our commands, we can use the somewhat clunky syntax `'\''` as a drop-in for `'` which will make it through.  
 For example, this would fail due to interference of the `'`'s:  
-parallel 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie apple_tree  
+`parallel 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie apple_tree`  
 This works, replacing the `'`'s around the sed command with `'\''`, though the code doesn't look very pretty:  
 `parallel 'echo {} | sed '\''s/apple/blue berry/g'\''' ::: apple apple_pie apple_tree`  
 A little clunky, and something you don't often have to do, but sometimes comes up with building bioinformatics pipelines.  
 
 As pipelines get complex, gnu parallel commands can be easy to break, and tracking down errors can get difficult. Something that can help enormously when troubleshooting is the `--dry-run` flag, which causes `parallel` to print out a list of all the commands that it would run, without running them. This can let you check that `parallel` is interpreting things the way you intend.  
 
-For example, run `parallel --dry-run 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie apple_tree`  
-We can then dissect the code `echo apple | sed s/apple/blue berry/g` and find that it is missing the quotes inside of the `sed` code, even though those were included in our original code. This reveals to us that `parallel` is not seeing those single quotes (bash strips them out before handing that code to `parallel`). Much easier to troubleshoot that trying to figure out why we are getting the error `unescaped newline inside substitute pattern` without seeing how parallel is interpreting our code.  
+For example, run:  
+```bash
+parallel --dry-run 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie apple_tree
+```    
+We can then dissect the code `echo apple | sed s/apple/blue berry/g` and find that it is missing the quotes inside of the `sed` code, even though those were included in what we originally wrote. This reveals to us that `parallel` is not seeing those single quotes (bash strips them out before handing that code to `parallel`). Much easier to troubleshoot than trying to figure out why we are getting the error `unescaped newline inside substitute pattern` without seeing how parallel is interpreting our code.  
 
 ## time
 When evaluating alternate ways of doing things or running long commands, it is often useful to know exactly how long a command took. We can do this using the `time` command. The `time` command can be placed before any command, and once that command is done, it will print out the timing (without otherwise interfering with the command). 
 
 Let's try it:  
+```bash
 time echo "how long does this command take??"  
+```
 That will print out three numbers, `real`, `user`, and `sys`. The two we are most concerned with usually are `real` - the actual amount of time the command took (the "wall time") - and `user` time which is more-or-less the amount of CPU time our computer spent doing the command, summed across all threads that were used. When running multithreaded/parallel commands, `user` time can be much higher than `real` time, if the multithreading was done efficiently. (For example, if using 10 threads, `user` time can be a maximum of ~10 times higher than `real` time if done with maximum possible efficiency). 
 We may want to collect these times for a few reasons:  
 * to evaluate how efficiently our commands are using multiple threads  
@@ -1174,9 +1221,110 @@ Beneath that is a list of all the commands that are being run at the moment - th
 
 To exit `htop`, press `q` for "quit".
 
+## Compressed files  
+
+A special case we run into frequently in bioinformatics is dealing with compressed files. Genomes are big, so bioinformatics frequently involves working with unusually large files. To save space, these files are frequently "compressed". Compression is a way of reducing filesizes through a variety of tricks, such as replacing strings of characters with shorter codes. These codes usually end up looking like a random jumble that are not human-readable, but your computer can read them. Many bioinformatics programs can work directly on both compressed and uncompressed data, while others will demand the data be uncompressed first (or compressed a certain way first). We can toggle between compressed and uncompressed formats using some simple commands.  
+
+To look at the contents of a compressed file, we can use `zless` instead of less.
+```bash
+less raw_data/genotypes.vcf.gz
+#it will ask you if you are sure you want to look at compressed data. If you say "y", you will see the jumble.
+#press q to exit less
+
+zless raw_data/genotypes.vcf.gz
+#now it is human readable
+#press q to exit less
+```
+
+To print the contents of a compressed file, we can use `zcat` instead of `cat`.
+```bash
+cat raw_data/genotypes.vcf.gz
+#a random looking jumble
+
+zcat raw_data/genotypes.vcf.gz
+#now it is human readable
+```
+`zcat` allows us to uncompress and pass the contents of a compressed file through `stdin` to programs in a pipeline that can't handle compressed data. Importantly, this saves us the intermediate step of uncompressing a file to feed it into a pipeline. Doing that would waste time and leave us with a potentially huge uncompressed data file taking up storage space on our computer. 
+```bash
+#count number of sites in our VCF file
+zcat raw_data/genotypes.vcf.gz | grep -c -v "^#"
+```
+`grep` similarly has a version that can work on compressed files: `zgrep`:  
+```bash
+#count number of sites in our VCF file
+zgrep -c -v "^#" raw_data/genotypes.vcf.gz 
+```
+
+If you run into the opposite problem - needing to compress a file, you can use `bgzip` to do so, either compressing a file for storage or piping data into a pipeline. You can also pipe data into `bgzip` at the end of a pipeline to compress it as one last step before printing it to an output file.
+```bash
+#compress an existing uncompressed file
+bgzip raw_data/genotypes_uncompressed.vcf > raw_data/genotypes_uncompressed.vcf.gz
+
+#compress a file to pass it to another file on the command line that requires compressed data
+bgzip raw_data/genotypes_uncompressed.vcf | zcat
+
+#combine zcat and bgzip to modify a compressed file and save the modified data as another compressed file
+zcat raw_data/genotypes.vcf.gz | sed "s/sample1/sampleA/g" | bgzip > genotypes_renamed.vcf.gz
+```
+
+Note that there are many different programs for compressing data, each using a slightly different algorithm (and many offering different algorithms to choose between). These different compression formats offer different tradeoffs between how long compression/decompression takes vs amount of space saved, for example. The ones you will likely encounter the most in day-to-day bioinformatics, at the time of writing, will likely be `bgzip`, `gzip`, and `tar`. When you get to the point of wanting to archive large data files into deep storage where they may not be touched for years, you may want to instead reach for a heavier (but slower) compression tool or one designed specifically for your data type (eg fasta, fastq) to maximize your storage space savings. Some examples to consider at the time of writing include `xz`, `SPRING2` or `Genozip`, for example.  
+
 # awk
 (in progress)
 * using awk for simple one-liners
+
+One popular and versatile command in bioinformatics is `awk`. `awk` is a programming language designed for efficiently processing text files, running pattern matching, and manipulating lines of text. Being a complete programming language, you could take a whole course on `awk`. Here, we will only scratch the surface with some examples to give you an idea of what it can be used for.
+
+This Swiss-army-knife of a program can be used to solve many bioinformatics tasks, particularly those that involve processing text line-by-line and doing some processing on each line. This could be filtering data, calculating statistics, performing arithmetic on columns, converting between file formats, etc. When you need to do some text editing and can't find an existing program that does exactly what you need, there is usually a way to program it in `awk`. 
+
+While awk theoretically *could* do anything (being a complete programming language), there are times it is useful and times when it is not the best tool for the job. For more complex tasks, other languages like python may be a better tool for the job, and for very heavy tasks, a more efficient language like `C` may be a better choice. However, since so many bioinformatics tasks involve relatively simple manipulations of column-based text files, `awk` remains a popular and convenient option.  
+
+
+`awk` commands are formatted like this: `awk 'pattern {action}'`. `awk` goes through text files one line at a time, checks whether the line matches a pattern, and then performs an action if it does. If the pattern is not specified, it will do the action to every line.
+
+Let's go through some examples. One action that `awk` can do is print, which simply prints something to standard output.
+```bash
+head ABBABABA.txt | awk '{ print }'
+```
+That didn't do anything interesting - `awk` read each line and then printed it out as-is.  
+One useful thing `awk` can do is to read and manipulate columns. In `awk`, columns are referred to as "fields" separated by "field-separators) (whitespace by default). We can refer to specific fields in awk using numbers and `$` symbols; `$1` refers to column 1, `$2` refers to column 2, etc. (Unlike some other programming languages, `awk` is 1-based, meaning the first column is $1, not $0. In awk `$0` refers to the whole line together).
+```bash
+#we can tell it to print specific columns
+head ABBABABA.txt | awk '{ print $1}'
+
+#we can tell it to print multiple columns
+head ABBABABA.txt | awk '{ print $1 $2 $5}'
+
+#we can change the order of columns
+head ABBABABA.txt | awk '{ print $2 $5 $1}'
+```
+The output of the above doesn't look very good unformatted, with columns squished together. We can make it look better by improving the formatting. By default, `awk print` takes a comma-separated list of things and prints it with space separating the things in the list. The things in the list can include columns, arithmetic, strings, etc. 
+```bash
+#separating the list with commas makes print output them as separate space-delimited columns
+head ABBABABA.txt | awk '{ print $2, $5, $1}'
+
+#we can add strings of text, surrounded by quotes
+head ABBABABA.txt | awk '{ print "Sample_"$2, "00000"$8, $9"000000", "test_text"}'
+
+#we can do arithmetic
+head ABBABABA.txt | awk '{ print $2, $8-$9}'
+```
+
+Let's do something more useful. Our file `ABBABABA.txt` contains reported estimates of a statistic called *D*, which is often used to estimate whether two populations have undergone hybrid introgression. This is calculated using counts of "ABBA" and "BABA" sites. Let's recalculate *D* ourselves using the reported values of "ABBA" and "BABA" to make sure that everything lines up. The formula for *D* is (ABBA-BABA)/(ABBA+BABA), and these counts are stored in column 9 and column 10 of our file. Luckily, we can do this addition/subtraction and division right in `awk`.   
+```bash
+#remind yourself of the columns in this file
+head ABBABABA.txt
+
+#compare the reported estimates of D in column 4 to our calculations based on columns 9 and 10
+tail ABBABABA.txt | awk '{ print "reported value is: "$4, "our calculation is: "($9-$10)/($10+$9)}'
+
+```
+
+So far, we have not added any conditions, and so by default `awk` performs the action on every line. We can add conditions so that awk will filter our lines for us. 
+
+
+We can also change the field separated of the output columns using the OFS variable:
+
 
 # file permissions
 When sharing files between users or when writing your own scripts, one concept that you may encounter is **permissions**. Permissions control who can view or edit a file, and whether a file can be executed as code. Those three actions are controlled separately, and are as follows:  
