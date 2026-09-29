@@ -795,11 +795,11 @@ for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fa
 ```
 (`tr -d "\n"` deletes the line break character that would otherwise be counted by `wc -c`).  
 
-Our command is getting a little long, so from here I will be breaking the code into multiple lines for readability. 
+Our command is getting a little long, so from here I will be breaking the code into multiple lines for readability. I am indenting with spaces, which just get ignored by bash (they are only for human readability/aesthetics). Make sure not to indent using tabs - tab characters get interpreted as autocomplete (depending on your bash version).   
 ```bash
 for gene in MC1R ND2 COII CYTB ; do
-	echo "analyzing $gene" 
-	grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c
+   echo "analyzing $gene" 
+   grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c
 done
 ```
 It is a matter of personal preference whether you prefer to write your loops on one line or indented across multiple lines; both do the same thing. If converting from a multiline loop back to a single line, remember to put the `;` symbols back separating each command ( a function that linebreaks are replacing in the multiline code).  
@@ -807,9 +807,9 @@ It is a matter of personal preference whether you prefer to write your loops on 
 Now let's add another command to count the number of "A" nucleotides in each gene sequence. We can do that similar to the previous one: take our fasta file, remove the header, delete everything except for the "A"'s, and then count how many characters remain.    
 ```bash
 for gene in MC1R ND2 COII CYTB ; do
-	echo "analyzing $gene"
-	grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c
-	grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c
+   echo "analyzing $gene"
+   grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c
+   grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c
 done
 
 #equivalent loop collapsed into one line:
@@ -820,10 +820,10 @@ We can get more fancy by assigning the lengths and number of A's to variables.
 
 ```bash
 for gene in MC1R ND2 COII CYTB ; do
-	echo "analyzing $gene"
-	length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c)
-	num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c)
-	echo "length of $gene is $length and number of A's is $num_As"
+   echo "analyzing $gene"
+   length=$(grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c)
+   num_As=$(grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c)
+   echo "length of $gene is $length and number of A's is $num_As"
 done
 
 #equivalent loop collapsed into one line:
@@ -834,10 +834,10 @@ More often in bioinformatics, we don't want to be reading data off the terminal,
 ```
 echo -e "gene\tlength\tnum_As" > num_As.txt ;
 for gene in MC1R ND2 COII CYTB ; do
-	echo "analyzing $gene"
-	printf "$gene\t" >> num_As.txt
-	grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt
-	printf "\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt
+   echo "analyzing $gene"
+   printf "$gene\t" >> num_As.txt
+   grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c | tr -d "\n" >> num_As.txt
+   printf "\t" >> num_As.txt ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c >> num_As.txt
 done
 
 #equivalent loop collapsed into one line:
@@ -886,11 +886,11 @@ We can also put loops inside of other loops! This allows us to iterate over mult
 Nesting loops is simple; just put a loop in the middle of another loop. Make sure that you include the `do ; done` syntax for each loop. If you make a mistake with the syntax, usually nothing will happen - bash will stay waiting for you to complete typing the loop (press ctrl-c to cancel).   
 ```bash
 for sample in sample1 sample2 sample3 ; do
-	for gene in MC1R ND2 COII CYTB ; do
-		for iteration in {1..3} ; do
-			echo "iteration $iteration for gene $gene of $sample"
-		done
-	done
+   for gene in MC1R ND2 COII CYTB ; do
+      for iteration in {1..3} ; do
+         echo "iteration $iteration for gene $gene of $sample"
+      done
+   done
 done
 #equivalent loop collapsed into one line:
 #for sample in sample1 sample2 sample3 ; do for gene in MC1R ND2 COII CYTB ; do for iteration in {1..3} ; do echo "iteration $iteration for gene $gene of $sample" ; done ; done ; done
@@ -900,11 +900,11 @@ Note the order - bash loops through the innermost loop before changing the value
 
 ```bash
 for gene in MC1R ND2 COII CYTB ; do
-	for iteration in {1..3} ; do
-		for sample in sample1 sample2 sample3 ; do
-			echo "iteration $iteration for gene $gene of $sample"
-		done
-	done
+   for iteration in {1..3} ; do
+      for sample in sample1 sample2 sample3 ; do
+         echo "iteration $iteration for gene $gene of $sample"
+      done
+   done
 done
 
 #equivalent loop collapsed into one line:
@@ -927,11 +927,11 @@ Now let's put that into bash code:
 
 ```bash
 for sample in sample1 sample2 sample3 ; do
-	echo ">$sample" >> concatenated_data.fasta
-	for gene in MC1R ND2 COII CYTB ; do
-		grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta
-		done
-	printf "\n" >> concatenated_data.fasta
+   echo ">$sample" >> concatenated_data.fasta
+      for gene in MC1R ND2 COII CYTB ; do
+         grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta
+      done
+   printf "\n" >> concatenated_data.fasta
 done
 
 #equivalent loop collapsed into one line:
