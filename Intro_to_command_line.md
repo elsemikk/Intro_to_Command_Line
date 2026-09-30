@@ -105,7 +105,8 @@ Now let's move on to some slightly more complex commands. Before we do, here are
 * Many text editors will also add invisible characters called "carriage returns". You will not be able to see these in your document, but the command line sure can! These invisible characters break code and cause major headaches; using a plain text editor meant for code that is set to not add carriage returns will avoid that problem.  
 * Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click).  
 * Time saver: in many systems, you can press ctrl+a to jump your cursor to the start of the line, and then ctrl+e to jump back to the end of the line. Saves some time if you made a typo way at the beginning of the line!  
-* to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit. (Note, `man` is not included in Git bash).  
+* to get help with a command or remind yourself of its flags, you can use the `man` command to open the command's manual page. For example, to open the manual for `mkdir`, do `man mkdir`. To exit the manual and return to the command line, type `q` to quit. (Note, `man` is not included in Git bash).
+* when typing on the command line, most setups will allow you to do "tab completion": when you are halfway through typing something, you can press "tab" and it will try to fill in the rest of the word with names of files in your working directory or commands that bash knows about, etc. This can help to avoid typos. It will only auto-complete if there is only one possible way to finish the word - if there are multiple choices that bash can see, pressing tab twice will give you a list of possibilities. 
 
 ## Flags  
 An important aspect of running commands on the command line is setting flags. These are settings that can alter the behaviour of the command you are running. They are usually single letters or short words, that are placed after a command (separated by a space), like this: `command -a -b -c --flag_d`. That command has four flags: `-a`, `-b`, `-c`, and `--flag_d`. Flags are attached to dashes - generally a single dash for single-letter flags or two dashes for flags that are words. If a flag is a word, it cannot have a space in it (instead, underscores `_` can be used). Often, there will be two synonymous flags you can choose between that do the same thing, a single-letter option for brevity, or a short-word option you can use to make it easier to remember what it does when you go back and read your code in the future.  
@@ -1255,6 +1256,11 @@ zcat raw_data/genotypes.vcf.gz | grep -c -v "^#"
 zgrep -c -v "^#" raw_data/genotypes.vcf.gz 
 ```
 
+To simply unzip a file to create an uncompressed version, you can use `gunzip`:  
+```bash
+gunzip raw_data/genotypes.vcf.gz 
+```
+
 If you run into the opposite problem - needing to compress a file, you can use `bgzip` to do so, either compressing a file for storage or piping data into a pipeline. You can also pipe data into `bgzip` at the end of a pipeline to compress it as one last step before printing it to an output file.
 ```bash
 #compress an existing uncompressed file
@@ -1270,8 +1276,6 @@ zcat raw_data/genotypes.vcf.gz | sed "s/sample1/sampleA/g" | bgzip > genotypes_r
 Note that there are many different programs for compressing data, each using a slightly different algorithm (and many offering different algorithms to choose between). These different compression formats offer different tradeoffs between how long compression/decompression takes vs amount of space saved, for example. The ones you will likely encounter the most in day-to-day bioinformatics, at the time of writing, will likely be `bgzip`, `gzip`, and `tar`. When you get to the point of wanting to archive large data files into deep storage where they may not be touched for years, you may want to instead reach for a heavier (but slower) compression tool or one designed specifically for your data type (eg fasta, fastq) to maximize your storage space savings. Some examples to consider at the time of writing include `xz`, `SPRING2` or `Genozip`, for example.  
 
 # awk
-(in progress)
-* using awk for simple one-liners
 
 One popular and versatile command in bioinformatics is `awk`. `awk` is a programming language designed for efficiently processing text files, running pattern matching, and manipulating lines of text. Being a complete programming language, you could take a whole course on `awk`. Here, we will only scratch the surface with some examples to give you an idea of what it can be used for.
 
@@ -1405,11 +1409,9 @@ if [ -f ~/.bash_aliases ]; then
 fi
 ```
 
-# installing programs
-* git clone
-* dealing with compressed files (gzip, gunzip, zless, zcat)
+# Installing programs
 
-To use a new program, the first step is of course to download it. This can be done many different ways depending on the source of the file. 
+To use a new program, the first step is of course to download it. This can be done many different ways depending on the source of the file, and can be a bit intimidating when new to the command line. 
 
 ### Downloading a file from the Internet  
 Many programs are distributed as files on the Internet, whether that be releases hosted on Github, a scientist's personal website, or elsewhere. To get those files, you could go the graphical point-and-click route of clicking the link in a browser, downloading it, and moving the file where you want. However, that often is not an option when working on servers which may not have an Internet browser at all. Instead, we can download the file using the URL with the command `wget`. `wget` is run like this: `wget URL_of_thing_to_download`.  
@@ -1432,6 +1434,10 @@ Afterwards, your `tar` file should have turned into a normal directory full of f
 Note: sometimes a piece of software will come as a `.zip` file instead of a `.tar.gz` file. Those can be uncompressed using the command `unzip` instead of `tar`, like this: `unzip example_directory.zip`. Still others may come as `.gz` (not tar) files - those can be unzipped with `gunzip` like this: `gunzip  example_directory.gz`.  
 
 Sometimes, your downloaded tool will come ready-to-run with no further efforts required. Other times, you will have to do additional steps to install the software before you can run it. These steps vary, so a deep overview is beyond the scope of this workshop - usually, a program will come with instructions on their website explaining exactly what needs to be done for installation to succeed. These instructions will often involve using the command `make`, which reads something called a `makefile` to prepare the code to be ready to run on your machine in a process called compiling.   
+
+Another common installation workflow is to clone repositories on Github, which is a popular host for bioinformatics tools. Cloning repositories is done through the `git clone` command - you just need the URL for the github repository, and then you can download the whole thing like this: `git clone https://github.com/username/name_of_repository`. The whole repository will then be downloaded into your working directory. Like other workflows, in some cases the program will come ready-to-run and in others cases you will need to do additional steps.
+
+Installing programs can be quite the headache, and many programs come with long lists of prerequisites - dependencies (other programs or packages that are required before the focal program can run). Balancing all these dependencies (which may conflict between programs) can become a challenge. Luckily, there are several solutions that can allow you to safely install multiple dependencies at once, and to have conflicting versions available to use with different programs without interfering with each other. This is the concept of **environments** or **containers**. [conda](https://docs.conda.io/projects/conda/en/latest/user-guide/install/index.html) is a very popular example which most bioinformaticians will eventually run into - it can make very complicated installations as easy as three commands (make a new environment, enter that environment, and install the requisite packages).  
 
 # PATH variable
 Bash includes some special variables that are set automatically - environmental variables. Most of them handle background things that you won't need to alter, but one environmental variable that you may occasionally need to interact with is `$PATH`. `$PATH` is a list of paths which tells bash where it should look for executables (code) when running commands. For example, when running `ls`, bash scrolls through the directories listed by $PATH until it finds the code for the `ls` program. Basic commands (like `ls`, `grep`, etc) have their code in standard locations that are already included in `$PATH`. To run other commands (eg., programs you download or scripts you write), you will either need to place them into a directory that is in PATH, or specify the whole path to the executable when you run it, or add its directory to PATH so that bash can find it.
