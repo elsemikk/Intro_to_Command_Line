@@ -744,6 +744,14 @@ There - the command isn't particularly easy-to-read, but it does all the alterat
 ### renaming files
 `sed` alters the contents of a file, but can't alter filenames. Sometimes we may want to edit filenames en masse using find-and-replace the way that `sed` does for text. The command `rename` does this using much of the same syntax as `sed`. It does not come pre-installed with all versions of `bash`, but is the command to look for if you run into that task.  
 
+### globbing
+Globbing is sometimes mistaken for regex, but is a different a much-restricted pattern-matching that is primarily used to pattern-match filenames on the command line. The most commonly-used symbol for globbing is the asterisk `*`, which, unlike in regex, is used as a wildcard in globbing. For example, `ls *vcf.gz` will list all vcf.gz files in your working directory, and `cat *.txt` will `cat` all .txt files in your working directory. Try a few glob patterns:  
+```bash
+ls -lh *txt
+ls *
+head A*t
+```
+
 # bash variables
 
 Variables are used for storing data. They will be remembered for the rest of your session/script, so you can store a value and then refer to it later. This comes in handy for a few different scenarios, for example:  
