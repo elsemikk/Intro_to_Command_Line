@@ -27,7 +27,7 @@ Welcome! This workshop is designed to provide an entry into using the command li
 [Aliases](https://github.com/elsemikk/Intro_to_command_line/blob/main/Intro_to_command_line.md#aliases)  
 [installing programs](https://github.com/elsemikk/Intro_to_command_line/blob/main/Intro_to_command_line.md#installing-programs)  
 
-# Day 1: Navigating the command line  
+# Part 1: Navigating the command line  
 
 ## Anatomy of the Command Line  
 
@@ -223,11 +223,11 @@ Try running:
 ```bash
 wc processed_data/ABBABABA_concatenated.txt
 ```  
-This will show you three pieces of info: the number of lines in the file, the number of words, and the number of bytes. Often all we want to know is the number of lines, which we can specify using the `-l` flag, like this: `wc -l processed_data/ABBABABA_concatenated.txt`. This syntax use useful for calculating the sizes of datasets we are working with, in cases where each line represents a data point.   
+This will show you three pieces of info: the number of lines in the file, the number of words, and the number of bytes. Often all we want to know is the number of lines, which we can specify using the `-l` flag, like this: `wc -l processed_data/ABBABABA_concatenated.txt`. This syntax is useful for calculating the sizes of datasets we are working with, in cases where each line represents a data point.   
 
 ### Exercises  
 1) Make a directory named `exercise_1`, and then make a  subdirectory named `exercise_1/exercise_1_subdirectory`. Change your working directory to enter `exercise_1/exercise_1_subdirectory`, and then make a directory in `exercise_1` named `exercise_1_subdirectory2` without changing your working directory again.
-2) Make a copy of `ABBABABA.txt` and place it in `exercise_1/exercise_1_subdirectory`. Rename that file "exercise_1_testfile.txt`. Then, move it into `exercise_1/exercise_1_subdirectory2`.  
+2) Make a copy of `ABBABABA.txt` and place it in `exercise_1/exercise_1_subdirectory`. Rename that file `exercise_1_testfile.txt`. Then, move it into `exercise_1/exercise_1_subdirectory2`.  
 3) Look at the last 30 lines of `input_data/placeholder.txt`. Then in a separate command, determine the length of `input_data/placeholder.txt`  
 
 
@@ -462,95 +462,11 @@ Use the arrow keys to navigate to the second-last line, and modify it from `BURN
 
 --- 
 
-### break
+#### break
 
 ---
 
-# Part 4
-
-# Day-to-day on the command line  
-
-We have now looked at a lot of command line basics - moving around on the command line, editing files, and constructing a pipeline. Let's look at some housekeeping and day-to-day tasks to make life on the command line a little easier or more efficient.  
-
-### history
-
-Forgot to write down the parameters you used with an important command? Can't remember the last thing you did? Bash saves a text file listing all the commands that you have run. The number of commands it will remember is variable, typically 500 by default. To access this list, you can use the command `history`. Usually you won't want to print the whole 500 lines to your terminal, so you will either combine it with `less` or `tail`, for example. Try it out:  
-```bash
-history | less #press q to exit when done
-history | tail #view the last few lines (most recently-run commands)
-```
-
-### screen
-
-If `ssh`ing into a remote server using your command line, you may run into the problem of needing to run a long command that will crash if you lose Internet connection, need to close your laptop, or lose `ssh` connection for any other reason. Luckily, there are workarounds that can allow you to close a session on your computer's terminal without your session ending on the remote server. Any processes you have running there will continue to run without you, and your command line will be right as you left it when you `ssh` back in again. The command that lets you do this is `screen`.  
-
-To use screen, run it like this: `screen -S name_of_screen_session`. Giving each session a unique name allows you to have multiple sessions running and switch between them.  Let's try! (Warning - all other text will be cleared from your Terminal)  
-```bash
-screen -S test_screen_session
-```
-Now, run some random test commands to fill your Terminal with some text. For example:  
-```bash
-echo "this is just some filler"
-echo "running some random commands"
-echo "will this text still be here if lose our connection and have to restart the session?"
-```
-To leave ("detach") a `screen` session, type `ctrl-a + d` (hold down ctrl while typing "a", then "d")  
-If you are on a remote server, you could now shut down your computer if needed and your remote `screen` session would still be waiting for you when you got back.  
-To "reattach" a screen session, run:
-```bash
-screen -r
-```
-You should now see all the text that was originally in your terminal in that screen session before you detached.  
-
-If you have multiple screen sessions running, you can list them using the command `screen -ls`. In those cases, the output may look something like this:  
-```
-There are several suitable screens on:
-	97592.test2	(Detached)
-	97463.test	(Detached)
-Type "screen [-d] -r [pid.]tty.host" to resume one of them.
-```
-In the above example, there are two screen sessions, named "test" and "test2". Each screen session is given an ID number - in the above example, "test" has ID number 97463 and "test2" has ID number 97592. You can use these ID numbers to select which session you want to reattach, like this:  
-```bash
-screen -r 97592
-```
-You will of course need to change the ID number to match that of your own session (found using `screen -ls`).  
-If your `screen` sessions get tangled and a session won't reattach because it thinks it is already attached somewhere else (which can happen if your connection got cut off and you login again), you can tell it to detach from wherever it is currently attached and attach to your session using the `-d` flag, like this: `screen -d -r 97592`. 
-
-Once you are done with a `screen` session and want to close it permanently (stopping anything that may be running in that session), run `exit` from within the session.  
-
-`screen` has many more use-cases and features to explore later if it becomes part of your routine, but the features we went over should be able to save you from losing work from broken `ssh` connections. Note that there are other alternatives to screen, such as `tmux`, so you can shop around for the option that works best for you.  
-
-### checking storage space
-Bioinformatics files can be huge. Often storage space is a limitation, so it helps to know what we are working with. To find out how much storage space is free on your system, use the `df` command:  
-```bash
-df
-```
-This will show you a list of drives on your system, and how much storage space they have in use vs available to use. The rightmost column will tell you the path to the directory being referred to, column 2 tells you how much total space exists on that drive, and column 4 tells you how much of it is unused and available to you. The default formatting can be hard to read, if you use the `-h` ("human-readable") flag it will translate the report into units of Bytes, Kibibytes, Mebibytes, Gibibytes, etc (those are not typos, they are units using a slightly different base than kilobytes, megabytes, etc... they are close enough to ignore the differences unless you are doing something very precise).  
-```bash
-df -h
-```
-Here is an example:
-```
-Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
-/dev/disk3s1s1   926Gi    13Gi    57Gi    19%    459k  600M    0%   /
-devfs            203Ki   203Ki     0Bi   100%     702     0  100%   /dev
-/dev/disk3s6     926Gi    10Gi    57Gi    15%      10  600M    0%   /System/Volumes/VM
-/dev/disk3s2     926Gi    17Gi    57Gi    23%    2.2k  600M    0%   /System/Volumes/Preboot
-```
-In the above example, the main filesystem has a capacity of 926 Gi (= 994 gigabytes), of which 57 Gi are free and available to use.  
-
-Make sure to check your storage space every now and then if you are working with very large files (eg, whole genome datasets, large sequencing runs). It is quite unpleasant to have a program running for hours or days only to exit with a "disk space full" error message. 
-
-### copying files between servers
-
-Transferring files between your computer and remote servers can be a major headache when starting out. There are plenty of programs to smooth the process (eg, Filezilla) and provide a graphical user interface for the process, but it can be annoying to interrupt your flow by leaving the command line and clicking through a different application. Instead, it would be nice to just copy files between computers/servers the way that you can with the `cp` command within a computer. `scp` fills that niche.  
-
-`scp` stands for "secure copy", and works similar to `cp` - just provide the path to the file you want to copy, and then the path to where you want to copy it to. The difference is that for a file on a different computer/server, you need to provide your username and the address of that server - you should already know this address from using the `ssh` command and when given your login credentials. This may either be in the form of a regular IP address (eg, 123.4.56.78) or a name for the server (eg, exampleserver.test.university.ca). You will also need to know your username (the same username you use to login with ssh). Like `ssh`, your username and the server address get put together separated by an `@` symbol, like this: `username@exampleserver.test.university.ca`. Then, you add the path to the file you want to copy (or the path you want to copy it to) separated by a `:` symbol, like this: `username@exampleserver.test.university.ca:/home/path/to/the/thing/to/copy`.  
-`scp` can either copy files from your local computer to a remote server like this: `scp path/to/local_file username@exampleserver.test.university.ca:/home/path/to/where/you/want/it/copied` or copy files from a remote server to your local computer like this: `scp username@exampleserver.test.university.ca:/home/path/to/file/on/remote/server path/to/where/you/want/it/copied `. Just like `cp`, the path to the file you want copied goes first (whether that is on the remote server or local computer), and the path to the place where you want the copy placed goes second (whether that is on the remote server or local computer). 
-
-Note that if you logged into the remote server and want to run `scp` to fetch/place files on your laptop, it is not trivial since most laptops don't have a stable IP address. There are workarounds, but the easiest is to just open a new terminal on your laptop and `scp` from your laptop instead of doing it from your account on the remote server.    
-
-Note: if using UBC's ARC servers, an alternative is to use ARC [OnDemand](https://ondemand.arc.ubc.ca/) for file transfers. Once you log in, you can go to "files" and upload or download files there, if you prefer a graphical user interface.  
+# Part 3
 
 # grep and regex and globbing
 
@@ -593,7 +509,7 @@ Quick simple regex cheatsheet:
 
 Note that regular expressions are not unique to grep or to the command line - they are a general tool used in many programming languages and contexts. Working on the command line in bioinformatics, some of the most common contexts are: searching for lines using `grep`, conducting find-and-replace with `sed`, or doing more complex text manipulation with `awk`. What they have in common is that they are typically used to conduct matching - having the computer search through text to find matches to the regular expression.  
 
-First, the basics: regex are composed of both plain characters that are taken at facevalue ("blueberry) means (blueberry), and special characters that have a deeper meaning ("\t" means tab). The characters are case-sensitive, so searching for "blueberry" will not match "Blueberry".  
+First, the basics: regex are composed of both plain characters that are taken at facevalue ("blueberry" means "blueberry"), and special characters that have a deeper meaning ("\t" means tab). The characters are case-sensitive, so searching for "blueberry" will not match "Blueberry".  
 ```bash
 grep "FM433680" ABBABABA.txt #several matches
 grep "fm433680" ABBABABA.txt #no matches
@@ -771,11 +687,11 @@ Variables can be a little finicky at times. If a variable contains any whitespac
 
 ---
 
-### break
+#### break
 
 ---
 
-# Part 3: loops
+# Part 4: Loops
 
 # for loops, while loops, if statements  
 While often used for only very simple tasks, bash is a full programming language that includes the ability to write loops and evaluate "if" statements. These come in extremely handy in bioinformatics, especially when needing to do repetitive tasks with many samples/genes/etc.  
@@ -1059,7 +975,7 @@ if [ -e abcde.txt ] ; then echo "Yes, abcde.txt exists" ; fi # this should do no
 We can also do the opposite - ask whether a file *doesn't* exist. To negate a condition, we can use a `!` symbol, like this:  
 ```bash
 if [ ! -e samples.txt ] ; then echo "No, samples.txt does not exist" ; fi # this should do nothing, as `samples.txt` should exist.  
-if [ ! -e acde.txt ] ; then echo "No, abcde.txt does not exist" ; fi
+if [ ! -e abcde.txt ] ; then echo "No, abcde.txt does not exist" ; fi
 ```   
 
 This can be a handy safety measure to avoid overwriting ("clobbering") an especially valuable file that took a long time to make - when built into an `if` statement, the command will happily exit without overwriting your file if you accidentally paste it into the command line.  
@@ -1067,7 +983,7 @@ for example:
 ```bash
 if [ ! -e blueberry.txt ] ; then echo "blueberry" > blueberry.txt ; fi
 ```   
-This will only write `blueberry.txt` if it doesn't already exist. That would be handy if `blueberry.txt` took a week to write and we don't want to overwrite it if we ran that command by accident. You can safely run that command as many times as you like and it will only modify `blueberry.txt` the first time (you can verify the timestamp with `ls-l`).   
+This will only write `blueberry.txt` if it doesn't already exist. That would be handy if `blueberry.txt` took a week to write and we don't want to overwrite it if we ran that command by accident. You can safely run that command as many times as you like and it will only modify `blueberry.txt` the first time (you can verify the timestamp with `ls -l`).   
 
 This is also very handy if we aren't sure whether a file already exists, and we only want to make it once. For example, when mapping samples to a reference genome, we might want to check whether the reference genome is already indexed, and only index it if it is not already indexed:  
 
@@ -1101,7 +1017,7 @@ The syntax looks like this:
 cat samples.txt | parallel echo "processing {}"
 ```
 
-In that command, we opened `samples.txt` with `cat` and then sent that list to `parallel` through standard input. `parallel` sees each line as a separate value to iterate over, and generates separate commands for each, dropping them into the `{}` in the command `echo "processing {1}"`. It then runs all of those commands at the same time. 
+In that command, we opened `samples.txt` with `cat` and then sent that list to `parallel` through standard input. `parallel` sees each line as a separate value to iterate over, and generates separate commands for each, dropping them into the `{}` in the command `echo "processing {}"`. It then runs all of those commands at the same time. 
 
 An alternative syntax looks like this:  
 
@@ -1123,7 +1039,7 @@ cat samples.txt | parallel 'echo "processing {}"'
 
 Here is our A-counting code modified to work in parallel:  
 ```bash
-cat samples.txt | parallel 'echo "analyzing ND2 from {}" ; num_As=$(grep -v ">" gene_fastas/{}_ND2.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in ND2 of {} is $num_As"'`  
+cat samples.txt | parallel 'echo "analyzing ND2 from {}" ; num_As=$(grep -v ">" gene_fastas/{}_ND2.fasta | tr -d -c "A" | wc -c) ; echo "The number of As in ND2 of {} is $num_As"'  
 ```
 
 Parallel can also take multiple lists, propagating a command with every pairwise combination of those lists. To do this, specify where each variable should go using `{1}` and `{2}` to specify the first and second variable respectively. These can either be given in separate lists using `:::` or `::::` to feed them in, in which case `{1}` vs `{2}` will depend on the order you list them in, or they can be separate columns in a single file, in which case `{1}` vs `{2}` depends on the order of the columns. Let's try it:  
@@ -1168,7 +1084,7 @@ For example, if we want to run a max of 5 things at a time, we can use `--jobs 5
 parallel --jobs 5 echo "processing gene {2} from sample {1}" ::: sample1 sample2 sample3 ::: MC1R ND2 COII CYTB
 ```
 This can of course make it finish slower if you are letting it use fewer threads than the max possible, but it is often necessary for the sake of other users and our computer's longevity.  
-Note: `--jobs` tells `parallel` how many things to run at once, not how many threads total to use - `parallel` doesn't know how many threads a given command is going to use. For simple cases like the ones we went through, each command is only using one threads so `--jobs` ends up equal to the number of threads that will be used. When running programs that use more threads in a single command, you may need to lower `--jobs` if you want any threads to remain free.
+Note: `--jobs` tells `parallel` how many things to run at once, not how many threads total to use - `parallel` doesn't know how many threads a given command is going to use. For simple cases like the ones we went through, each command is only using one thread so `--jobs` ends up equal to the number of threads that will be used. When running programs that use more threads in a single command, you may need to lower `--jobs` if you want any threads to remain free.
 
 A few more notes:  
 * since `parallel` often needs us to wrap our commands in single quotes (`'`), this can become a problem when a command wants us to include quotes. Sometimes we can get around this by using double quotes instead of single quotes (for example, instead of `echo 'test' | sed 's/test/blue berry/g'`, switch to `echo "test" | sed "s/test/blue berry/g"`. Other times when we really need *single* quotes in our commands, we can use the somewhat clunky syntax `'\''` as a drop-in for `'` which will make it through.  
@@ -1187,6 +1103,7 @@ parallel --dry-run 'echo {} | sed 's/apple/blue berry/g'' ::: apple apple_pie ap
 We can then dissect the code `echo apple | sed s/apple/blue berry/g` and find that it is missing the quotes inside of the `sed` code, even though those were included in what we originally wrote. This reveals to us that `parallel` is not seeing those single quotes (bash strips them out before handing that code to `parallel`). Much easier to troubleshoot than trying to figure out why we are getting the error `unescaped newline inside substitute pattern` without seeing how parallel is interpreting our code.  
 
 ## time
+
 When evaluating alternate ways of doing things or running long commands, it is often useful to know exactly how long a command took. We can do this using the `time` command. The `time` command can be placed before any command, and once that command is done, it will print out the timing (without otherwise interfering with the command). 
 
 Let's try it:  
@@ -1230,6 +1147,16 @@ Beneath that is a list of all the commands that are being run at the moment - th
 
 To exit `htop`, press `q` for "quit".
 
+---
+
+#### break
+
+---
+
+# Part 5: Day to day on the command line
+
+We have now looked at a lot of command line basics - moving around on the command line, editing files, and constructing a pipeline. Let's look at some housekeeping and day-to-day tasks to make life on the command line a little easier or more efficient.  
+
 ## Compressed files  
 
 A special case we run into frequently in bioinformatics is dealing with compressed files. Genomes are big, so bioinformatics frequently involves working with unusually large files. To save space, these files are frequently "compressed". Compression is a way of reducing filesizes through a variety of tricks, such as replacing strings of characters with shorter codes. These codes usually end up looking like a random jumble that are not human-readable, but your computer can read them. Many bioinformatics programs can work directly on both compressed and uncompressed data, while others will demand the data be uncompressed first (or compressed a certain way first). We can toggle between compressed and uncompressed formats using some simple commands.  
@@ -1272,10 +1199,7 @@ gunzip raw_data/genotypes.vcf.gz
 If you run into the opposite problem - needing to compress a file, you can use `bgzip` to do so, either compressing a file for storage or piping data into a pipeline. You can also pipe data into `bgzip` at the end of a pipeline to compress it as one last step before printing it to an output file.
 ```bash
 #compress an existing uncompressed file
-bgzip raw_data/genotypes_uncompressed.vcf > raw_data/genotypes_uncompressed.vcf.gz
-
-#compress a file to pass it to another file on the command line that requires compressed data
-bgzip raw_data/genotypes_uncompressed.vcf | zcat
+bgzip raw_data/genotypes_uncompressed.vcf
 
 #combine zcat and bgzip to modify a compressed file and save the modified data as another compressed file
 zcat raw_data/genotypes.vcf.gz | sed "s/sample1/sampleA/g" | bgzip > genotypes_renamed.vcf.gz
@@ -1290,7 +1214,6 @@ One popular and versatile command in bioinformatics is `awk`. `awk` is a program
 This Swiss-army-knife of a program can be used to solve many bioinformatics tasks, particularly those that involve processing text line-by-line and doing some processing on each line. This could be filtering data, calculating statistics, performing arithmetic on columns, converting between file formats, etc. When you need to do some text editing and can't find an existing program that does exactly what you need, there is usually a way to program it in `awk`. 
 
 While awk theoretically *could* do anything (being a complete programming language), there are times it is useful and times when it is not the best tool for the job. For more complex tasks, other languages like python may be a better tool for the job, and for very heavy tasks, a more efficient language like `C` may be a better choice. However, since so many bioinformatics tasks involve relatively simple manipulations of column-based text files, `awk` remains a popular and convenient option.  
-
 
 `awk` commands are formatted like this: `awk 'pattern {action}'`. `awk` goes through text files one line at a time, checks whether the line matches a pattern, and then performs an action if it does. If the pattern is not specified, it will do the action to every line.
 
@@ -1332,7 +1255,7 @@ tail ABBABABA.txt | awk '{ print "reported value is: "$4, "our calculation is: "
 
 ```
 
-So far, we have not added any conditions, and so by default `awk` performs the action on every line. We can add conditions so that awk will filter our lines for us. These conditions can be text pattern matching (eg, using regular expressions), asking whether a number is greater than (`>`), or less than (`<`) a certain value, or asking whether a column is equal to (`=`) something.  
+So far, we have not added any conditions, and so by default `awk` performs the action on every line. We can add conditions so that awk will filter our lines for us. These conditions can be text pattern matching (eg, using regular expressions), asking whether a number is greater than (`>`), or less than (`<`) a certain value, or asking whether a column is equal to (`==`) something.  
 
 Let's try some:  
 1) filter for records with a Z-score greater than 1.96
@@ -1342,7 +1265,7 @@ Let's try some:
 
 ```bash
 head -n 50 ABBABABA.txt | awk '$5>1.96 { print }'
-head -n 50 ABBABABA.txt | awk '$3="AtlanticForest" { print }'
+cat ABBABABA.txt | awk '$3=="AtlanticForest" { print }'
 head -n 50 ABBABABA.txt | awk '$4<0 { print }'
 cat ABBABABA.txt | awk '$9>$8 { print }'
 ```
@@ -1374,6 +1297,86 @@ With some more advanced tricks, awk can do more than just the simple pattern mat
 * filter out sites that are non-variable in my ingroup while ignoring variants restricted to my outgroup
 * generate a multi-sample fasta sequence file from a VCF genotype file, padding gaps with N's.
 * undo genotype imputation  
+
+### history
+
+Forgot to write down the parameters you used with an important command? Can't remember the last thing you did? Bash saves a text file listing all the commands that you have run. The number of commands it will remember is variable, typically 500 by default. To access this list, you can use the command `history`. Usually you won't want to print the whole 500 lines to your terminal, so you will either combine it with `less` or `tail`, for example. Try it out:  
+```bash
+history | less #press q to exit when done
+history | tail #view the last few lines (most recently-run commands)
+```
+
+### screen
+
+If `ssh`ing into a remote server using your command line, you may run into the problem of needing to run a long command that will crash if you lose Internet connection, need to close your laptop, or lose `ssh` connection for any other reason. Luckily, there are workarounds that can allow you to close a session on your computer's terminal without your session ending on the remote server. Any processes you have running there will continue to run without you, and your command line will be right as you left it when you `ssh` back in again. The command that lets you do this is `screen`.  
+
+To use screen, run it like this: `screen -S name_of_screen_session`. Giving each session a unique name allows you to have multiple sessions running and switch between them.  Let's try! (Warning - all other text will be cleared from your Terminal)  
+```bash
+screen -S test_screen_session
+```
+Now, run some random test commands to fill your Terminal with some text. For example:  
+```bash
+echo "this is just some filler"
+echo "running some random commands"
+echo "will this text still be here if lose our connection and have to restart the session?"
+```
+To leave ("detach") a `screen` session, type `ctrl-a + d` (hold down ctrl while typing "a", then "d")  
+If you are on a remote server, you could now shut down your computer if needed and your remote `screen` session would still be waiting for you when you got back.  
+To "reattach" a screen session, run:
+```bash
+screen -r
+```
+You should now see all the text that was originally in your terminal in that screen session before you detached.  
+
+If you have multiple screen sessions running, you can list them using the command `screen -ls`. In those cases, the output may look something like this:  
+```
+There are several suitable screens on:
+	97592.test2	(Detached)
+	97463.test	(Detached)
+Type "screen [-d] -r [pid.]tty.host" to resume one of them.
+```
+In the above example, there are two screen sessions, named "test" and "test2". Each screen session is given an ID number - in the above example, "test" has ID number 97463 and "test2" has ID number 97592. You can use these ID numbers to select which session you want to reattach, like this:  
+```bash
+screen -r 97592
+```
+You will of course need to change the ID number to match that of your own session (found using `screen -ls`).  
+If your `screen` sessions get tangled and a session won't reattach because it thinks it is already attached somewhere else (which can happen if your connection got cut off and you login again), you can tell it to detach from wherever it is currently attached and attach to your session using the `-d` flag, like this: `screen -d -r 97592`. 
+
+Once you are done with a `screen` session and want to close it permanently (stopping anything that may be running in that session), run `exit` from within the session.  
+
+`screen` has many more use-cases and features to explore later if it becomes part of your routine, but the features we went over should be able to save you from losing work from broken `ssh` connections. Note that there are other alternatives to screen, such as `tmux`, so you can shop around for the option that works best for you.  
+
+### checking storage space
+Bioinformatics files can be huge. Often storage space is a limitation, so it helps to know what we are working with. To find out how much storage space is free on your system, use the `df` command:  
+```bash
+df
+```
+This will show you a list of drives on your system, and how much storage space they have in use vs available to use. The rightmost column will tell you the path to the directory being referred to, column 2 tells you how much total space exists on that drive, and column 4 tells you how much of it is unused and available to you. The default formatting can be hard to read, if you use the `-h` ("human-readable") flag it will translate the report into units of Bytes, Kibibytes, Mebibytes, Gibibytes, etc (those are not typos, they are units using a slightly different base than kilobytes, megabytes, etc... they are close enough to ignore the differences unless you are doing something very precise).  
+```bash
+df -h
+```
+Here is an example:
+```
+Filesystem        Size    Used   Avail Capacity iused ifree %iused  Mounted on
+/dev/disk3s1s1   926Gi    13Gi    57Gi    19%    459k  600M    0%   /
+devfs            203Ki   203Ki     0Bi   100%     702     0  100%   /dev
+/dev/disk3s6     926Gi    10Gi    57Gi    15%      10  600M    0%   /System/Volumes/VM
+/dev/disk3s2     926Gi    17Gi    57Gi    23%    2.2k  600M    0%   /System/Volumes/Preboot
+```
+In the above example, the main filesystem has a capacity of 926 Gi (= 994 gigabytes), of which 57 Gi are free and available to use.  
+
+Make sure to check your storage space every now and then if you are working with very large files (eg, whole genome datasets, large sequencing runs). It is quite unpleasant to have a program running for hours or days only to exit with a "disk space full" error message. 
+
+### copying files between servers
+
+Transferring files between your computer and remote servers can be a major headache when starting out. There are plenty of programs to smooth the process (eg, Filezilla) and provide a graphical user interface for the process, but it can be annoying to interrupt your flow by leaving the command line and clicking through a different application. Instead, it would be nice to just copy files between computers/servers the way that you can with the `cp` command within a computer. `scp` fills that niche.  
+
+`scp` stands for "secure copy", and works similar to `cp` - just provide the path to the file you want to copy, and then the path to where you want to copy it to. The difference is that for a file on a different computer/server, you need to provide your username and the address of that server - you should already know this address from using the `ssh` command and when given your login credentials. This may either be in the form of a regular IP address (eg, 123.4.56.78) or a name for the server (eg, exampleserver.test.university.ca). You will also need to know your username (the same username you use to login with ssh). Like `ssh`, your username and the server address get put together separated by an `@` symbol, like this: `username@exampleserver.test.university.ca`. Then, you add the path to the file you want to copy (or the path you want to copy it to) separated by a `:` symbol, like this: `username@exampleserver.test.university.ca:/home/path/to/the/thing/to/copy`.  
+`scp` can either copy files from your local computer to a remote server like this: `scp path/to/local_file username@exampleserver.test.university.ca:/home/path/to/where/you/want/it/copied` or copy files from a remote server to your local computer like this: `scp username@exampleserver.test.university.ca:/home/path/to/file/on/remote/server path/to/where/you/want/it/copied `. Just like `cp`, the path to the file you want copied goes first (whether that is on the remote server or local computer), and the path to the place where you want the copy placed goes second (whether that is on the remote server or local computer). 
+
+Note that if you logged into the remote server and want to run `scp` to fetch/place files on your laptop, it is not trivial since most laptops don't have a stable IP address. There are workarounds, but the easiest is to just open a new terminal on your laptop and `scp` from your laptop instead of doing it from your account on the remote server.    
+
+Note: if using UBC's ARC servers, an alternative is to use ARC [OnDemand](https://ondemand.arc.ubc.ca/) for file transfers. Once you log in, you can go to "files" and upload or download files there, if you prefer a graphical user interface.  
 
 # file permissions
 When sharing files between users or when writing your own scripts, one concept that you may encounter is **permissions**. Permissions control who can view or edit a file, and whether a file can be executed as code. Those three actions are controlled separately, and are as follows:  
