@@ -1516,4 +1516,7 @@ cut -f 4- ABBABABA.txt | paste temp_FourColumns - >
 ```  
 Note - some of those are a bit clunky and could be done much more elegantly using other tools, a different language, or more advanced syntax - this was just meant to illustrate that you can do quite a bit with only some very basic commands/syntax.  
 
-
+Bed files store genomic location/interval information: column 1 is chromosome name, column 2 is start position, and column 3 is end position. Many tools will not work as expected if the file is not sorted properly: chromosomes are expected to be sorted by name "lexicographically" (ie, alphabetically instead of numerically). The file `examples.bed` is not properly sorted. Build a `sort` command to sort it firstly by chromosome name (column 1) lexicographically, and then by start position numerically (column 2).  
+```bash
+sort -f -k1,1 -k2,2n examples.bed > examples_sorted.bed
+```
