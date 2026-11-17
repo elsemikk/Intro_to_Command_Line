@@ -1,4 +1,4 @@
-# Intro to bash for bioinformatics - getting started on the command line  
+# Intro to bash for bioinformatics - becoming efficient on the command line  
 by Else Mikkelsen, Bioinformatics postdoc at the Biodiversity Research Centre, University of British Columbia  
 Last updated: September 2026  
 
@@ -53,13 +53,13 @@ The colours may be different - those can be customized - but it should look simi
 
 Before we get started, lets go over a couple more pieces of computer jargon - **directories** and **paths**. A directory is more-or-less the more technical term for a folder. All files on a computer are located within a directory, and directories are organized in a nested hierarchy. The top-most level of the nested hierarchy is called the **root** (eg, `C:\` on Windows or `/` on Linux), and other directories branch off from the root. The list of nested directories from the root to a given file is called the file's **path**. For example, the path to the Downloads directory on my laptop is `/Users/else/Downloads` (`Downloads` is nested within my `else` directory, which is nested within my `Users` directory, which is nested within my root directory (`/`).  
 
-One special path is your home directory. This can be represented with the shortcut `~` (the "tilde"), and is usually the directory that you start out in when opening a new terminal.  
+One special path is your home directory. This can be represented with the shortcut `~` (the "tilde"), and is usually the directory that you start out in when opening a new terminal. For example, on my laptop, my `~` directory is `/Users/elsemikkelsen`.  
 
 # Running commands - basic navigation commands  
 
 To run a command, type or paste the command into the command line, and then hit enter.  
 
-Here we will go over some of the most-commonly used commands: commands for getting around on the command line.  
+Here we will go over some of the most commonly used commands: commands for getting around on the command line.  
 * `pwd` - print current working directory  
 * `ls` - lists the contents of your current working directory  
 * `mkdir name_of_directory` - makes a new directory  
@@ -67,7 +67,7 @@ Here we will go over some of the most-commonly used commands: commands for getti
 * `rmdir name_of_directory` - remove (delete) an empty directory 
 * `man name_of_command` - open the manual for a command (then press "q" to quit the manual)
 
-First, find out where you are in your computer's filesystem using the `pwd` command ("print working directory"). This will print text as output in the next line of your terminal. This printed output text is called "standard output". The standard output of `pwd` will be the full path from the root of your computer's filesystem to your current working directory. When you run commands, your working directory is the default place where your computer will look for input files, and is the default place where output files appear.  
+First, find out where you are in your computer's filesystem using the `pwd` command ("print working directory"). This will print text as output in the next line of your terminal. This printed output text is called "standard output". The standard output of `pwd` will be the full path from the root of your computer's filesystem to your current working directory. When you run commands, your working directory is the default place where your computer will look for input files, and is the default place where output files appear, so it is important to always know where you are (what your current working directory is).  
 
 To find out what is in your working directory, type `ls` into your command prompt, then hit "enter". The text that pops up in your terminal (the "standard output" of `ls`) is a list of all the files in your current working directory.  
 
@@ -86,7 +86,7 @@ If you now run `ls`, you will see a new directory named `test`. Let's enter this
 ```bash
 cd test
 ```  
-If you run `ls`, you should see nothing - we are just in an empty directory that we just created. Let's go back up. There are a few ways we can do this. We could specify the whole path to the folder above us. Alternatively, we could use a handy shorthand. In bash, a single dot `.` stands for your current working directory. If you run `cd .` nothing will happen - you will change directories to the directory you are already in. Two dots `..` stands for the directory just above your working directory. Run:  
+If you run `ls`, you should see nothing - we are just in an empty directory that we just created. Let's go back up. There are a few ways we can do this. We could specify the whole path to the folder above us (starting from the root `/`). Alternatively, we could use a handy shorthand. In bash, a single dot `.` stands for your current working directory. If you run `cd .` nothing will happen - you will change directories to the directory you are already in. Two dots `..` stands for the directory just above your working directory. Run:  
 ```bash
 cd ..
 ```  
@@ -100,8 +100,8 @@ rmdir test
 If you run `ls`, you should now see that the test directory is gone. Careful! There is no "undo" on the command line. Luckily, `rmdir` will refuse to delete a directory that is not empty.  
 
 Now let's move on to some slightly more complex commands. Before we do, here are some important general tips for running commands on the command line:  
-* Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file"). As best practice though, don't include spaces in the name of any file or directory - instead_you_can_experiment_with_underscores, OrYouCanTryWritingInCamelCase.  
-* Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor to use straight quotes instead of a *rich text editor* that will make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.  
+* Commands are very sensitive to the presence of spaces. If you have a space in the name of a file/directory, it can cause huge headaches as bash will see the space-separated chunks as separate things, not parts of the same name. If you must deal with files/directories with spaces in the name, enclose the name in quotes (eg "Name of file") so that bash understands that the space-separated words are pieces of the same name. As best practice though, don't include spaces in the name of any file or directory - instead_you_can_experiment_with_underscores, OrYouCanTryWritingInCamelCase.  
+* Different types of quotes are interpreted differently. Single and double quotes mean different things, and critically, curly quotes will cause errors. Spot the difference: `" vs ' vs “ vs ‘`. When you are writing code, make sure you are using a *plain text editor* or code editor to use straight quotes instead of a *rich text editor* that may make your quotes curly. Plain text editors include [Visual Studio Code](https://code.visualstudio.com/) and [Sublime Text](https://www.sublimetext.com/). Examples of rich text editors (avoid!) include Microsoft Word and Google Docs.  
 * Many text editors will also add invisible characters called "carriage returns". You will not be able to see these in your document, but the command line sure can! These invisible characters break code and cause major headaches; using a plain text editor meant for code that is set to not add carriage returns will avoid that problem.  
 * Unlike an interactive text editor, you can't use your mouse to click to move the text cursor. If you made a typo and need to go back, you have to use your arrow keys to move the cursor backwards. (Exception: Macs often let you point-and-click to move your cursor - just hold down the `option` key when you click).  
 * Time saver: in many systems, you can press ctrl+a to jump your cursor to the start of the line, and then ctrl+e to jump back to the end of the line. Saves some time if you made a typo way at the beginning of the line!  
