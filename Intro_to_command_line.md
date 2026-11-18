@@ -229,7 +229,8 @@ This will show you three pieces of info: the number of lines in the file, the nu
 1) Make a directory named `exercise_1`, and then make a  subdirectory named `exercise_1/exercise_1_subdirectory`. Change your working directory to enter `exercise_1/exercise_1_subdirectory`, and then make a directory in `exercise_1` named `exercise_1_subdirectory2` without changing your working directory again.
 2) Make a copy of `ABBABABA.txt` and place it in `exercise_1/exercise_1_subdirectory`. Rename that file `exercise_1_testfile.txt`. Then, move it into `exercise_1/exercise_1_subdirectory2`.  
 3) Look at the last 30 lines of `input_data/placeholder.txt`. Then in a separate command, determine the length of `input_data/placeholder.txt`  
-
+4) Use your favourite rich text editor (MS Word, Google Docs, etc) to type the following command, then copy-paste it into the command line: `mkdir "test_directory_exercise1"`. use `ls` to look at the results. Now try typing mkdir "test_directory_exercise1"` directly into the command line. Do you see any differences?  
+Answer: the rich text editor likely turned the straight quotes `"` into curly quotes `“`. While straight quotes get interpreted by bash and ignored, curly quotes get taken literally, so the curly quotes would have been incorporated into the name of the folder while straight quotes were not. Did this happen with the rich text editor you used?
 
 --- 
 
