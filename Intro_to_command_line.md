@@ -1015,12 +1015,12 @@ ATAATCAGACGACGCTATTAGACNNNTTTTGATATGAAAGGGCCGCGATTTTGA
 Then we need to paste this DNA sequence into a new file. We need that new file to contain a fasta header for each sample, and then have a line of DNA sequence with each of our genes back-to-back in the same order. (Let's assume that this is our data, and we already know that our files contain DNA sequence that is homologous and properly aligned across all samples, so we can concatenate the files without worries).  
 
 This loop will be a little more complicated, so let's spell it out in words before writing the loop:  
-1) for each sample:
-2) make a fasta header entry (starting with ">") in the new file (with a linebreak after it)
-3) for each gene in that sample:
-4) open the gene fasta file for that sample, and remove the fasta header and line breaks
-5) paste that DNA sequence into the new file
-6) after pasting the last gene, add a linebreak before moving on to the next sample
+1) for each sample:  
+2) make a fasta header entry with the sample name in the new file. Fasta headers need to start with ">"  and we will need a linebreak at the end of the header.  
+3) for each gene in that sample:  
+4) open the gene fasta file for that sample, and remove the fasta header and line breaks to leave just the DNA sequence.  
+5) paste that DNA sequence into the new file. Don't put any linebreaks after the gene, we want our gene sequences to be concatenated with no breaks between them.  
+6) after pasting the very last gene for a sample, add a linebreak before moving on to the next sample
 
 Now let's put that into bash code:
 
@@ -1036,7 +1036,7 @@ done
 #equivalent loop collapsed into one line:
 #for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done
 ```
-Let's take a look: `concatenated_data.fasta`. Ready to open in a sequence alignment viewer or to build a phylogenetic tree with!  
+Let's take a look at `concatenated_data.fasta`. Ready to open in a sequence alignment viewer or to build a phylogenetic tree with!  
 
 One thing to note: if we were to run the above code twice by accident, it would happily append a second copy of everything to `concatenated_data.fasta` without any easy way for us to realize what happened (perhaps until we get out final result and realize there are twice as many sequences in our tree than expected). When running code that builds files with `>>` like that, we either need to be extra careful not to accidentally run things twice (perhaps running a sanity check like counting sequences before moving on), or build in a fail-safe. For example, a fail-safe could be adding `rm` before the loop to get rid of any existing copies of `concatenated_data.fasta` before continuing (or clobbering it with `>`), or using an `if` statement to check that the file doesn't already exist (described below).  
 
