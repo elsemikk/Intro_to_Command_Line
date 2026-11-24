@@ -220,7 +220,7 @@ Your screen will now show the contents of `processed_data/ABBABABA_concatenated.
 * press `spacebar` to jump to the next "page"  
 * type `G` (uppercase) to go to the end of the file  
 * type `g` to go to the start of the file  
-* type `/` to search the contents of the file: first type `/`, then what you want to search for, then `enter`. For example, try typing `/Trinidad`.  
+* type `/` to search the contents of the file: first type `/`, then what you want to search for, then `enter`. For example, try typing `/Trinidad` and hitting "enter".  
 
 If you get stuck while typing something, press `ctrl + c` to cancel what you just typed.  
 To exit `less` and go back to the command line, type `q` for "quit".  
