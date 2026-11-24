@@ -423,13 +423,16 @@ We have already used `cat` to print the contents of a file or concatenate files 
 cat
 ```  
 `cat` will then wait infinitely for us to type input. Anything we type (`stdin`) it will print (to `stdout`).  
-To end the session with `cat`, type `ctrl+d` for "done".  
-That didn't do anything, `cat` just repeated everything we typed back at us. To be more useful, we can redirect the `stdout` to a file, using `>` or `>>`.  
+To end the session with `cat`, type `ctrl+d` for "done". Try typing whatever you want (and hitting enter) before ending the session with `cat`.  
+That didn't really do anything, `cat` just repeated everything we typed back at us. To be more useful, we can redirect the `stdout` to a file, using `>` or `>>`.  
 Try this out: 
 ```bash
-cat > testing_cat.txt
+#make a folder to hold the output so we stay organized
+mkdir -p output_data
+
+cat > output_data/testing_cat.txt
 ```  
-Type anything you want, then press `ctrl+d` when you are done. Take a look at the file you made: `less testing_cat.txt` (press `q` to exit `less`).  
+Type anything you want, then press `ctrl+d` when you are done. Take a look at the file you made: `less output_data/testing_cat.txt` (press `q` to exit `less`).  
 A few things of note:  
 * use `>` when you want to overwrite any existing content that may exist, use `>>` when you want to append something to the end of a file without overwriting it.
 * `cat` interprets your "enter" key as a linebreak (newline character). These are invisible to us but those characters are visible to bash. Make sure to remember a final linebreak on the last line of your file (press "enter" on your last line before exiting with "ctrl+d"), otherwise your last line will have no linebreak character, something that may cause problems if you use that file for anything in bash. (This is something we normally never really have to think about when writing with rich text editors like Microsoft Word).
@@ -438,7 +441,10 @@ A few things of note:
 
 One typical use-case for `cat` is creating very short text files that we need as input for other commands, and that are easy to copy-paste or type on the command line. For example, let's create a file listing some species names:  
 ```bash
-cat > Ceratopipra_species.txt
+#make a folder to hold our metadata so we stay organized
+mkdir -p metadata
+
+cat > metadata/Ceratopipra_species.txt
 ```
 Copy-paste the contents below into the terminal, hit "enter" once to generate a linebreak if needed, then type ctrl+d to finish.
 ```
@@ -448,7 +454,7 @@ erythrocephala
 mentalis
 cornuta
 ```
-Now check that the file looks ok: `cat Ceratopipra_species.txt` or `less Ceratopipra_species.txt` (press `q` to exit `less`). 
+Now check that the file looks ok: `cat metadata/Ceratopipra_species.txt` or `less metadata/Ceratopipra_species.txt` (press `q` to exit `less`). 
 
 ### echo
 `echo` is an alternative way to print text to a file. It requires less interaction than `cat`, so is handy in pipelines where you don't want to worry about typos or where you need to make a lot of files. It has the disadvantage of needing to explicitly write out linebreaks, such that you can't just copy-paste multiple lines of text like we did above.  
@@ -465,9 +471,9 @@ echo "Here is a random number: $RANDOM" #we can include variables in echo - thes
 `echo` just repeats whatever we give it as an argument and passes it to `stdout`, whether that means printing to our terminal or passing the content through a pipe. We can use that to build text files.  
 Let's use `echo` to make a phylogenetic tree file, something that many population genetics programs ask for as input:  
 ```bash
-echo "(cornuta,(mentalis,(erythrocephala,(rubrocapilla,chloromeros))))" > Ceratopipra_phylogeny.nwk
+echo "(cornuta,(mentalis,(erythrocephala,(rubrocapilla,chloromeros))))" > metadata/Ceratopipra_phylogeny.nwk
 ```  
-Now check that the file looks ok: `cat Ceratopipra_phylogeny.nwk` or `less Ceratopipra_phylogeny.nwk` (press `q` to exit `less`). 
+Now check that the file looks ok: `cat metadata/Ceratopipra_phylogeny.nwk` or `less metadata/Ceratopipra_phylogeny.nwk` (press `q` to exit `less`). 
 Note that echo automatically adds a newline character to the end of whatever it prints.  
 
 ### printf
@@ -497,30 +503,36 @@ printf "Here is a random number: $RANDOM\n"
 ```
 We can use this when building files. For example, let's remake our `Ceratopipra_species.txt` using `printf` instead of `echo`:  
 ```bash
-printf "rubrocapilla\nchloromeros\nerythrocephala\nmentalis\ncornuta\n" > Ceratopipra_species.txt
+#make a folder to hold the metadata if it doesn't already exist
+mkdir -p metadata
+
+printf "rubrocapilla\nchloromeros\nerythrocephala\nmentalis\ncornuta\n" > metadata/Ceratopipra_species.txt
 ```  
-Now check that the file looks ok: `cat Ceratopipra_species.txt` or `less Ceratopipra_species.txt` (press `q` to exit `less`).  
+Now check that the file looks ok: `cat metadata/Ceratopipra_species.txt` or `less metadata/Ceratopipra_species.txt` (press `q` to exit `less`).  
 
 ### nano
 
 `nano` is a slightly more fancy command that allows the user to edit text files interactively in the terminal. Let's try it.
 Run: 
 ```bash
-nano nano_test.txt
+#make a folder to hold the output, if the folder doesn't already exist
+mkdir -p output_data
+
+nano output_data/nano_test.txt
 ```
 This will open the editor with a new blank file, where you can type anything you want, and navigate using the arrow keys (like the command prompt, you can't point-and-click in `nano`).  
 To save your progress, type "ctrl+o" ("o" for "out"). It will ask you to confirm/modify the name of the file - press "enter" to confirm.  
 To exit `nano`, type "ctrl+x". If you have unsaved changes, it will ask you whether you want to save - type "y" for yes (save) or "n" for no (discard changes).  
 
-Let's try editing a configuration file - many bioinformatics programs use "config files" (or "param files") to set parameters when there are a large number of them, so that you don't need to have long commands with an unwieldy number of flags. Let's take a look at an example config file for the program STRUCTURE: `less config_files/STRUCTURE.params` (press "q" to exit).  
+Let's try editing a configuration file - many bioinformatics programs use "config files" (or "param files") to set parameters when there are a large number of them, so that you don't need to have long commands with an unwieldy number of flags. Let's take a look at an example config file for the program STRUCTURE: `less input_files/STRUCTURE.params` (press "q" to exit).  
 Now, let's imagine we need to make a version of this config file with a different value for the "burnin" (a parameter in that program) - we need to change the text `BURNIN  1000` to `BURNIN  5000`.  
 First, make a copy of the file to edit:  
 ```bash
-cp config_files/STRUCTURE.params config_files/STRUCTURE.burnin5000.params
+cp input_files/STRUCTURE.params input_files/STRUCTURE.burnin5000.params
 ```   
 Now, edit the file: 
 ```bash
-nano config_files/STRUCTURE.burnin5000.params
+nano input_files/STRUCTURE.burnin5000.params
 ```  
 Use the arrow keys to navigate to the second-last line, and modify it from `BURNIN  1000` to `BURNIN  5000`. When you are done, type "ctrl+o" to save (press enter to confirm), then ctrl+x to exit.
 
@@ -644,26 +656,26 @@ cat gene_fastas/sample1_ND2.fasta | sed "s/^>.*$/>sample1/g"
 ```  
 Here is where regex can start to look like a jumble that is hard to read without practice. `^>` is what we saw before - lines starting (`^`) with `>`. The `.*$` stands for "anything (`.`), repeated any number of times (`*`), until the end of the line (`$`). The `.*$` idiom comes in really hand when we want to grab everything up to the end of a line.  
 
-Let's go back to a task we did manually before (with `nano`) - editing a STRUCTURE param file (`config_files/STRUCTURE.params`). Previously, we went in by hand to change the value of `BURNIN` from 1000 to 5000. Doing that by hand takes time and introduces opportunity for typos. Let's do that with `sed` instead.  
+Let's go back to a task we did manually before (with `nano`) - editing a STRUCTURE param file (`input_files/STRUCTURE.params`). Previously, we went in by hand to change the value of `BURNIN` from 1000 to 5000. Doing that by hand takes time and introduces opportunity for typos. Let's do that with `sed` instead.  
 If we already know the current value of BURNIN, we could edit the file like this:  
 ```bash
-sed "s/BURNIN  1000/BURNIN  5000/g"  config_files/STRUCTURE.params
+sed "s/BURNIN  1000/BURNIN  5000/g"  input_files/STRUCTURE.params
 ```  
 If we don't know the existing value of BURNIN in our file, we could edit it like this:  
 ```bash
-sed "s/BURNIN.*$/BURNIN  5000/g"  config_files/STRUCTURE.params
+sed "s/BURNIN.*$/BURNIN  5000/g"  input_files/STRUCTURE.params
 ```  
 That will delete everything that originally came after `BURNIN` in our param file. That is fine for this case - the only other text in that line is usage notes. But what if we wanted to preserve those usage notes? Let's ask it to stop when it hits those usage notes, which in STRUCTURE param files start with `//`. Instead of grabbing everything to the end of the line (`BURNIN.*$`), let's only go until we encounter `//` (`BURNIN.*//`). We will also have to add `//` to our replacement text (`BURNIN  5000 //`) so that our output file still has those symbols delimiting the comments.  
 ```bash
-sed "s/BURNIN.*///BURNIN  5000 ///g"  config_files/STRUCTURE.params
+sed "s/BURNIN.*///BURNIN  5000 ///g"  input_files/STRUCTURE.params
 ```  
 Whoops! `sed` could not process that command. It is confusing the `/` symbols used as separators in its syntax with the '/' that is supposed to be part of our search pattern. No problem, we can just use something else as the separator in `sed`'s syntax, it is not picky. I like to use `|` in those cases:  
 ```bash
-sed "s|BURNIN.*//|BURNIN  5000 //|g"  config_files/STRUCTURE.params
+sed "s|BURNIN.*//|BURNIN  5000 //|g"  input_files/STRUCTURE.params
 ```  
 You can use almost any character you want as sed's separator - whatever looks aesthetically nicest to you.  
 ```bash
-sed "s~BURNIN.*//~BURNIN  5000 //~g"  config_files/STRUCTURE.params
+sed "s~BURNIN.*//~BURNIN  5000 //~g"  input_files/STRUCTURE.params
 ```  
 
 Now let's do some slightly more complicated edits with `sed`.  
