@@ -75,7 +75,7 @@ Next, let's move around the filesystem. We can do this using the `cd` ("change d
 
 Assuming the tutorial folder is in your current working directory, you enter it like this:
 ```bash
-cd Intro_2_command_line
+cd Intro_to_command_line
 ```  
 
 Now that we are in the tutorial directory, let's start by making a new directory. We can make a directory using the `mkdir` command: just type `mkdir` followed by a space, then the name of the new directory. For example, run:  
@@ -121,6 +121,10 @@ mkdir test_directory/test_subdirectory #won't work if test_directory doesn't exi
 mkdir -p test_directory/test_subdirectory #makes test_directory and test_subdirectory at the same time
 mkdir test_directory/test_subdirectory #gives a message warning us that it already exists
 mkdir -p test_directory/test_subdirectory #doesn't give any message, just does nothing
+
+#clean up our tests
+rmdir test_directory/test_subdirectory
+rmdir test_directory
 ```  
 (Turning off `mkdir`'s warning messages may seem pointless at first, but saves us from getting endless messages spat out at us if we have to re-run pipelines that involve huge numbers of `mkdir` commands)  
 
@@ -140,56 +144,68 @@ Now we will look at some important commands for reading and manipulating files:
 * `uniq` - remove repeated lines (if they are adjacent)  
 * `paste` - merge files horizontally (paste columns together line-by-line)  
 
-The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. The most simple way to run it is `cat Name_of_file`. Let's try it:  
+The first command we will look at is `cat`, which stands for "concatenate". This is a handy and frequently-used command that reads contents of a file and prints them out. The most simple way to run it is `cat Name_of_file`. Let's try it by looking at a file stored in the `input_data` directory of this tutorial:  
 ```bash
-cat ABBABABA1.txt
+cat input_data/ABBABABA1.txt
 ```  
 That will print the contents of the file `ABBABABA1.txt`.  
 `cat` can also take multiple files as input and concatenate them together in the order they are listed. For example:  
 ```bash
-cat ABBABABA1.txt ABBABABA2.txt
+cat input_data/ABBABABA1.txt input_data/ABBABABA2.txt
 ```  
 That will print the contents of `ABBABABA1.txt` and then the contents of `ABBABABA2.txt`.  
 Often, we need to save this output, rather than just printing it to the command line. We can redirect it to a file using the `>` symbol to point to a file where the output should be printed. This could be just the file name (in which case it will appear in your current working directory), or it could also include a path to save it in a different directory. Warning! Redirecting output using `>` will overwrite the contents of the file if it already exists, without any warnings. There are many sad stories of people losing their work by accidentally overwriting files using `>`. When a file is overwritten in that way, it is called "clobbering".  
 Let's use `cat` to combine two files together and save the results.  
 ```bash
-mkdir -p processed_data 
-cat ABBABABA1.txt ABBABABA2.txt > processed_data/ABBABABA_concatenated.txt
+#make a new folder to hold the results
+mkdir -p processed_data
+
+#combine the two files and save the results in our new folder
+cat input_data/ABBABABA1.txt input_data/ABBABABA2.txt > processed_data/ABBABABA_concatenated.txt
 #note we saved it to a subdirectory of our current working directory, processed_data 
 ```  
-Oops! We forgot about `ABBABABA3.txt`. We could add it by running `cat ABBABABA1.txt ABBABABA2.txt ABBABABA3.txt > processed_data/ABBABABA_concatenated.txt`, which would erase and remake `processed_data/ABBABABA_concatenated.txt`, an annoying solution. Instead, we can concatenate `ABBABABA3.txt` to the end of `processed_data/ABBABABA_concatenated.txt` without overwriting it, by using `>>` instead of `>`, like this:  
+Oops! It turns out there is a third file we forgot about, `ABBABABA3.txt`. We could add it by running `cat input_data/ABBABABA1.txt input_data/ABBABABA2.txt input_data/ABBABABA3.txt > processed_data/ABBABABA_concatenated.txt`, which would erase and remake `processed_data/ABBABABA_concatenated.txt`, but that's an annoying solution since we are undoing work we just did. Instead, we can concatenate `ABBABABA3.txt` to the end of `processed_data/ABBABABA_concatenated.txt` without overwriting it, by using `>>` instead of `>`, like this:  
 ```bash
-cat ABBABABA3.txt >> processed_data/ABBABABA_concatenated.txt
+cat input_data/ABBABABA3.txt >> processed_data/ABBABABA_concatenated.txt
+#make sure you only run that once! If you run it again, it will concatenate another copy of ABBABABA3.txt to the end of the file
 ```   
 `>` and `>>` are special components of bash code. Both are used to redirect output to a file, but `>` starts the file fresh while `>>` appends things to a file without modifying/overwriting any content that may already be there.  
 
 A few more basic actions we often need to do are to copy, move, or delete files. Copying a file is done with `cp`, which makes a duplicate of the file. This duplicate can be in the same or different directory. If it is in the same directory as the original, it needs to have a new name (you can't have two files with the same name in the same directory), but if it is in a different directory it can have the same name as the original.  
-Let's make a backup of our new `processed_data/ABBABABA_concatenated.txt` file:  
+Let's make a backup of our new `processed_data/ABBABABA_concatenated.txt` file before doing anything else:  
 ```
+#make a new directory to store backups
 mkdir -p backups
+
+#copy our file into the backup folder
 cp processed_data/ABBABABA_concatenated.txt backups/ABBABABA_concatenated_backup.txt
 ```
-When running `cp`, we first give the name/path of the original file we want to copy, and then give the name/path of the duplicate we want to create.  
+When running `cp`, we have to provide two arguments: first give the name/path of the original file we want to copy, and then give the name/path of the duplicate we want to create.  
 Let's backup `ABBABABA1.txt` too: 
 ```bash
-cp ABBABABA1.txt backups/ABBABABA2.txt
+cp input_data/ABBABABA1.txt backups/ABBABABA2.txt
 ```  
-Oops! Did you see that typo? We accidentally named our ABBABABA**1** backup ABBABABA**2**! Let's rename it before we confuse our future selves. We can rename files using the `mv` command. `mv` moves a file from one place to another, without leaving a copy of the original behind (unlike `cp`). We can move files from one directory to another, or we can "move" files without changing their directories. When we move files, we can keep their name or change their name. That means that we can edit the name of a file by "moving" it within the same directory to a different name, like this:  
+Oops! Did you see that typo? We accidentally named our ABBABABA**1** backup ABBABABA**2**! Let's rename it before we confuse our future selves. We can rename files using the `mv` command. `mv` moves a file from one place to another, without leaving a copy of the original behind (unlike `cp`). We can move files from one directory to another, or we can "move" files within the same directory. When we move files, we can keep their name or change their name. That means that we can edit the name of a file by "moving" it within the same directory to a different name, like this:  
 ```bash
 mv backups/ABBABABA2.txt backups/ABBABABA1.txt
 ```  
-To use `mv`, provide the name/path of the file you want to move, followed by the name/path that you want to move it to. Note that if you want to move it to a new directory without changing the name, you can just give the name of the directory without specifying a name for the file, and it will keep its original name. (Careful! Make sure that directory exists, otherwise you will rename your file to the name of the directory you intended it to move to).  
+Similar to `cp`, to use `mv`, provide the name/path of the file you want to move, followed by the name/path that you want to move it to. Note that there are a couple shortcuts: if you want to move it to a new directory without changing the name, you can just give the name of the directory to move it to without further specifying a name for the file, and `mv` will just keep the file's name unchanged. (Careful! Make sure that directory exists, otherwise you will rename your file to the name of the non-existent directory you intended it to move to).  
 Let's try some more:  
 ```bash
-cp ABBABABA1.txt backups
+#copy a file to a new folder without specifying a new name for the file
+cp input_data/ABBABABA1.txt backups
+
+#rename a file without moving it to a new directory
 mv backups/ABBABABA1.txt backups/blueberry
+
+#copy another file and specify a new name for the file
 cp ABBABABA2.txt backups/blueberry
 ```
 Whoops! Look what just happened. We copied a file to a place where there was already a file with that name (`backups/blueberry`). `cp` overwrote that file without any warning. This is another type of file "clobbering" to watch out for, which both `cp` and `mv` can do. If our old version of `backups/blueberry` was an important file, it would be gone - better hope we had a backup!  
 
 Next, we can delete files using `rm`. `rm` removes (permanently deletes) files that we list. For example, we can delete `backups/blueberry` like this: `rm backups/blueberry`. Careful! Here again there is no "undo". By default, bash will not ask whether you are sure, it will go ahead an execute the command, and the file will be gone (this behaviour can be altered using bash aliases explained later). Be very careful when executing `rm` commands - there are some joke or malicious "advice"/memes out there that try to trick new coders into erasing their whole filesystem using `rm`! Directories can be deleted recursively (including all their contents and subdirectories) using `rm -r` - a powerful tool that can be very useful when you need to delete whole directories with thousands of files, but a command that can be catastrophic when used by mistake! Don't experiment with that one until you are very confident about its usage.   
 
-Now let's take a look at `processed_data/ABBABABA_concatenated.txt` that we made previously. However, this is a big file, it would not be convenient to run `cat processed_data/ABBABABA_concatenated.txt` and have all that text print to our command line. Instead, let's use another handy command: `less`, which lets us scroll through files without printing them out.   
+Now let's take a look at `processed_data/ABBABABA_concatenated.txt` which we made previously. However, this is a big file, it would not be convenient to run `cat processed_data/ABBABABA_concatenated.txt` and have all that text print to our command line - over 1000 lines. Instead, let's use another handy command: `less`, which lets us scroll through files without printing the whole thing to our terminal.   
 
 Let's try it: 
 ```bash
@@ -200,7 +216,7 @@ Your screen will now show the contents of `processed_data/ABBABABA_concatenated.
 * press `spacebar` to jump to the next "page"  
 * type `G` (uppercase) to go to the end of the file  
 * type `g` to go to the start of the file  
-* type `/` to search the contents of the file: first type `/`, then what you want to search for, then `enter`. For example, try typing `/Trinidad`  
+* type `/` to search the contents of the file: first type `/`, then what you want to search for, then `enter`. For example, try typing `/Trinidad`.  
 
 If you get stuck while typing something, press `ctrl + c` to cancel what you just typed.  
 To exit `less` and go back to the command line, type `q` for "quit".  
@@ -227,7 +243,7 @@ This will show you three pieces of info: the number of lines in the file, the nu
 
 ### Exercises  
 1) Make a directory named `exercise_1`, and then make a  subdirectory named `exercise_1/exercise_1_subdirectory`. Change your working directory to enter `exercise_1/exercise_1_subdirectory`, and then make a directory in `exercise_1` named `exercise_1_subdirectory2` without changing your working directory again.
-2) Make a copy of `ABBABABA.txt` and place it in `exercise_1/exercise_1_subdirectory`. Rename that file `exercise_1_testfile.txt`. Then, move it into `exercise_1/exercise_1_subdirectory2`.  
+2) Make a copy of `processed_data/ABBABABA_concatenated.txt` and place it in `exercise_1/exercise_1_subdirectory`. Rename that file `exercise_1_testfile.txt`. Then, move it into `exercise_1/exercise_1_subdirectory2`.  
 3) Look at the last 30 lines of `input_data/placeholder.txt`. Then in a separate command, determine the length of `input_data/placeholder.txt`  
 4) Use your favourite rich text editor (MS Word, Google Docs, etc) to type the following command, then copy-paste it into the command line: `mkdir "test_directory_exercise1"`. use `ls` to look at the results. Now try typing mkdir "test_directory_exercise1"` directly into the command line. Do you see any differences?  
 Answer: the rich text editor likely turned the straight quotes `"` into curly quotes `“`. While straight quotes get interpreted by bash and ignored, curly quotes get taken literally, so the curly quotes would have been incorporated into the name of the folder while straight quotes were not. Did this happen with the rich text editor you used?
@@ -320,16 +336,24 @@ cut -f 2 processed_data/ABBABABA_concatenated.txt | tail -n +2 | sort | uniq | w
 
 One last basic file editing piece for our toolkit is `paste`. The `paste` command can take multiple files/inputs and merge them horizontally as columns, separated by tabs (by default).  
 
-Let's pretend that our SampleID data was in a different file than the rest of our data. We can set up this scenario like this:  
+Let's pretend that our SampleID data was in a different file than the rest of our data, and we need to put them together. If you are here early, try setting up this scenario yourself first using `cut`. Take all the sample names (column 2) out of `processed_data/ABBABABA_concatenated.txt` and save them to a new file named `processed_data/toy_SampleID`. Then, make another file named `processed_data/toy_OtherColumns` which has all the columns *except* the sample names.  
+
+<details>
+  <summary>Solution</summary>
+
+We can set up this scenario like this:  
 ```bash
-cut -f 2 ABBABABA.txt > toy_SampleID  
-cut -f 1,3- ABBABABA.txt > toy_OtherColumns
+cut -f 2 processed_data/ABBABABA_concatenated.txt > processed_data/toy_SampleID  
+cut -f 1,3- processed_data/ABBABABA_concatenated.txt > processed_data/toy_OtherColumns
 ```
-Now we have set up a scenario where we have our data split across two files with corresponding rows. Let's try putting those files back together. We can use `paste` to do that: 
+
+</details>  
+
+Now we have set up a scenario where we have our data split across two files with corresponding rows. Let's try putting those files back together. We can use `paste` to do that:  
 ```bash
-paste toy_SampleID toy_OtherColumns > toy_MergedColumns
+paste processed_data/toy_SampleID processed_data/toy_OtherColumns > processed_data/toy_MergedColumns
 ```  
-Check if it worked: `head toy_MergedColumns`  
+Check if it worked: `head processed_data/toy_MergedColumns`  
 Note that `paste` will paste them together in the order you specify.  
 When using `paste`, make sure you are very confident that all of your lines are in the same order! Paste will not warn you if your files are sorted differently or differ in length.  
 
@@ -337,13 +361,16 @@ When using `paste`, make sure you are very confident that all of your lines are 
 Before we move on, let's talk about standard error (stderr) - this is often error messages, but it can also include useful status updates that we may want to save (programmers can make whatever they want get printed as `stderr`). Redirecting `stderr` is similar to redirecting `stdout`, but the code is slightly different so that you can redirect stderr and stdout to separate places as needed. By default, `stderr` gets printed to the command line, and if you redirect the `stdout`, `stderr` will continue to get printed to the command line. To redirect `stderr`, instead of using `>` or `>>`, use `2>` or `2>>`. (The inputs and outputs are assigned "file descriptors": "2" is stderr, while "1" is stdout and "0" is stdin). For example: `command --settings input_file > output.txt 2> errors.log` will send stdout and stderr to separate files. This is handy for saving error messages to a log so that you can refer to them later if needed.  
 Try it out:  
 ```bash
-mkdir test #will give you the warning "mkdir: test: File exists" if the directory "test" already exists. If you don't get the warning message, try running it a second time.
+mkdir test #will give you the warning "mkdir: test: File exists" if the directory "test" already exists. If you don't get the warning message, try running this command a second time.
 
 #redirect stderr to a file
-mkdir test 2>> error_messages.txt #if you ran mkdir test above, it will give an error message. However, you won't see it, as it has been printed to error_messages.txt
+mkdir test 2>> error_messages.txt #if you already ran "mkdir test" previously, it will give an error message. However, you won't see it, as it has been printed to error_messages.txt
 
 #read the error messages you saved:
 cat error_messages.txt
+
+#cleanup
+rmdir test
 ```
 
 If you want the `stderr` to instead be printed alongside `stdout` in the same file (with the lines interspersed as they are generated), you can use `2>&1` which means "send stderr to the same place as stdout". For example: `command --settings input_file > output.txt 2>&1` will send both `stderr` and `stdout` to the same place, `output.txt`. This can be handy when both `stdout` and `stderr` are log messages that you want to save to a single log file, or if you want to be able to send error messages through a pipe to be processed by the next command. Note order of operations matters! Bash will read the steps one-at-a-time. If you run `command --settings input_file 2>&1 > output.txt`, stderr will still be printed to the terminal instead of saved to `output.txt`, because at the time bash reads `2>&1`, it does not yet realize that stdout is going to get sent to `output.txt`. It interprets it one at a time like this: "oh, stderr is getting redirected to the same place as stdout, which right now is being printed to the command line, so that means I need to print stderr to the command line. Oh, stdout is getting redirected to a file, I will print stdout to that file", it doesn't make the leap in logic that stderr should therefore also be redirected to that file.   
