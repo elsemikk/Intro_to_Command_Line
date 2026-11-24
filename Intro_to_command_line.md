@@ -548,28 +548,28 @@ Use the arrow keys to navigate to the second-last line, and modify it from `BURN
 
 A frequent task that we encounter is needing to filter files by grabbing or excluding particular lines. The tool to do this with is `grep`. `grep` takes a search pattern as an argument, and then goes through a file (or `stdin`) looking for lines that contain a match to that pattern. By default, the pattern can appear anywhere on the line, and `grep` will grab the whole line. Let's try it!
 
-Let's go to our `processed_data/ABBABABA_concatenated.txt` file and grab all the lines that mention sample `FM433680`:  
+Let's go to our `processed_data/ABBABABA_concatenated.txt` file and grab all the lines that mention sample `S3`:  
 ```bash
-grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt
+grep "Ceratopipra_chloromeros_S3" processed_data/ABBABABA_concatenated.txt
 ```  
-Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `FM433680` that also mention AtlanticForest:  
+Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `S3` that also mention AtlanticForest:  
 ```bash
-grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt | grep "AtlanticForest"
+grep "Ceratopipra_chloromeros_S3" processed_data/ABBABABA_concatenated.txt | grep "AtlanticForest"
 ```  
 
 We can also invert matches using the `-v` flag, which grabs all lines that *don't* match our pattern. This allows us to exclude lines.  
-Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `FM433680`, and then *exclude* lines that involve AtlanticForest:  
+Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `S3`, and then *exclude* lines that involve AtlanticForest:  
 ```bash
-grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt | grep -v "AtlanticForest"
+grep "Ceratopipra_chloromeros_S3" processed_data/ABBABABA_concatenated.txt | grep -v "AtlanticForest"
 ```  
 
 `grep` also includes a flag for counting: `-c`. `grep -c` returns the number of lines containing matches (essentially a shortcut alternative to passing the matching lines to `wc -l`.  
-Let's count the number of lines involving `Ceratopipra_chloromeros_FM433680`: 
+Let's count the number of lines involving `Ceratopipra_chloromeros_S3`: 
 ```bash
-grep -c "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt
+grep -c "Ceratopipra_chloromeros_S3" processed_data/ABBABABA_concatenated.txt
 
 #alternative less efficient version:
-grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt | wc -l
+grep "Ceratopipra_chloromeros_S3" processed_data/ABBABABA_concatenated.txt | wc -l
 ```
 
 We can make our `grep` expressions more powerful using **regular expressions** ("regex"). Sometimes we may want to search for bits of text that are either more broad or more specific than just searching for a single plain string of text. Regular expressions are concise bits of code that communicate a particular text search pattern to the computer. For example, if you want to search for "the word blueberry, with either a capital B or lowercase b, but only if it occurs in the beginning of the line", you can communicate that to the computer concisely with the expression "^[bB]lueberry". Regex expressions are often difficult to interpret when reading them, as humans, and can become quite complex. Entire books have been written about writing regular expressions, but here we will focus on just a handful of tricks to get you going.  
@@ -587,8 +587,8 @@ Note that regular expressions are not unique to grep or to the command line - th
 
 First, the basics: regex are composed of both plain characters that are taken at facevalue ("blueberry" means "blueberry"), and special characters that have a deeper meaning ("\t" means tab). The characters are case-sensitive, so searching for "blueberry" will not match "Blueberry".  
 ```bash
-grep "FM433680" processed_data/ABBABABA_concatenated.txt #several matches
-grep "fm433680" processed_data/ABBABABA_concatenated.txt #no matches
+grep "S3" processed_data/ABBABABA_concatenated.txt #several matches
+grep "s3" processed_data/ABBABABA_concatenated.txt #no matches
 ```
 Letters and digits (`abc`, `ABC`, `012`, etc) are taken at face-value unless combined with special characters.  
 We can build uncertainty into our regex using square brackets`[]`. Square brackets allow us to list multiple different characters/digits/etc that could occur in a match. For example, `"[ABC123]"` will match A, B, C, 1, 2, or 3. `"r[ua]n"` will match both "run" and "ran".  
@@ -1562,7 +1562,7 @@ Note that in practice, you don't necessarily often need to modify $PATH - instea
 4) remove sample Ceratopipra_erythrocephala_CN626 from the dataset
 5) select the 20 entries with the lowest value of BBAA
 6) select the 20 entries with the highest value of ABBA
-7) make a new file containing all entries with sample Ceratopipra_chloromeros_FM433680, but don't include the ABBA, BABA, or BBAA columns, and make sure it is sorted by Z score from highest to lowest. (You can do the pipeline in 2 parts).
+7) make a new file containing all entries with sample Ceratopipra_chloromeros_S3, but don't include the ABBA, BABA, or BBAA columns, and make sure it is sorted by Z score from highest to lowest. (You can do the pipeline in 2 parts).
 
 1) `cut -f 1 | tail -n +2 | sort | uniq | wc -l`  
 2) `cut -f 2 | grep "rubrocapilla" | sort | uniq | wc -l`  
@@ -1570,7 +1570,7 @@ Note that in practice, you don't necessarily often need to modify $PATH - instea
 4) `grep -v "Ceratopipra_erythrocephala_CN626"`  
 5) `tail -n +2 | sort -n -k 8 -r | head -n 20` OR `tail -n +2 | sort -n -k 8 | tail -n 20`  
 6) `tail -n +2 | sort -n -k 9 | head -n 20`  
-7) `head -n 1 > new_data.txt ; grep "Ceratopipra_chloromeros_FM433680" | cut -f 1-7 | sort -n -k 5 -r >> new_data.txt' 
+7) `head -n 1 > new_data.txt ; grep "Ceratopipra_chloromeros_S3" | cut -f 1-7 | sort -n -k 5 -r >> new_data.txt' 
 
 
 ## Harder problems:  
