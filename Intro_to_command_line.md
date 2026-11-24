@@ -574,7 +574,7 @@ grep "Ceratopipra_chloromeros_S3" processed_data/ABBABABA_concatenated.txt | wc 
 
 We can make our `grep` expressions more powerful using **regular expressions** ("regex"). Sometimes we may want to search for bits of text that are either more broad or more specific than just searching for a single plain string of text. Regular expressions are concise bits of code that communicate a particular text search pattern to the computer. For example, if you want to search for "the word blueberry, with either a capital B or lowercase b, but only if it occurs in the beginning of the line", you can communicate that to the computer concisely with the expression "^[bB]lueberry". Regex expressions are often difficult to interpret when reading them, as humans, and can become quite complex. Entire books have been written about writing regular expressions, but here we will focus on just a handful of tricks to get you going.  
 
-Quick simple regex cheatsheet:  
+Quick simple regex cheatsheet (we will go over these below)   
 * [A-Za-z0-9] ranges  
 * “^” start of line  
 * “$” end of line  
