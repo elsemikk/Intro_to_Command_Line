@@ -203,7 +203,7 @@ cp input_data/ABBABABA1.txt backups
 mv backups/ABBABABA1.txt backups/blueberry
 
 #copy another file and specify a new name for the file
-cp ABBABABA2.txt backups/blueberry
+cp input_data/ABBABABA2.txt backups/blueberry
 ```
 Whoops! Look what just happened. We copied a file to a place where there was already a file with that name (`backups/blueberry`). `cp` overwrote that file without any warning. This is another type of file "clobbering" to watch out for, which both `cp` and `mv` can do. If our old version of `backups/blueberry` was an important file, it would be gone - better hope we had a backup!  
 
