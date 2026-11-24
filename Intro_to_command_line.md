@@ -548,28 +548,28 @@ Use the arrow keys to navigate to the second-last line, and modify it from `BURN
 
 A frequent task that we encounter is needing to filter files by grabbing or excluding particular lines. The tool to do this with is `grep`. `grep` takes a search pattern as an argument, and then goes through a file (or `stdin`) looking for lines that contain a match to that pattern. By default, the pattern can appear anywhere on the line, and `grep` will grab the whole line. Let's try it!
 
-Let's go to our `ABBABABA.txt` file and grab all the lines that mention sample `FM433680`:  
+Let's go to our `processed_data/ABBABABA_concatenated.txt` file and grab all the lines that mention sample `FM433680`:  
 ```bash
-grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt
+grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt
 ```  
 Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `FM433680` that also mention AtlanticForest:  
 ```bash
-grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep "AtlanticForest"
+grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt | grep "AtlanticForest"
 ```  
 
 We can also invert matches using the `-v` flag, which grabs all lines that *don't* match our pattern. This allows us to exclude lines.  
 Let's pipe through two subsequent `grep` commands to grab all the lines that mention sample `FM433680`, and then *exclude* lines that involve AtlanticForest:  
 ```bash
-grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | grep -v "AtlanticForest"
+grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt | grep -v "AtlanticForest"
 ```  
 
 `grep` also includes a flag for counting: `-c`. `grep -c` returns the number of lines containing matches (essentially a shortcut alternative to passing the matching lines to `wc -l`.  
 Let's count the number of lines involving `Ceratopipra_chloromeros_FM433680`: 
 ```bash
-grep -c "Ceratopipra_chloromeros_FM433680" ABBABABA.txt
+grep -c "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt
 
 #alternative less efficient version:
-grep "Ceratopipra_chloromeros_FM433680" ABBABABA.txt | wc -l
+grep "Ceratopipra_chloromeros_FM433680" processed_data/ABBABABA_concatenated.txt | wc -l
 ```
 
 We can make our `grep` expressions more powerful using **regular expressions** ("regex"). Sometimes we may want to search for bits of text that are either more broad or more specific than just searching for a single plain string of text. Regular expressions are concise bits of code that communicate a particular text search pattern to the computer. For example, if you want to search for "the word blueberry, with either a capital B or lowercase b, but only if it occurs in the beginning of the line", you can communicate that to the computer concisely with the expression "^[bB]lueberry". Regex expressions are often difficult to interpret when reading them, as humans, and can become quite complex. Entire books have been written about writing regular expressions, but here we will focus on just a handful of tricks to get you going.  
@@ -587,15 +587,15 @@ Note that regular expressions are not unique to grep or to the command line - th
 
 First, the basics: regex are composed of both plain characters that are taken at facevalue ("blueberry" means "blueberry"), and special characters that have a deeper meaning ("\t" means tab). The characters are case-sensitive, so searching for "blueberry" will not match "Blueberry".  
 ```bash
-grep "FM433680" ABBABABA.txt #several matches
-grep "fm433680" ABBABABA.txt #no matches
+grep "FM433680" processed_data/ABBABABA_concatenated.txt #several matches
+grep "fm433680" processed_data/ABBABABA_concatenated.txt #no matches
 ```
 Letters and digits (`abc`, `ABC`, `012`, etc) are taken at face-value unless combined with special characters.  
 We can build uncertainty into our regex using square brackets`[]`. Square brackets allow us to list multiple different characters/digits/etc that could occur in a match. For example, `"[ABC123]"` will match A, B, C, 1, 2, or 3. `"r[ua]n"` will match both "run" and "ran".  
 ```bash
-grep "InambariE" ABBABABA.txt
-grep "InambariW" ABBABABA.txt
-grep "Inambari[WE]" ABBABABA.txt #matches both InambariW and InambariE
+grep "InambariE" processed_data/ABBABABA_concatenated.txt
+grep "InambariW" processed_data/ABBABABA_concatenated.txt
+grep "Inambari[WE]" processed_data/ABBABABA_concatenated.txt #matches both InambariW and InambariE
 ```
 
 If we need to match a wide variety of digits/letters that are in sequence, we can simplify using ranges. For example, instead of typing `"[ABC]"` we can type `"[A-C]"`. The computer will understand ranges of letters (eg `"[A-Z]"`, `"[a-z]"` or numbers (eg `"[0-9]"`), just keep in mind that capital and lowercase letters are distinct, and the characters need to be in alphanumeric order.  
@@ -603,8 +603,8 @@ If we need to match a wide variety of digits/letters that are in sequence, we ca
 Some special characters are used as symbols to represent other aspects of matching. For example, the `$` character doesn't get interpreted as a dollar sign - instead, it means "end of the line". For instance, searching for "blueberry$" will match "blueberry" only if it occurs right at the end of a line. Conversely, `^` means "start of the line, so searching for "^blueberry" will match "blueberry" only if it occurs right at the start of a line. Combining those, searching for `"^blueberry$"` would match "blueberry" only when it is the only text in a line (ie, it stretches from the start to the end of its line).  
 
 ```bash
-grep "chloromeros" ABBABABA.txt
-grep "^chloromeros" ABBABABA.txt
+grep "chloromeros" processed_data/ABBABABA_concatenated.txt
+grep "^chloromeros" processed_data/ABBABABA_concatenated.txt
 ```
 
 The escape character, `\`, lets us change how a character is interpreted. It can give a plain character special meaning, or it can strip the special meaning off a special character. It acts on the character that immediately follows it:  
@@ -679,7 +679,7 @@ sed "s~BURNIN.*//~BURNIN  5000 //~g"  input_files/STRUCTURE.params
 ```  
 
 Now let's do some slightly more complicated edits with `sed`.  
-Imagine that we are having a collaborator do the data visualization for our file `ABBABABA.txt`. Their code is very finicky, and they have sent us a list of edits that they want us to do on the file for their code to work:  
+Imagine that we are having a collaborator do the data visualization for our file `processed_data/ABBABABA_concatenated.txt`. Their code is very finicky, and they have sent us a list of edits that they want us to do on the file for their code to work:  
 1) delete all underscores (_)
 2) Edit all the population names in column 1 to start with the word "Population"
 3) change the file from tab-delimited columns to space-delimited columns
@@ -696,38 +696,38 @@ We can test them out on a small subset of lines using `head`.
 
 1) To delete underscores, we can do find-and-replace, but instead of replacing underscores with something, we will replace them with nothing:  
 ```bash
-head ABBABABA.txt | sed "s/_//g"
+head processed_data/ABBABABA_concatenated.txt | sed "s/_//g"
 ```  
 
 2) To prepend text to column 1, we can take advantage that we are dealing with the start of the line, so we can sneak "Population" there by telling `sed` to put it at the start of the line:
 ```bash
-head ABBABABA.txt | sed "s/^/Population/g"
+head processed_data/ABBABABA_concatenated.txt | sed "s/^/Population/g"
 ```  
 
 3) We can do a simple find-and-replace to turn all tabs into spaces. Tabs are designated by `\t`.  
 ```bash
-head ABBABABA.txt | sed "s/\t/ /g"
+head processed_data/ABBABABA_concatenated.txt | sed "s/\t/ /g"
 ```  
 
 4) This one is trickier - we want to erase the decimal place and all the numbers that follow it, while affecting only the numbers in the last column without affecting the other columns. We can take advantage that the last column is right before the linebreak, which `sed` detects with the `$` sign. To build the regex, we need to "escape" the decimal signal so that sed interprets it as a literal `.` and not the special regex symbol for wildcard. We escape it like this: `\.`. The dot will then be followed by any number (`[0-9]`), with numbers repeated any number of times (`*`) until the end of the line (`$`). Putting it together gives us `\.[0-9]*$`.     
 ```bash
-head ABBABABA.txt | sed "s/\.[0-9]*$//g"
+head processed_data/ABBABABA_concatenated.txt | sed "s/\.[0-9]*$//g"
 ```  
 
 5) For adding the line of data, `sed` is not really the right tool for the job. Instead, we could use `cat`, `printf`, `echo`, `nano`, or etc. However, we could do it with `sed` if we really wanted to! One way we could do it is to have `sed` find the end (`$`) of the header line (`BABA$`), and replace it with a line break (`\n`) followed by the line we want to add. Don't forget to also replace the BABA part of the header that `sed` grabbed.  
 ```bash
-head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"
+head processed_data/ABBABABA_concatenated.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"
 ```
 
 We can put those separate find-and-replace actions together into one `sed` command by separating them with semicolons `; `, like this: `sed "s/text_to_find/text_to_replace_it_with/g; s/text_to_find2/text_to_replace_it_with2/g"`
 
 Let's smoosh our 5 `sed` commands from above together:  
 ```bash
-head ABBABABA.txt | sed "s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g; s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"
+head processed_data/ABBABABA_concatenated.txt | sed "s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g; s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g"
 ```  
 Oops! That new line we added didn't have the correct changes made to it. `sed` does actions in the order you list. To have that newly added text properly edited, we should change the order of the actions that we ask for:  
 ```bash
-head ABBABABA.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g; s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g"
+head processed_data/ABBABABA_concatenated.txt | sed "s/BABA$/BABA\nchloromeros Ceratopipra_chloromeros_EKM123 InambariW 0.00163709 0.0573107 0.912345 0.000563951 3821.99 250.512 249.310/g; s/_//g; s/^/Population/g; s/\t/ /g; s/\.[0-9]*$//g"
 ```  
 There - the command isn't particularly easy-to-read, but it does all the alterations our collaborator asked for, saving us from editing the file from hand (where we could easily make a typo).  
 
@@ -752,14 +752,14 @@ Variables are used for storing data. They will be remembered for the rest of you
 * looping through a bunch of samples/files and running the same commands on all of them
 
 To set a variable, you use the syntax `name_of_variable=value_of_variable` (no spaces). For example, `num_lines=3`.  
-To call a variable in a command, put a `$` in front of the name of the variable. For example: `head -n $num_lines ABBABABA.txt`. If the variable was assigned a value, that value will now be substituted by bash into the code. Note that unlike many coding languages, you don't have to worry about whether a bash variable is a numeric/character/etc; there are no datatypes.  
+To call a variable in a command, put a `$` in front of the name of the variable. For example: `head -n $num_lines processed_data/ABBABABA_concatenated.txt`. If the variable was assigned a value, that value will now be substituted by bash into the code. Note that unlike many coding languages, you don't have to worry about whether a bash variable is a numeric/character/etc; there are no datatypes.  
 If you want to include whitespace in your variable (the value, not the variable name), wrap it in double quotes, otherwise bash will take the first word as the value for the variable and think the rest is supposed to be a new command. For example:  
 ```
 Thing_to_echo="This is a sentence with spaces in it"
 echo $Thing_to_echo
 ```
 
-Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" ABBABABA.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
+Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" processed_data/ABBABABA_concatenated.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
 
 ---
 
@@ -1295,39 +1295,39 @@ While awk theoretically *could* do anything (being a complete programming langua
 
 Let's go through some examples. One action that `awk` can do is print, which simply prints something to standard output.
 ```bash
-head ABBABABA.txt | awk '{ print }'
+head processed_data/ABBABABA_concatenated.txt | awk '{ print }'
 ```
 That didn't do anything interesting - `awk` read each line and then printed it out as-is.  
 One useful thing `awk` can do is to read and manipulate columns. In `awk`, columns are referred to as "fields" separated by "field-separators) (whitespace by default). We can refer to specific fields in awk using numbers and `$` symbols; `$1` refers to column 1, `$2` refers to column 2, etc. (Unlike some other programming languages, `awk` is 1-based, meaning the first column is $1, not $0. In awk `$0` refers to the whole line together).
 ```bash
 #we can tell it to print specific columns
-head ABBABABA.txt | awk '{ print $1}'
+head processed_data/ABBABABA_concatenated.txt | awk '{ print $1}'
 
 #we can tell it to print multiple columns
-head ABBABABA.txt | awk '{ print $1 $2 $5}'
+head processed_data/ABBABABA_concatenated.txt | awk '{ print $1 $2 $5}'
 
 #we can change the order of columns
-head ABBABABA.txt | awk '{ print $2 $5 $1}'
+head processed_data/ABBABABA_concatenated.txt | awk '{ print $2 $5 $1}'
 ```
 The output of the above doesn't look very good unformatted, with columns squished together. We can make it look better by improving the formatting. By default, `awk print` takes a comma-separated list of things and prints it with space separating the things in the list. The things in the list can include columns, arithmetic, strings, etc. 
 ```bash
 #separating the list with commas makes print output them as separate space-delimited columns
-head ABBABABA.txt | awk '{ print $2, $5, $1}'
+head processed_data/ABBABABA_concatenated.txt | awk '{ print $2, $5, $1}'
 
 #we can add strings of text, surrounded by quotes
-head ABBABABA.txt | awk '{ print "Sample_"$2, "00000"$8, $9"000000", "test_text"}'
+head processed_data/ABBABABA_concatenated.txt | awk '{ print "Sample_"$2, "00000"$8, $9"000000", "test_text"}'
 
 #we can do arithmetic
-head ABBABABA.txt | awk '{ print $2, $8-$9}'
+head processed_data/ABBABABA_concatenated.txt | awk '{ print $2, $8-$9}'
 ```
 
-Let's do something more useful. Our file `ABBABABA.txt` contains reported estimates of a statistic called *D*, which is often used to estimate whether two populations have undergone hybrid introgression. This is calculated using counts of "ABBA" and "BABA" sites. Let's recalculate *D* ourselves using the reported values of "ABBA" and "BABA" to make sure that everything lines up. The formula for *D* is (ABBA-BABA)/(ABBA+BABA), and these counts are stored in column 9 and column 10 of our file. Luckily, we can do this addition/subtraction and division right in `awk`.   
+Let's do something more useful. Our file `processed_data/ABBABABA_concatenated.txt` contains reported estimates of a statistic called *D*, which is often used to estimate whether two populations have undergone hybrid introgression. This is calculated using counts of "ABBA" and "BABA" sites. Let's recalculate *D* ourselves using the reported values of "ABBA" and "BABA" to make sure that everything lines up. The formula for *D* is (ABBA-BABA)/(ABBA+BABA), and these counts are stored in column 9 and column 10 of our file. Luckily, we can do this addition/subtraction and division right in `awk`.   
 ```bash
 #remind yourself of the columns in this file
-head ABBABABA.txt
+head processed_data/ABBABABA_concatenated.txt
 
 #compare the reported estimates of D in column 4 to our calculations based on columns 9 and 10
-tail ABBABABA.txt | awk '{ print "reported value is: "$4, "our calculation is: "($9-$10)/($10+$9)}'
+tail processed_data/ABBABABA_concatenated.txt | awk '{ print "reported value is: "$4, "our calculation is: "($9-$10)/($10+$9)}'
 
 ```
 
@@ -1340,24 +1340,24 @@ Let's try some:
 4) filter for records where ABBA is greater than BBAA (where phylogenetic assumptions are violated...)
 
 ```bash
-head -n 50 ABBABABA.txt | awk '$5>1.96 { print }'
-cat ABBABABA.txt | awk '$3=="AtlanticForest" { print }'
-head -n 50 ABBABABA.txt | awk '$4<0 { print }'
-cat ABBABABA.txt | awk '$9>$8 { print }'
+head -n 50 processed_data/ABBABABA_concatenated.txt | awk '$5>1.96 { print }'
+cat processed_data/ABBABABA_concatenated.txt | awk '$3=="AtlanticForest" { print }'
+head -n 50 processed_data/ABBABABA_concatenated.txt | awk '$4<0 { print }'
+cat processed_data/ABBABABA_concatenated.txt | awk '$9>$8 { print }'
 ```
-Side note: you do not have to run `cat` to pipe a file into `awk`. I have written the simple examples this way to portray `awk` embedded in a pipeline. `awk` can read files on its own like this: `awk '$9>$8 { print}' ABBABABA.txt`.  
+Side note: you do not have to run `cat` to pipe a file into `awk`. I have written the simple examples this way to portray `awk` embedded in a pipeline. `awk` can read files on its own like this: `awk '$9>$8 { print}' processed_data/ABBABABA_concatenated.txt`.  
 Side side note: you do not actually have to include `{ print }` in the commands above; when the `{}` action item is missing, it defaults to print. I have included it to make the structure of an `awk` command more clear.
 
 We can use regex pattern-matching in our `awk` pattern using the tilde operator `~`. It will check whether the regex to the right of the `~` is included in the line/column:
 ```bash
 #column3 is InambariW or InambariE
-cat ABBABABA.txt | awk '$3 ~ /Inambari[WE]/ { print }'
+cat processed_data/ABBABABA_concatenated.txt | awk '$3 ~ /Inambari[WE]/ { print }'
 
 #column 2 contains "Ceratopipra_erythrocephala_B" followed by either 2 or 3
-cat ABBABABA.txt | awk '$2 ~ /Ceratopipra_erythrocephala_B[23]/ { print }'
+cat processed_data/ABBABABA_concatenated.txt | awk '$2 ~ /Ceratopipra_erythrocephala_B[23]/ { print }'
 
 #column 10 contains a number that ends in ".943"
-cat ABBABABA.txt | awk '$10 ~ /[1-9]*\.943$/ { print }'
+cat processed_data/ABBABABA_concatenated.txt | awk '$10 ~ /[1-9]*\.943$/ { print }'
 
 ```
 Tip: if you can't interpret a piece of regex, you can paste it into a regex translator tool, for example: [regexr](https://regexr.com/).
@@ -1581,14 +1581,14 @@ Note that in practice, you don't necessarily often need to modify $PATH - instea
 4) Add a new column to the file. This new column should contain the name of the species for the sample in column 2, but don't alter the contents of column 2. Place this new column in between column "P3" and column "D". You can use up to 3 lines of code for this.  
 
 Here are my solutions:  
-1) `sed "s/SampleID/SpeciesName\tSampleNumber/g; s/Ceratopipra_/Ceratopipra@/g; s/_/\t/g; s/Ceratopipra@/Ceratopipra_/g" ABBABABA.txt`. 
-2) `grep -P "^rubrocapilla\t.*\tmentalis" ABBABABA.txt`
-3) `sed "s/rubrocapilla/PLACEHOLDER/g; s/erythrocephala/rubrocapilla/g; s/PLACEHOLDER/erythrocephala/g" ABBABABA.txt`. 
+1) `sed "s/SampleID/SpeciesName\tSampleNumber/g; s/Ceratopipra_/Ceratopipra@/g; s/_/\t/g; s/Ceratopipra@/Ceratopipra_/g" processed_data/ABBABABA_concatenated.txt`. 
+2) `grep -P "^rubrocapilla\t.*\tmentalis" processed_data/ABBABABA_concatenated.txt`
+3) `sed "s/rubrocapilla/PLACEHOLDER/g; s/erythrocephala/rubrocapilla/g; s/PLACEHOLDER/erythrocephala/g" processed_data/ABBABABA_concatenated.txt`. 
 4)
 ```
-cut -f 2 ABBABABA.txt | sed "s/Ceratopipra_/Ceratopipra@/g; s/_.*$//g; s/@/_/g; s/SampleID/Species_name/g" > temp_SpeciesNames
-cut -f 1-3 ABBABABA.txt | paste - temp_SpeciesNames > temp_FourColumns
-cut -f 4- ABBABABA.txt | paste temp_FourColumns - >
+cut -f 2 processed_data/ABBABABA_concatenated.txt | sed "s/Ceratopipra_/Ceratopipra@/g; s/_.*$//g; s/@/_/g; s/SampleID/Species_name/g" > temp_SpeciesNames
+cut -f 1-3 processed_data/ABBABABA_concatenated.txt | paste - temp_SpeciesNames > temp_FourColumns
+cut -f 4- processed_data/ABBABABA_concatenated.txt | paste temp_FourColumns - >
 ```  
 Note - some of those are a bit clunky and could be done much more elegantly using other tools, a different language, or more advanced syntax - this was just meant to illustrate that you can do quite a bit with only some very basic commands/syntax.  
 
