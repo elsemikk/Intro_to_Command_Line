@@ -671,15 +671,21 @@ In bioinformatics, we are frequently faced with tasks that require us to delete 
 The syntax of `sed`'s find-and-replace looks like this: `sed "s/text_to_find/text_to_replace_it_with/g" input.txt` or `cat input.txt | sed "s/text_to_find/text_to_replace_it_with/g"`.  
 In that syntax, the `s` in `s/text_to_find/text_to_replace_it_with/g` stands for "substitute", and tells `sed` that this is a find-and-replace task. The `/` symbols are delimiting the text that we want to find and replace; we actually don't *need* to use `/` in particular, that is just a convention - we could use other symbols like `|` if we wanted to (`s|text_to_find|text_to_replace_it_with|g`) (which comes in handy when there are `/` in the text we want to find/replace). The `g` in  `s/text_to_find/text_to_replace_it_with/g` stands for "global" and tells `sed` to replace all possible instances of the text it finds - we will look at alternatives below.  
 
-Let's start with some easy examples. Imagine that there was just a name change - the taxon we are studying has had its name changed from `chloromeros` to `viridus` (or, maybe we discovered our specimen was misidentified). Instead of going into our text files and changing the names by hand, we can ask `sed` to do it:  
+Let's start with some easy tasks. Imagine that there was just a taxonomic name change and a reviewer has asked that we update our files to reflect this change before publication. A taxon we are studying has had its name changed from *C. chloromeros* to *C. viridis*. Instead of going into our text files and changing the names by hand, we can ask `sed` to do it in a more robust and repeatable way. Let's start with the file `input_data/samples.txt`, which is a list of our sample names.  
 ```bash
-cat samples.txt | sed "s/chloromeros/viridus/g" > samples_renamed.txt
+sed "s/chloromeros/viridus/g" input_data/samples.txt > input_data/samples_renamed.txt
 ```
 Check `samples_renamed.txt` to verify the change was made.  
-Oops, our collaborator has requested that instead of changing the samples to `viridus`, we change them to `chloromeros_viridus` so it's easier for them to remember. We could generate a third file, but we could also ask `sed` to edit the file in-place using the `-i` flag, like this:  
+Oops, our collaborator has requested that instead of changing the sample names to `viridis`, we change them to `chloromeros_viridis` so that it is easier for them to remember what each sample is. We could generate a third file, but we could also ask `sed` to edit the file in-place using the `-i` flag, like this:  
 ```bash
 sed -i "s/viridus/chloromeros_viridus/g" samples_renamed.txt
 ```
+That `sed -i` function to directly edit files is not available on all systems (for example, likely not if you are running bash on a mac). If you get an error message like "sed: 1: "samples_renamed.txt": unescaped newline inside substitute pattern", then you will have to produce an intermediate file instead, like this:
+```bash
+sed "s/viridus/chloromeros_viridus/g" samples_renamed.txt > temp
+mv temp samples_renamed.txt
+```
+
 Check `samples_renamed.txt` to verify the change was made.  
 Warning! `sed -i` directly edits a file in-place with no backup; changes are permanent and can't be undone if they don't go as expected.  
 
