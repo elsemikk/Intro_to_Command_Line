@@ -931,12 +931,14 @@ A handy time-saver that also eliminates the risk of a hard-to-spot typo.
 A great use for brace expansion in bioinformatics pipelines is to use them with `for` loops to perform multiple iterations/replicates of a stochastic step.  
 For example, let's subsample a list of genes by selecting only 10 random genes from a long list of genes. Perhaps we are running a computationally intensive analysis that can only handle 10 genes, or perhaps we need small samples of random data to build a null distribution to compare to some result (for example to calculate a p-value).  
 
+---
 <details>
   <summary>Side quest if you get here early</summary>
 I made the list of genes in `input_data/genes.txt` by pulling all the tentative gene name abbreviations out of `input_data/Empidonax.gff`. Can you come up with a pipeline to do that?
 
 Hint: the gene name abbreviations in this gff file are in the metadata (column 9) of entries for genes or mRNAs, where it says "Note=Similar to"...  
-Here is an example of one of those lines, in this case for the gene OR14J1: `Chr31_NC_045667.1_543077_574311 maker   gene    2192    3109    .       -       .       ID=Empaln_JTW165315097;Name=Empaln_JTW165315097;Alias=augustus_masked-Chr31_NC_045667.1_543077_574311-processed-gene-0.2;Dbxref=InterPro:-,InterPro:IPR000276,InterPro:IPR000725,InterPro:IPR017452,PANTHER:PTHR26452,PANTHER:PTHR26452:SF806,PRINTS:PR00237,PRINTS:PR00245,Pfam:PF13853,ProSiteProfiles:PS50262,SUPERFAMILY:SSF81321;Ontology_term=GO:0004930,GO:0004984,GO:0007186,GO:0016021;Note=Similar to OR14J1: Olfactory receptor 14J1 (Homo sapiens OX%3D9606);`
+Here is an example of one of those lines, in this case for the gene OR14J1:  
+`Chr31_NC_045667.1_543077_574311 maker   gene    2192    3109    .       -       .       ID=Empaln_JTW165315097;Name=Empaln_JTW165315097;Alias=augustus_masked-Chr31_NC_045667.1_543077_574311-processed-gene-0.2;Dbxref=InterPro:-,InterPro:IPR000276,InterPro:IPR000725,InterPro:IPR017452,PANTHER:PTHR26452,PANTHER:PTHR26452:SF806,PRINTS:PR00237,PRINTS:PR00245,Pfam:PF13853,ProSiteProfiles:PS50262,SUPERFAMILY:SSF81321;Ontology_term=GO:0004930,GO:0004984,GO:0007186,GO:0016021;Note=Similar to OR14J1: Olfactory receptor 14J1 (Homo sapiens OX%3D9606);`
 
 Here is my solution:  
 ```bash
@@ -944,6 +946,8 @@ grep "Similar to" input_data/Empidonax.gff | sed "s/^.*Similar to //g; s/:.*$//g
 ```
 That pulls out all lines that give a gene name (contain the phrase "Similar to"), then I delete the beginning of the line up to and including "Similar to ", then I delete everything after the ":" symbol that comes after the gene name, then I sort the list and keep only unique entries, while ignore upper vs lower case since that is variable among entries in this dataset.
 </details>  
+
+---
 
 We can shuffle our list with `sort -R` (sort randomly) and then take the first 10 lines.
 `sort -R input_data/genes.txt | head -n 10`
@@ -953,7 +957,7 @@ For many cases of subsampling, we need multiple iterations (eg, checking for con
 
 ```bash
 mkdir -p random_genes  
-for iteration in {1..10} ; do sort -R genes.txt | head -n 10 > random_genes/random_genes."$iteration".txt ; done
+for iteration in {1..10} ; do sort -R input_data/genes.txt | head -n 10 > random_genes/random_genes."$iteration".txt ; done
 ```
   
 That should have made ten files each containing a list of ten random genes - check them out: `ls random_genes`  
