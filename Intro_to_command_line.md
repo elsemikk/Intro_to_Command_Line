@@ -938,7 +938,9 @@ I made the list of genes in `input_data/genes.txt` by pulling all the tentative 
 
 Hint: the gene name abbreviations in this gff file are in the metadata (column 9) of entries for genes or mRNAs, where it says "Note=Similar to"...  
 Here is an example of one of those lines, in this case for the gene OR14J1:  
-`Chr31_NC_045667.1_543077_574311 maker   gene    2192    3109    .       -       .       ID=Empaln_JTW165315097;Name=Empaln_JTW165315097;Alias=augustus_masked-Chr31_NC_045667.1_543077_574311-processed-gene-0.2;Dbxref=InterPro:-,InterPro:IPR000276,InterPro:IPR000725,InterPro:IPR017452,PANTHER:PTHR26452,PANTHER:PTHR26452:SF806,PRINTS:PR00237,PRINTS:PR00245,Pfam:PF13853,ProSiteProfiles:PS50262,SUPERFAMILY:SSF81321;Ontology_term=GO:0004930,GO:0004984,GO:0007186,GO:0016021;Note=Similar to OR14J1: Olfactory receptor 14J1 (Homo sapiens OX%3D9606);`
+```
+Chr31_NC_045667.1_543077_574311 maker   gene    2192    3109    .       -       .       ID=Empaln_JTW165315097;Name=Empaln_JTW165315097;Alias=augustus_masked-Chr31_NC_045667.1_543077_574311-processed-gene-0.2;Dbxref=InterPro:-,InterPro:IPR000276,InterPro:IPR000725,InterPro:IPR017452,PANTHER:PTHR26452,PANTHER:PTHR26452:SF806,PRINTS:PR00237,PRINTS:PR00245,Pfam:PF13853,ProSiteProfiles:PS50262,SUPERFAMILY:SSF81321;Ontology_term=GO:0004930,GO:0004984,GO:0007186,GO:0016021;Note=Similar to OR14J1: Olfactory receptor 14J1 (Homo sapiens OX%3D9606);
+```
 
 Here is my solution:  
 ```bash
