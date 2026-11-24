@@ -246,11 +246,38 @@ wc processed_data/ABBABABA_concatenated.txt
 This will show you three pieces of info: the number of lines in the file, the number of words, and the number of bytes. Often all we want to know is the number of lines, which we can specify using the `-l` flag, like this: `wc -l processed_data/ABBABABA_concatenated.txt`. This syntax is useful for calculating the sizes of datasets we are working with, in cases where each line represents a data point.   
 
 ### Exercises  
-1) Make a directory named `exercise_1`, and then make a  subdirectory named `exercise_1/exercise_1_subdirectory`. Change your working directory to enter `exercise_1/exercise_1_subdirectory`, and then make a directory in `exercise_1` named `exercise_1_subdirectory2` without changing your working directory again.
+1) Make a directory named `exercise_1`, and then make a  subdirectory named `exercise_1/exercise_1_subdirectory`. Change your working directory to enter `exercise_1/exercise_1_subdirectory`, and then make another directory in `exercise_1` named `exercise_1_subdirectory2` without changing your working directory again.
 2) Make a copy of `processed_data/ABBABABA_concatenated.txt` and place it in `exercise_1/exercise_1_subdirectory`. Rename that file `exercise_1_testfile.txt`. Then, move it into `exercise_1/exercise_1_subdirectory2`.  
 3) Look at the last 30 lines of `input_data/placeholder.txt`. Then in a separate command, determine the length of `input_data/placeholder.txt`  
-4) Use your favourite rich text editor (MS Word, Google Docs, etc) to type the following command, then copy-paste it into the command line: `mkdir "test_directory_exercise1"`. use `ls` to look at the results. Now try typing mkdir "test_directory_exercise1"` directly into the command line. Do you see any differences?  
-Answer: the rich text editor likely turned the straight quotes `"` into curly quotes `“`. While straight quotes get interpreted by bash and ignored, curly quotes get taken literally, so the curly quotes would have been incorporated into the name of the folder while straight quotes were not. Did this happen with the rich text editor you used?
+4) Use your favourite rich text editor (MS Word, Google Docs, etc) to type the following command, then copy-paste it into the command line: `mkdir "test_directory_exercise1"`. use `ls` to look at the results. Now try typing mkdir "test_directory_exercise1"` directly into the command line. Do you see any differences?
+
+<details>
+  <summary>Answers</summary>
+
+1) Here is some example code:  
+```bash
+mkdir exercise_1
+mkdir exercise_1/exercise_1_subdirectory
+cd exercise_1/exercise_1_subdirectory
+mkdir ../exercise_1_subdirectory2
+```
+
+2) Here is some example code:  
+```bash
+cp processed_data/ABBABABA_concatenated.txt exercise_1/exercise_1_subdirectory
+mv exercise_1/exercise_1_subdirectory/ABBABABA_concatenated.txt exercise_1/exercise_1_subdirectory/exercise_1_testfile.txt
+mv exercise_1/exercise_1_subdirectory/exercise_1_testfile.txt exercise_1/exercise_1_subdirectory2
+```
+
+3) Here is some example code:  
+```bash
+tail -n 30 input_data/placeholder.txt
+wc -l input_data/placeholder.txt
+```
+
+4) The rich text editor likely turned the straight quotes `"` into curly quotes `“`. While straight quotes get interpreted by bash and ignored, curly quotes get taken literally, so the curly quotes would have been incorporated into the name of the folder while straight quotes were not. Did this happen with the rich text editor you used?  
+</details>  
+
 
 --- 
 
