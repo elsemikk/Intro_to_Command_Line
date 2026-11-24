@@ -620,9 +620,48 @@ Two more frequently used special characters are `.` and `*`.  The `.` character 
 With those in hand (`.`, `*`, `^`, `$`, `\n`, `\t`), you can get quite a lot done. If you find yourself needing to accomplish more advanced text matching, there are quite a few more regex rules out there for more advanced pattern matching.  
 
 Let's make some examples from a `.gff` file, which is a file used to store genome annotation data (the location of genomic features like genes or repetitive elements, etc).  
+This GFF file is a small subset of genome annotation for the Willow Flycatcher. The original GFF file was 19 million lines in length (400,000 when trimmed down to the essentials), so the version in this repository is just a small piece of it to save space and computer power. It can take a long time to run commands on very large files, so it is often best to trial pipelines with small subsets like this.  
 
+First, take a look at the file to see what you are working with.  
 ```bash
+head input_data/Empidonax.gff
+tail input_data/Empidonax.gff
+wc -l input_data/Empidonax.gff
+```
+This is a tab-separated file with several columns describing the location of features in a genome assembly. Some relevant columns are: column 1 is genome assembly scaffold name, column 3 is feature type, columns 4 and 5 are start and end position, and column 9 is metadata about that feature.  
 
+Let's go through some tasks with this file.
+
+What proportion of entries in this file correspond to UTRs on chromosome 1?  
+```bash
+#how many entries are there?
+#exclude the header, then count the lines. In a gff, the header starts with "##", so we can exclude lines that start with ## using regex with grep.
+grep -v "^##" input_data/Empidonax.gff | wc -l
+
+#how many entries are for chromosome 1? Chromosome name is given in at the start of the line in column 1 - how many lines start with "Chr1"?
+grep -c "^Chr1_" input_data/Empidonax.gff
+
+#how many of those are UTRs? Lines corresponding to 3' UTRs will be labelled with "three_prime_UTR"
+grep "^Chr1_" input_data/Empidonax.gff | grep -c "three_prime_UTR"
+
+#how many 3' UTR entries are there that are NOT for chromosome 1?
+grep -v "^Chr1_" input_data/Empidonax.gff | grep -c "three_prime_UTR"
+
+#pull out the entries for gene Empaln_JTW165311308 to see what it does
+grep "Empaln_JTW165311308" input_data/Empidonax.gff
+#hmm, looks like it's Threonylcarbamoyladenosine tRNA methylthiotransferase
+
+#pull out just the entries for the exons of Threonylcarbamoyladenosine tRNA methylthiotransferase
+grep "Empaln_JTW165311308" input_data/Empidonax.gff | grep "exon"
+
+#pull out just the entry for the full gene of Threonylcarbamoyladenosine tRNA methylthiotransferase
+grep "Empaln_JTW165311308" input_data/Empidonax.gff | grep "gene"
+
+#the above did not work because the word "gene" is in the metadata for the mRNA entry as well, so that line got pulled out too. Use regex to specify you only want cases where the word "gene" is taking up a whole column (surrounded by tabs)
+grep "Empaln_JTW165311308" input_data/Empidonax.gff | grep "\tgene\t"
+
+#instead of piping between two grep commands, smoosh the above into one regex search pattern - look for lines containing the word "gene" surrounded by tabs, and then the word "Empaln_JTW165311308", allowing any text in between them
+grep "\tgene\t.*Empaln_JTW165311308" input_data/Empidonax.gff 
 ```
 
 # sed
