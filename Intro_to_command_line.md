@@ -852,7 +852,7 @@ Let's add a command to check the length of a fasta file for each gene. A simple 
 ```bash
 for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; done
 ```
-(`tr -d "\n"` deletes the line break character that would otherwise be counted by `wc -c`).  
+Here we are introduced to a new command: `tr`. `tr` stands for "translate" and it is a handy tool that can do a number of things, one of which is to delete all instances of specific characters using the flag `-d` for "delete". `tr -d "\n"` deletes the line break character ("\n") that would otherwise be counted by `wc -c`).  
 
 Our command is getting a little long, so from here I will be breaking the code into multiple lines for readability. I am indenting with spaces, which just get ignored by bash (they are only for human readability/aesthetics). Make sure not to indent using tabs - tab characters get interpreted as autocomplete (depending on your bash version).   
 ```bash
@@ -874,8 +874,9 @@ done
 #equivalent loop collapsed into one line:
 #for gene in MC1R ND2 COII CYTB ; do echo "analyzing $gene" ; grep -v ">" gene_fastas/"$gene".fa | tr -d "\n" | wc -c ; grep -v ">" gene_fastas/"$gene".fa | tr -d -c "A" | wc -c ; done
 ```
+Here we used the `tr` tool again. The `-c` flag means "complement", so the combo `-d -c` means "delete every character *except* things in this list (in our case, "A").
 
-We can get more fancy by assigning the lengths and number of A's to variables.
+We can get more fancy by assigning the lengths and number of A's to variables. This can be done by enclosing a whole pipeline in `$()` - the output of the thing in the brackets can then be assigned to a variable, like this:  
 
 ```bash
 for gene in MC1R ND2 COII CYTB ; do
@@ -891,7 +892,10 @@ done
 
 More often in bioinformatics, we don't want to be reading data off the terminal, we want it to be saving that data to a file that we can analyze later. Let's do that.
 ```bash
+#start of a file with a header
 printf "gene\tlength\tnum_As\n" > num_As.txt ;
+
+#loop through our genes and append their data to the end of our file
 for gene in MC1R ND2 COII CYTB ; do
    echo "analyzing $gene"
    printf "$gene\t" >> num_As.txt
