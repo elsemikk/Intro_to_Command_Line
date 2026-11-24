@@ -544,7 +544,7 @@ Use the arrow keys to navigate to the second-last line, and modify it from `BURN
 
 # Part 3
 
-# grep and regex and globbing
+# grep and regex
 
 A frequent task that we encounter is needing to filter files by grabbing or excluding particular lines. The tool to do this with is `grep`. `grep` takes a search pattern as an argument, and then goes through a file (or `stdin`) looking for lines that contain a match to that pattern. By default, the pattern can appear anywhere on the line, and `grep` will grab the whole line. Let's try it!
 
@@ -782,11 +782,16 @@ There - the command isn't particularly easy-to-read, but it does all the alterat
 `sed` alters the contents of a file, but can't alter filenames. Sometimes we may want to edit filenames en masse using find-and-replace the way that `sed` does for text. The command `rename` does this using much of the same syntax as `sed`. It does not come pre-installed with all versions of `bash`, but is the command to look for if you run into that task.  
 
 ### globbing
-Globbing is sometimes mistaken for regex, but is a different a much-restricted pattern-matching that is primarily used to pattern-match filenames on the command line. The most commonly-used symbol for globbing is the asterisk `*`, which, unlike in regex, is used as a wildcard in globbing. For example, `ls *vcf.gz` will list all vcf.gz files in your working directory, and `cat *.txt` will `cat` all .txt files in your working directory. Try a few glob patterns:  
+Globbing is sometimes mistaken for regex, but is a different pattern-matching system that is much more restricted. It is primarily used to pattern-match filenames on the command line. The most commonly-used symbol for globbing is the asterisk `*`, which, unlike in regex, is used as a wildcard in globbing. For example, `ls *vcf.gz` will list all vcf.gz files in your working directory, and `cat *.txt` will `cat` all .txt files in your working directory. Try a few glob patterns:  
 ```bash
-ls -lh *txt
+#list all .txt files in any subdirectory of your current working directory
+ls -lh */*txt
+
+#list everything in your working directory (this also means listing the contents of directories in your current directory)
 ls *
-head A*t
+
+#look at files that start with A and end with t
+head input_files/A*t
 ```
 
 # bash variables
