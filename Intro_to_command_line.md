@@ -118,9 +118,13 @@ Let's add some flags to `ls`. If we just run `ls`, it will tell us the contents 
 Now let's add a flag to `mkdir`. `mkdir` has a couple default behaviours that can be annoying: it won't make multiple levels of nested directories at the same time, and it gives us an error message if we try to make a directory that already exists. If we add the `-p` flag, it will change those behaviours: it will make nested ("parent") directories as needed, and won't give us a message if we try to make a directory that already exists.  Try it:  
 ```bash
 mkdir test_directory/test_subdirectory #won't work if test_directory doesn't exist
+ls
 mkdir -p test_directory/test_subdirectory #makes test_directory and test_subdirectory at the same time
+ls
 mkdir test_directory/test_subdirectory #gives a message warning us that it already exists
+ls
 mkdir -p test_directory/test_subdirectory #doesn't give any message, just does nothing
+ls
 
 #clean up our tests
 rmdir test_directory/test_subdirectory
