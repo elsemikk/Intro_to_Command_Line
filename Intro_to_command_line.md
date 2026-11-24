@@ -807,6 +807,10 @@ If you want to include whitespace in your variable (the value, not the variable 
 ```
 Thing_to_echo="This is a sentence with spaces in it"
 echo $Thing_to_echo
+
+#in contrast, this would not work:
+Thing_to_echo=This is a sentence with spaces in it
+#produces an error
 ```
 
 Variables can be a little finicky at times. If a variable contains any whitespace or special characters, it can cause unexpected things to happen when the code is run. To stop that from happening, it is good practice to wrap the variable in double quotes, like this: `head -n "$num_lines" processed_data/ABBABABA_concatenated.txt` or `echo "$Thing_to_echo"`. If there were no unexpected characters in your variable, the double quotes won't do anything (except make your code look a little more sparkly), but getting into the habit of using double quotes may eventually save you some headache.  
