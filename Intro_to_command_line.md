@@ -1022,19 +1022,19 @@ This loop will be a little more complicated, so let's spell it out in words befo
 5) paste that DNA sequence into the new file. Don't put any linebreaks after the gene, we want our gene sequences to be concatenated with no breaks between them.  
 6) after pasting the very last gene for a sample, add a linebreak before moving on to the next sample
 
-Now let's put that into bash code:
+Now let's put that into bash code. In this example, we have 4 samples (LTJA, PAJA, GRSK, and CHSK), and 4 genes (MC1R, ND2, COII, and CYTB). This is real data from seabirds: Long-tailed Jaeger, Parasitic Jaeger, Great Skua, and Chilean Skua - part of a genomic dataset used to assess the relationships between those species. 
 
 ```bash
-for sample in sample1 sample2 sample3 ; do
+for sample in LTJA PAJA GRSK CHSK ; do
    echo ">$sample" >> concatenated_data.fasta
       for gene in MC1R ND2 COII CYTB ; do
-         grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta
+         grep -v ">" gene_fastas/"$gene"_"$sample".fasta | tr -d "\n" >> concatenated_data.fasta
       done
    printf "\n" >> concatenated_data.fasta
 done
 
 #equivalent loop collapsed into one line:
-#for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done
+#for sample in LTJA PAJA GRSK CHSK ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$gene"_"$sample".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done
 ```
 Let's take a look at `concatenated_data.fasta`. Ready to open in a sequence alignment viewer or to build a phylogenetic tree with!  
 
@@ -1067,31 +1067,31 @@ To do that, we will need to make a list of all the genes we need to concatenate.
 for gene in MC1R ND2 COII CYTB ; do echo "$gene" >> genes_to_loop.txt ; done
 
 #a hack that technically works, but is vulnerable to breaking if ls finds something you weren't expecting.
-ls sample1_*.fasta | grep -v "allgenes" | sed "s/sample1_//g; s/.fasta//g" > genes_to_loop.txt
+ls gene_fastas/*_LTJA.fasta | grep -v "allgenes" | sed "s/sample1_//g; s/.fasta//g" > genes_to_loop.txt
 
 #a hack that works because we happen to have a file with all the gene names in it, we just needed to extract them from the fasta headers and fix the formatting
 grep ">" sample1_allgenes.fasta | sed "s/>//g" > genes_to_loop.txt
 ```  
 We could also have written the file ourselves using `nano genes_to_loop.txt` or `cat > genes_to_loop.txt`.  
 
-Now let's write our loop. Recall the `for` loop version was: `for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`
+Now let's write our loop. Recall the `for` loop version was: `for sample in sample1 sample2 sample3 ; do echo ">$sample" >> concatenated_data.fasta ; for gene in MC1R ND2 COII CYTB ; do grep -v ">" "$gene"_"$sample".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done`
 Here is the `while` loop version:  
 ```bash
 cat samples.txt | while read sample ; do
    echo ">$sample" >> concatenated_data.fasta
    cat genes_to_loop.txt | while read gene ; do
-      grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta
+      grep -v ">" "$gene"_"$sample".fasta | tr -d "\n" >> concatenated_data.fasta
    done
    printf "\n" >> concatenated_data.fasta
 done
 
 #equivalent loop collapsed into one line:
-#cat samples.txt | while read sample ; do echo ">$sample" >> concatenated_data.fasta ; cat genes_to_loop.txt | while read gene ; do grep -v ">" "$sample"_"$gene".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done
+#cat samples.txt | while read sample ; do echo ">$sample" >> concatenated_data.fasta ; cat genes_to_loop.txt | while read gene ; do grep -v ">" "$gene"_"$sample".fasta | tr -d "\n" >> concatenated_data.fasta ; done ; printf "\n" >> concatenated_data.fasta ; done
 ```  
 Which syntax do you prefer? The `for` loop or the `while` loop?  
-In general, when you just have a few things to loop through, it makes more sense to write them out as `for` loops. When you have a long list of samples/genes/etc, it can be convenient to store them in a file and use the `while` loop trick instead.  
+In general, when you just have a few things to loop through, it makes more sense to write them out as `for` loops. When you have a long list of samples/genes/etc and you want your pipeline to be easily reused, it can be convenient to store sample/gene/etc names in a file and use the `while` loop trick instead.  
 
-One thing that you can do with `while read` that you can't do easily with `for` loops is to have `read` parse multiple variables on a line. By default, `read` reads lines as space-separated lists of variables. For example, let's look at `samples_metadata.txt`. 
+One thing that you can do with `while read` that you can't do easily with `for` loops is to have `read` parse multiple variables on a line, allowing you to do slightly different things to each sample. By default, `read` reads lines as space-separated lists of variables. For example, let's look at `samples_metadata.txt`. 
 ```
 sample1 referenceA
 sample2 referenceA
@@ -1115,7 +1115,7 @@ You can repeat this with as many space-separated variables as you wish. This is 
 * creating different datasets with different filtering stringencies for different analyses
 * testing out several combinations of parameter settings when you don't have computational resources to test every possible combo  
 
-Before moving on, it's important to note that our `while` loops here are working by reading through very basic and cleanly-formatted text files, for which we know the contents and can confidently use knowing there are no unexpected whitespaces in sample names and we didn't use any backslashes in our sample names. Here are some notes for things you may run into:  
+Before moving on, it's important to note that our `while` loops here are working by reading through very basic and cleanly-formatted text files, for which we know the contents and which we can confidently use knowing there are no unexpected whitespaces in sample names and we didn't use any backslashes in our sample names. Here are some notes for things you may run into:  
 * if you need backslashes, use `-r`, otherwise `read` will interpret them as special characters. For example: `cat samples.txt | while read -r sample ; do echo "Now analyzing $sample" ; done`  
 * if you have multiple variables per line and are using something other than a space to separate them (especially if you have any spaces in your variables), tell bash what the delimiter is using `IFS=` ("internal field separator"). For example, to specify your file is tab-delimited (`\t`), you would run `cat samples.txt | while IFS=$'\t' read sample reference ; do echo "Now mapping $sample to $reference" ; done`  
 * if you made the text file using Excel or another rich text editor, delete the invisible "carriage return" line endings from the file by running it through `tr -d '\r'`, otherwise `read` will not parse it properly.  
